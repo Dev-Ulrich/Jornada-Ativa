@@ -1,0 +1,82 @@
+
+@media screen and (max-width: 900px){
+    header .menu-desktop, header .btn-contato{
+        display: none;
+    }
+
+    header .btn-menu-mob{
+        display: block;
+    }
+}
+
+@media screen and (max-width: 878px){
+    /* Responsivo da hero */
+    .hero-site .txt-hero h1{
+        font-size: 2.6em;
+        line-height: 45px;
+    }
+
+    .hero-site .txt-hero p{
+        font-size: 14px;
+    }
+    
+    .hero-site .txt-hero p span{
+        display: inline;
+    }
+    
+    .hero-site button{
+        font-size: 18px;
+    }
+
+    /* Responsivo das vantagens*/
+.vantagens .itens-container{
+    flex-direction: column;
+}
+
+.vantagens .itens-container .img-itens img{
+    width: 100%;
+}
+
+.vantagens .itens-container .txt-itens p{
+    margin-bottom: 20px;
+}
+
+.vantagens .itens-container .item-1{
+    order: 1;
+}
+
+.vantagens .itens-container .item-2{
+    order: 0;
+}
+
+    /* Responsivo dos botoes de contato*/
+    .txt-contato, .icons-contato{
+        display: block;
+        width: 100%;
+    }
+
+    .contato .txt-contato h3{
+        font-size: 2em;
+        line-height: 40px;
+    }
+
+    .contato .txt-contato p{
+        margin-bottom: 20px;
+    }
+
+    .contato .icons-contato button{
+        width: 100%;      
+    }
+
+
+
+        /* responsivo do rodape */
+footer .middle-footer a{
+    margin: 15px 0;
+    display: block;
+}
+
+footer .bottom-footer p{
+    font-size: 14px;
+}
+}

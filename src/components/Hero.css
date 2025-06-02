@@ -1,0 +1,448 @@
+:root{
+    --color-base: #c3c3c3;
+    --bg-base: #fff;
+    --text-base: black;
+    --hover-base: white;
+    --indicador-base:#c3c3c3;
+    --roll-base: white;
+}
+
+.dark-mode{
+    --color-base: rgb(95, 95, 95);
+    --bg-base: black;
+    --text-base: white;
+    --hover-base: black;
+    --indicador-base:rgb(39, 39, 39);
+    --roll-base: rgb(95, 95 ,95);
+}
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+body{
+    background-color: var(--color-base);
+
+} 
+
+
+.interface{
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 4%;
+    position: relative;
+}
+
+header .btn-contato button, .hero-site button {
+    width: 140px;
+    height: 50px;
+    font-size: 18px;
+    background-color: transparent;
+    border: 1px solid #ffff;
+    color: #ffff;
+    cursor: pointer;
+    transition: .5s;
+}
+
+header .btn-contato button:hover, .hero-site button:hover{
+    background-color: #ffff;
+    color: #000;
+}
+
+/* Dark-Mode  Button */
+.trilho{
+    width: 50px;
+    height: 50px;
+    display: flex;
+    left: 13em;
+    bottom: 3em;
+    background-color: transparent;
+    border: none;
+    border-radius: none;
+    position: relative;
+    cursor: pointer;
+}
+
+.trilho .indicador{
+    width: 50px;
+    height: 50px;
+    background-color: var(--indicador-base);
+    border-radius: 50%;
+}
+
+.trilho .indicador i{
+    display: flex;
+    text-align: center;
+    margin-top: 18px;
+    margin-left: 16px;
+    align-items: center;
+    color: var(--text-base)
+}
+
+/* ------------------------------- */
+
+/* Estilo do header */
+#header{
+    width: 100%;
+    padding: 30px 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    transition: .5s;
+    z-index: 9999999999999999;
+}
+
+header .interface{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
+/* Estilo do menu dinamico */
+
+#header.rolar{
+    background-color: var(--roll-base);
+    padding: 20px 0;
+    box-shadow: 0 0 8px #00000061;
+}
+
+#header.rolar .menu-desktop nav ul li a{
+    color: #000;
+}
+
+#header.rolar .btn-contato button{
+    border: 1px solid #000;
+    color: var(--text-base);
+}
+
+#header.rolar .btn-contato .trilho{
+    border: none;
+    color: #000;
+}
+
+#header.rolar .btn-contato .trilho .indicador{
+    background-color: var(--indicador-base);
+}
+
+
+#header.rolar .btn-contato button:hover{
+    background-color: #000;
+    color: #fff;
+}
+
+
+
+
+
+/* -------------------------- */
+
+header .menu-desktop nav ul{
+    list-style-type: none;
+}
+
+header .menu-desktop nav ul li{
+    display: inline-block;
+    margin: 0 40px;
+}
+
+header .menu-desktop nav ul li a{
+    color: #ffff;
+    text-decoration: none;
+    display: inline-block;
+    transition: .2s;
+}
+
+ .menu-desktop nav a:hover{
+    transform: scale(1.05);
+}
+
+header .btn-contato button{
+    width: 140px;
+    height: 50px;
+}
+
+.img-logo{
+    display: flex;
+    height: 108px;
+    margin-left: -20%;
+    margin-top: -3%;
+}
+
+
+/* Estilo do botao do menu mobile */
+header .btn-menu-mob{
+    display: none;
+    position: relative;
+    z-index: 999999999999999999999;
+}
+
+header .btn-menu-mob div{
+    background-color: #ffff;
+    height: 3px;
+    margin: 10px 0;
+    transition: .2s;
+}
+
+
+header .btn-menu-mob .line-menumob-1{
+    width: 30px;
+}
+
+header .btn-menu-mob .line-menumob-2{
+    width: 20px;
+}
+
+header.rolar .btn-menu-mob div{
+    background-color: #000;
+}
+
+header .btn-menu-mob .line-menumob-1.ativo1{
+    transform: rotate(45deg) translate(30%);
+    background-color: #fff;
+}
+
+header .btn-menu-mob .line-menumob-2.ativo2{
+    transform: rotate(-45deg) translate(30%);
+    width: 30px;
+    background-color: #fff;
+}
+
+/* Estilo do menu mobile */
+header .menu-mobile{
+    width: 0;
+    height: 0;
+    background-color: #000000;
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    overflow: hidden;
+    transition: .5s;
+}
+
+header .menu-mobile nav{
+    width: 100%;
+}
+
+header .menu-mobile nav ul{
+    list-style-type: none;
+}
+
+header .menu-mobile nav a{
+    font-size: 24px;
+    text-decoration: none;
+    color: #fff;
+    padding: 20px 0;
+    display: block;
+    transition: .5s;
+}
+
+header .menu-mobile nav a:hover{
+    background-color: #fff;
+    color: #000;
+    box-shadow: 0 0 20px #fff;
+}
+
+header .menu-mobile.abrir{
+    width: 100%;
+    height: 100vh;
+}
+
+body.no-overflow{
+    overflow: hidden;
+}
+
+
+/* Estilo do hero */
+section.hero-site{
+    height: 98vh;
+    background-image: url('/bg-6.jpg');
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    color: #ffff;
+}
+
+.hero-site .interface{
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.hero-site .txt-hero h1{
+    font-size: 4em;
+    line-height: 70px;
+    font-weight: 200;
+}
+
+.hero-site .txt-hero h1 span{
+    display: block;
+    font-weight: 800;
+}
+
+.hero-site .txt-hero p{
+    font-size: 20px;
+    font-weight: 300;
+    margin:20px 0;
+}
+
+.hero-site .txt-hero p span{
+    display: block;
+}
+
+.hero-site button{
+    width: 220px;
+    height: 60px;
+    font-size: 20px;
+}
+
+/* Estilo das vantagens*/
+section.vantagens{
+    padding: 80px 0;
+}
+
+.vantagens .itens-container{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10%;
+    margin-bottom: 60px;
+}
+
+.vantagens .itens-container .img-itens img{
+    max-width: 480px;
+}
+
+.vantagens .itens-container .txt-itens h3{
+    font-size: 3em;
+    line-height: 50px;
+    margin-bottom: 20px;
+    color: var(--text-base);
+}
+
+.itens-container .txt-itens h3 span{
+    font-weight: 300;
+    color: var(--text-base);
+}
+
+.itens-container .txt-itens p{
+    color: var(--text-base);
+}
+
+/* Estilo dos botoes de contato*/
+section.contato{
+    background-color: var(--bg-base);
+    padding: 80px 0;
+}
+
+.txt-contato, .icons-contato{
+    display: inline-block;
+    width: 50%;
+    margin-right: -4px;
+    vertical-align: middle;
+    color: var(--text-base);
+    
+}
+
+.contato .txt-contato h3{
+    font-size: 2.5em;
+    line-height: 50px;
+    font-weight: 300;
+    margin-bottom: 20px;
+    color: var(--text-base);
+}
+
+.contato .txt-contato h3 span{
+    display: block;
+    font-weight: 700;
+    color: var(--text-base);
+}
+
+.contato .icons-contato a{
+    text-decoration: none;
+}
+
+.contato .icons-contato button{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 60%;
+    height: 60px;
+    margin: 0 auto 20px auto;
+    padding: 0 60px;
+    background-color: transparent;
+    border: 2px solid var(--text-base);
+    cursor: pointer;
+    transition: .5s;
+    color: var(--text-base);
+}
+
+.contato .icons-contato button i{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 25px;
+    color: var(--text-base);
+}
+
+.contato .icons-contato button:hover{
+    background-color: var(--text-base);
+}
+
+.contato .icons-contato button:hover i, .contato .icons-contato button:hover p{
+    color: var(--hover-base);
+}
+
+/* Estilo do rodape */
+footer{
+    background-color: var(--color-base);
+    width: 100%;
+    text-align: center;
+    padding: 30px 0;
+}
+
+footer .top-footer button{
+    width: 60px;
+    height: 60px;
+    padding-top: 7px;
+    border-radius: 50%;
+    border: 2px solid #ffff;
+    background-color: transparent;
+    color: #fff;
+    font-size: 28px;
+    cursor: pointer;
+    margin: 0 10px;
+    transition: .5s;
+}
+
+footer .top-footer button:hover{
+    background-color: #fff;
+    color: #000;
+}
+
+footer .middle-footer{
+    margin: 20px 0;
+}
+
+footer .middle-footer a{
+    color: #fff;
+    margin: 0 15px;
+}
+
+footer .bottom-footer{
+    border-top: 2px solid #fff;
+}
+
+footer .bottom-footer p{
+    color: #fff;
+    margin-top: 10px;
+}

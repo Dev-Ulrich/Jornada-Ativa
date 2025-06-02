@@ -1,0 +1,129 @@
+:root{
+  --color-base: #c3c3c3;
+  --bg-base: #fff;
+  --text-base: black;
+  --hover-base: white;
+  --indicador-base:#c3c3c3;
+  --roll-base: white;
+  --indicador-base-funcionario: #fff;
+}
+
+.dark-mode{
+  --color-base: rgb(95, 95, 95);
+  --bg-base: black;
+  --text-base: white;
+  --hover-base: black;
+  --indicador-base:rgb(39, 39, 39);
+  --roll-base: rgb(95, 95 ,95);
+  --indicador-base-funcionario: rgb(39, 39, 39);
+}
+
+
+
+.body-funcionario {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+.navbar {
+  position: fixed;
+  top: 50%;
+  left: 20px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.navbar a {
+  display: block;
+  width: 12px;
+  height: 12px;
+  background-color: #333;
+  border-radius: 50%;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.navbar a:hover {
+  background-color: #666;
+  transform: scale(1.3);
+}
+
+.navbar a.active {
+  background-color: #ff6200;
+  transform: scale(1.3);
+}
+
+.section-funcionario{
+  height: 100vh;
+  padding: 20px;
+  text-align: center;
+}
+
+#section1 {
+  background-color: var( --color-base);
+}
+
+#section1 h1{
+  font-size: 100px;
+  color: var(--text-base);
+  text-align: center;
+}
+
+#section2 {
+  background-color: var(--indicador-base-funcionario);
+}
+
+#section2 h1{
+  font-size: 100px;
+  color: var(--text-base);
+}
+
+#section3 {
+  background-color: var( --color-base);
+}
+
+#section3 h1{
+  font-size: 100px;
+  color: var(--text-base);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Dark-Mode  Button */
+.trilho-funcionario{
+  width: 50px;
+  height: 50px;
+  float: right;  
+  display:flex;
+  background-color: transparent;
+  border: none;
+  border-radius: none;
+  position:relative;
+  right: 7.4em;
+  top: 35px;
+  cursor: pointer;
+}
+
+.trilho-funcionario .indicador-funcionario{
+  width: 50px;
+  height: 50px;
+  background-color: var(--indicador-base-funcionario);
+  border-radius: 50%;
+} 
+
+.trilho-funcionario .indicador-funcionario i{
+  display: flex;
+  text-align: center;
+  margin-top: 18px;
+  margin-left: 16px;
+  align-items: center;
+  color: var(--text-base)
+}
+
+/* ------------------------------- */
+
+
