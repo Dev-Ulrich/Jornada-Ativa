@@ -122,7 +122,7 @@ Painel admnistrativo para controle de informações do aplicativo Jornada Ativa
       align="left" 
       alt="GitHub Stats" 
       height="200" 
-      src="https://github-readme-stats.vercel.app/api/top-langs/?username=Dev-Ulrich&theme=tokyonight&layout=compact&custom_title=Tecnologias&langs_count=5" 
+      src="https://github-readme-stats.vercel.app/api/top-langs/?username=Dev-Ulrich&theme=tokyonight&layout=compact&custom_title=Tecnologias&" 
   />
 
 </p>
