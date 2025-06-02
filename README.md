@@ -88,14 +88,7 @@ Painel admnistrativo para controle de informações do aplicativo Jornada Ativa
     style="padding-right: 10px;" 
     src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/java/java-original.svg" 
 />
-<img 
-    align="left" 
-    alt="SQL Server" 
-    title="SQL Server"
-    width="30px" 
-    style="padding-right: 10px;" 
-    src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/microsoftsqlserver/microsoftsqlserver-original.svg" 
-/>
+
 <img 
     align="left" 
     alt="Git" 
@@ -104,25 +97,7 @@ Painel admnistrativo para controle de informações do aplicativo Jornada Ativa
     style="padding-right: 10px;" 
     src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg" 
 />
-<img 
-    align="left" 
-    alt="Python" 
-    title="Python"
-    width="30px" 
-    style="padding-right: 10px;" 
-    src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" 
-/>
+
 
 <br/>
 <br/>
-
-### 📊 Estatísticas
-
-<img 
-      align="left" 
-      alt="GitHub Stats" 
-      height="200" 
-      src="https://github-readme-stats.vercel.app/api/top-langs/?username=Dev-Ulrich&theme=tokyonight&layout=compact&custom_title=Tecnologias&" 
-  />
-
-</p>
