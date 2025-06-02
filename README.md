@@ -4,9 +4,9 @@
 
 **`Desenvolvedores: 
 Victor Ulrich(Scrum Master/Desenvolvedor Full Stack),
-Amanda Yulka(Desenvolvedora Front End)
-Matheus Rodrigues(Coordenador de equipe)
-Erik do Santos(Gerente de banco de dados)
+Amanda Yulka(Desenvolvedora Front End),
+Matheus Rodrigues(Coordenador de equipe),
+Erik do Santos(Gerente de banco de dados),
 Kaua dos Santos(Desenvolvedor de Banco de dados)`**
 
 Painel admnistrativo para controle de informações do aplicativo Jornada Ativa
