@@ -4,7 +4,7 @@
 
 **`Desenvolvedores: 
 Victor Ulrich(Scrum Master/Desenvolvedor Full Stack),
-Amanda Yulka(Desenvolvedora Front End),
+Amanda Yuka(Desenvolvedora Front End),
 Matheus Rodrigues(Coordenador de equipe),
 Erik dos Santos(Gerente de banco de dados),
 Kauan dos Santos(Desenvolvedor de Banco de dados)`**
