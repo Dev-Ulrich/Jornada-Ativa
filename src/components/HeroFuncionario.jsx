@@ -1,6 +1,6 @@
 import "./HeroFuncionario.css";
 import React, { useState, useEffect, useRef, use } from "react";
-import { FaPowerOff, FaTrashAlt } from "react-icons/fa";
+import { FaPowerOff, FaTrashAlt, FaPencilAlt, FaPlus } from "react-icons/fa";
 import api from "../services/api"; // Certifique-se de que o caminho para o arquivo api.js está correto
 
 const HeroFuncionario = () => {
@@ -61,14 +61,28 @@ const HeroFuncionario = () => {
     setDarkMode((prevDarkMode) => !prevDarkMode);
   };
 
-  const [usuarios, setUsuarios] = useState({});
+  const [usuarios, setUsuarios] = useState([]);
 
   useEffect(() => {
+  api
+    .get("/usuarios")
+    .then((response) => {
+      setUsuarios(response.data); // <-- ajuste aqui
+    })
+    .catch((error) => console.error("Erro ao buscar usuários: ", error));
+}, []);
+
+  // Função para excluir um usuário
+  const excluirUsuario = (id) => {
     api
-      .get("/usuarios") // ajuste o endpoint conforme sua API
-      .then((response) => setUsuarios(response.data.data))
-      .catch((error) => console.error("Erro ao buscar usuários: ", error));
-  }, []);
+      .delete(`/usuarios/${id}`)
+      .then(() => {
+        setUsuarios((prevUsuarios) =>
+          prevUsuarios.filter((usuario) => usuario.id !== id)
+        );
+      })
+      .catch((error) => console.error("Erro ao excluir usuário: ", error));
+  };
 
   return (
     <div className="body-funcionario">
@@ -89,29 +103,61 @@ const HeroFuncionario = () => {
           id="section1"
           ref={(el) => (sectionsRef.current[0] = el)}
         >
-          <h1>Usuarios</h1>
+          <h1 className="titulo-usuarios">Usuarios</h1>
 
           <div className="table-responsive">
             <table className="table table-bordered table-striped table-hover">
               <thead className="table-dark">
                 <tr>
+                  <th>Foto_Perfil</th>
                   <th>Id</th>
                   <th>Nome</th>
                   <th>Email</th>
-                  <th>Foto_Perfil</th>
+                  <th>Ações</th>
                 </tr>
               </thead>
               <tbody>
                 {usuarios.map((usuario) => (
                   <tr key={usuario.id}>
-                    <td style={{ fontSize: "13px" }}>{usuario.id}</td>
-                    <td style={{ fontSize: "13px" }}>{usuario.nome}</td>
-                    <td style={{ fontSize: "13px" }}>{usuario.email}</td>
-                    <td style={{ fontSize: "13px" }}>{usuario.foto_perfil}</td>
+                    <td>
+                      {usuario.foto_perfil ? (
+                        <img
+                          src={usuario.foto_perfil}
+                          alt="Perfil"
+                          className="foto-perfil"
+                        />
+                      ) : (
+                        <span className="sem-foto">-</span>
+                      )}
+                    </td>
+                    <td>{usuario.id}</td>
+                    <td>{usuario.nome}</td>
+                    <td>{usuario.email}</td>
+                    <td className="text-center">
+                      <button
+                        className="btn btn-sm btn-primary me-2"
+                        title="Editar"
+                        onClick={() => handleEdit(usuario.id)}
+                      >
+                        <FaPencilAlt />
+                      </button>
+                      <button
+                        className="btn btn-sm btn-danger"
+                        title="Excluir"
+                        onClick={() => handleDelete(usuario.id)}
+                      >
+                        <FaTrashAlt />
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          </div>
+          <div className="text-end mt-3">
+            <a href="/funcionario/usuario/novo" className="btn btn-success">
+              <FaPlus /> Novo Usuário
+            </a>
           </div>
         </section>
 
