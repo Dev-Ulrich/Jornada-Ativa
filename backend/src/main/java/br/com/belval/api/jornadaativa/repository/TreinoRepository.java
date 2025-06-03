@@ -5,15 +5,15 @@ import java.util.List;
 
 import org.springframework.data.repository.CrudRepository;
 
-import br.com.belval.api.jornadaativa.model.Treino;
+import br.com.belval.api.jornadaativa.model.Treinos;
 
-public interface TreinoRepository extends CrudRepository<Treino, Integer > {
+public interface TreinoRepository extends CrudRepository<Treinos, Integer > {
 	
 
-    List<Treino> findByData(LocalDate data);
+    List<Treinos> findByData(LocalDate data);
 
-    List<Treino> findByDistanciaGreaterThan(Double distancia);
+    List<Treinos> findByDistanciaGreaterThan(Double distancia);
 
-    List<Treino> findByTempoLessThan(Long tempo);
+    List<Treinos> findByTempoLessThan(Long tempo);
 
 }

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.belval.api.jornadaativa.model.Treino;
+import br.com.belval.api.jornadaativa.model.Treinos;
 import br.com.belval.api.jornadaativa.repository.TreinoRepository;
 
 @RestController
@@ -22,7 +22,7 @@ public class TreinoController {
     private TreinoRepository repository;
 
     @GetMapping("/treinos")
-    public ResponseEntity<Iterable<Treino>> obterTreinos() {
+    public ResponseEntity<Iterable<Treinos>> obterTreinos() {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(repository.findAll());
@@ -30,7 +30,7 @@ public class TreinoController {
 
     @GetMapping("/treinos/{id}")
     public ResponseEntity<Object> buscarPorId(@PathVariable Integer id) {
-        Optional<Treino> treino = repository.findById(id);
+        Optional<Treinos> treino = repository.findById(id);
 
         if (treino.isPresent()) {
             return ResponseEntity
@@ -43,7 +43,7 @@ public class TreinoController {
     }
 
     @PostMapping("/treinos")
-    public ResponseEntity<Treino> criarTreino(@RequestBody Treino treino) {
+    public ResponseEntity<Treinos> criarTreino(@RequestBody Treinos treino) {
         System.out.println("Treino criado ..." + treino.toString());
         repository.save(treino);
 
@@ -55,9 +55,9 @@ public class TreinoController {
     @PutMapping("/treinos/{id}")
     public ResponseEntity<Object> atualizarTreino(
             @PathVariable Integer id,
-            @RequestBody Treino treino) {
+            @RequestBody Treinos treino) {
 
-        Optional<Treino> treinoOpt = repository.findById(id);
+        Optional<Treinos> treinoOpt = repository.findById(id);
 
         if (treinoOpt.isEmpty()) {
             return ResponseEntity
@@ -75,7 +75,7 @@ public class TreinoController {
 
     @DeleteMapping("/treinos/{id}")
     public ResponseEntity<Object> deletarTreino(@PathVariable Integer id) {
-        Optional<Treino> treinoOptional = repository.findById(id);
+        Optional<Treinos> treinoOptional = repository.findById(id);
 
         if (treinoOptional.isEmpty()) {
             return ResponseEntity
@@ -83,7 +83,7 @@ public class TreinoController {
                     .body("Treino não encontrado!");
         }
 
-        Treino treino = treinoOptional.get();
+        Treinos treino = treinoOptional.get();
         repository.delete(treino);
 
         return ResponseEntity

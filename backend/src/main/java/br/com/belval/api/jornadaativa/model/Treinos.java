@@ -9,7 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 @Entity
-public class Treino {
+public class Treinos {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
@@ -17,7 +17,7 @@ public class Treino {
 	private LocalDate data;
 	private Long tempo;
 	
-	public Treino() {
+	public Treinos() {
 	}
 	public Integer getId() {
 		return id;
@@ -61,7 +61,7 @@ public class Treino {
 		} else if (this.getClass() != obj.getClass()) {
 			return false;
 		} else {
-			Treino other = (Treino) obj;
+			Treinos other = (Treinos) obj;
 			return Objects.equals(id, other.id) && Objects.equals(distancia, other.distancia)
 					&& Objects.equals(tempo, other.tempo) && Objects.equals(data, other.data);
 		}

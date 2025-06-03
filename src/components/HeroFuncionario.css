@@ -89,6 +89,26 @@
   color: var(--text-base);
 }
 
+#section4 {
+  background-color: var(--indicador-base-funcionario);
+}
+
+#section4 h1{
+  font-size: 100px;
+  color: var(--text-base);
+}
+
+#section5 {
+  background-color: var( --color-base);
+}
+
+#section5 h1{
+  font-size: 100px;
+  color: var(--text-base);
+}
+
+
+
 html {
   scroll-behavior: smooth;
 }

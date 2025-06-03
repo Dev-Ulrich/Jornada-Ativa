@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.belval.api.jornadaativa.model.Usuario;
+import br.com.belval.api.jornadaativa.model.Usuarios;
 import br.com.belval.api.jornadaativa.repository.UsuarioRepository;
 
 @RestController
@@ -23,7 +23,7 @@ public class UsuarioController {
     private UsuarioRepository repository;
 
     @GetMapping("/usuarios")
-    public ResponseEntity<Iterable<Usuario>> obterUsuarios() {
+    public ResponseEntity<Iterable<Usuarios>> obterUsuarios() {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(repository.findAll());
@@ -31,7 +31,7 @@ public class UsuarioController {
 
     @GetMapping("/usuarios/{id}")
     public ResponseEntity<Object> buscarPorId(@PathVariable Integer id) {
-        Optional<Usuario> usuario = repository.findById(id);
+        Optional<Usuarios> usuario = repository.findById(id);
 
         if (usuario.isPresent()) {
             return ResponseEntity
@@ -45,7 +45,7 @@ public class UsuarioController {
     }
 
     @PostMapping("/usuarios")
-    public ResponseEntity<Usuario> criarUsuario(@RequestBody Usuario usuario) {
+    public ResponseEntity<Usuarios> criarUsuario(@RequestBody Usuarios usuario) {
         System.out.println("Usuário criado..." + usuario.toString());
         repository.save(usuario);
 
@@ -57,9 +57,9 @@ public class UsuarioController {
     @PutMapping("/usuarios/{id}")
     public ResponseEntity<Object> atualizarUsuario(
             @PathVariable Integer id,
-            @RequestBody Usuario usuario) {
+            @RequestBody Usuarios usuario) {
 
-        Optional<Usuario> usuarioOpt = repository.findById(id);
+        Optional<Usuarios> usuarioOpt = repository.findById(id);
 
         if (usuarioOpt.isEmpty()) {
             return ResponseEntity
@@ -77,7 +77,7 @@ public class UsuarioController {
 
     @DeleteMapping("/usuarios/{id}")
     public ResponseEntity<Object> deletarUsuario(@PathVariable Integer id) {
-        Optional<Usuario> usuarioOptional = repository.findById(id);
+        Optional<Usuarios> usuarioOptional = repository.findById(id);
 
         if (usuarioOptional.isEmpty()) {
             return ResponseEntity
@@ -85,7 +85,7 @@ public class UsuarioController {
                     .body("Usuário não encontrado!");
         }
 
-        Usuario usuario = usuarioOptional.get();
+        Usuarios usuario = usuarioOptional.get();
         repository.delete(usuario);
 
         return ResponseEntity

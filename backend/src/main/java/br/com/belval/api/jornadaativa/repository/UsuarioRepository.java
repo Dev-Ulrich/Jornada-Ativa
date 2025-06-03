@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.springframework.data.repository.CrudRepository;
 
-import br.com.belval.api.jornadaativa.model.Usuario;
+import br.com.belval.api.jornadaativa.model.Usuarios;
 
-public interface UsuarioRepository extends CrudRepository<Usuario, Integer> {
+public interface UsuarioRepository extends CrudRepository<Usuarios, Integer> {
 
-    List<Usuario> findByNomeContainingIgnoreCase(String nome);
+    List<Usuarios> findByNomeContainingIgnoreCase(String nome);
 }

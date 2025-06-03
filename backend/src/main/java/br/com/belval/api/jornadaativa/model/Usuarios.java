@@ -8,7 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 @Entity
-public class Usuario {
+public class Usuarios {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -17,7 +17,8 @@ public class Usuario {
     private String senha;
     private String fotoPerfil;
 
-    public Usuario() {}
+    public Usuarios() {
+    }
 
     public Integer getId() {
         return id;
@@ -72,7 +73,7 @@ public class Usuario {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        Usuario other = (Usuario) obj;
+        Usuarios other = (Usuarios) obj;
         return Objects.equals(id, other.id) && Objects.equals(nome, other.nome)
                 && Objects.equals(email, other.email) && Objects.equals(senha, other.senha)
                 && Objects.equals(fotoPerfil, other.fotoPerfil);
@@ -80,6 +81,7 @@ public class Usuario {
 
     @Override
     public String toString() {
-        return "Usuario [id=" + id + ", nome=" + nome + ", email=" + email + ", senha=" + senha + ", fotoPerfil=" + fotoPerfil + "]";
+        return "Usuario [id=" + id + ", nome=" + nome + ", email=" + email + ", senha=" + senha + ", fotoPerfil="
+                + fotoPerfil + "]";
     }
 }

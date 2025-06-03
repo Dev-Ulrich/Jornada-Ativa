@@ -8,7 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 @Entity
-public class TipoTreino {
+public class TipoTreinos {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idTipoTreino;
@@ -16,7 +16,7 @@ public class TipoTreino {
     private String resistencia;
     private String caminhada;
 
-    public TipoTreino() {}
+    public TipoTreinos() {}
 
     public Integer getIdTipoTreino() {
         return idTipoTreino;
@@ -61,7 +61,7 @@ public class TipoTreino {
             return true;
         if (obj == null || getClass() != obj.getClass())
             return false;
-        TipoTreino other = (TipoTreino) obj;
+        TipoTreinos other = (TipoTreinos) obj;
         return Objects.equals(idTipoTreino, other.idTipoTreino)
             && Double.compare(velocidade, other.velocidade) == 0
             && Objects.equals(resistencia, other.resistencia)
