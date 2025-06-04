@@ -1,19 +1,22 @@
 import "./HeroFuncionario.css";
 import React, { useState, useEffect, useRef, use } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaPowerOff, FaTrashAlt, FaPencilAlt, FaPlus } from "react-icons/fa";
-import api from "../services/api"; // Certifique-se de que o caminho para o arquivo api.js está correto
+import api from "../../services/api";
+import UsuarioTabela from "../Usuario/UsuarioTabela";
+import NovoUsuario from "../Usuario/NovoUsuario";
+import ExcluirUsuario from "../Usuario/ExcluirUsuario";
+
 
 const HeroFuncionario = () => {
   const sectionsRef = useRef([]);
   const navLinksRef = useRef([]);
 
-  // Função para atualizar o link ativo
   const updateActiveLink = () => {
     let currentSection = "";
 
     sectionsRef.current.forEach((section) => {
       if (section) {
-        // Verifica se a referência existe
         const sectionTop = section.offsetTop;
         const sectionHeight = section.clientHeight;
         if (window.scrollY >= sectionTop - sectionHeight / 3) {
@@ -24,7 +27,6 @@ const HeroFuncionario = () => {
 
     navLinksRef.current.forEach((link) => {
       if (link) {
-        // Verifica se a referência existe
         link.classList.remove("active");
         if (link.getAttribute("href") === `#${currentSection}`) {
           link.classList.add("active");
@@ -33,15 +35,14 @@ const HeroFuncionario = () => {
     });
   };
 
-  // useEffect para eventos de scroll e load
   useEffect(() => {
-    updateActiveLink(); // Executa ao carregar
+    updateActiveLink();
     window.addEventListener("scroll", updateActiveLink);
 
-    // Limpeza do evento ao desmontar o componente
     return () => window.removeEventListener("scroll", updateActiveLink);
   }, []);
 
+  // Dark Mode
   const [darkMode, setDarkMode] = useState(() => {
     const storedDarkMode = localStorage.getItem("dark-mode");
     return storedDarkMode === "active";
@@ -61,27 +62,31 @@ const HeroFuncionario = () => {
     setDarkMode((prevDarkMode) => !prevDarkMode);
   };
 
+  //Final Dark Mode
   const [usuarios, setUsuarios] = useState([]);
+  const [treinos, setTreinos] = useState([]);
 
+
+  //Funcionario
   useEffect(() => {
-  api
-    .get("/usuarios")
-    .then((response) => {
-      setUsuarios(response.data); // <-- ajuste aqui
-    })
-    .catch((error) => console.error("Erro ao buscar usuários: ", error));
-}, []);
-
-  // Função para excluir um usuário
-  const excluirUsuario = (id) => {
     api
-      .delete(`/usuarios/${id}`)
-      .then(() => {
-        setUsuarios((prevUsuarios) =>
-          prevUsuarios.filter((usuario) => usuario.id !== id)
-        );
+      .get("/usuarios")
+      .then((response) => {
+        setUsuarios(response.data);
       })
-      .catch((error) => console.error("Erro ao excluir usuário: ", error));
+      .catch((error) => console.error("Erro ao buscar usuários: ", error));
+  }, []);
+
+
+const handleDelete = (id) => {
+ 
+  excluirUsuario(id); 
+};
+
+const navigate = useNavigate();
+
+  const handleEdit = (id) => {
+    navigate(`/funcionario/usuario/editar/${id}`);
   };
 
   return (
@@ -98,53 +103,55 @@ const HeroFuncionario = () => {
             </i>
           </div>
         </div>
+
         <section
           className="section-funcionario"
           id="section1"
           ref={(el) => (sectionsRef.current[0] = el)}
         >
-          <h1 className="titulo-usuarios">Usuarios</h1>
+          <UsuarioTabela
+            usuarios={usuarios}
+            handleEdit={handleEdit}
+            handleDelete={handleDelete}
+          />
+        </section>
 
+        <section
+          className="section-funcionario"
+          id="section2"
+          ref={(el) => (sectionsRef.current[1] = el)}
+        >
+          <h1 className="titulo-treino">Treinos</h1>
           <div className="table-responsive">
             <table className="table table-bordered table-striped table-hover">
               <thead className="table-dark">
                 <tr>
-                  <th>Foto_Perfil</th>
                   <th>Id</th>
-                  <th>Nome</th>
-                  <th>Email</th>
+                  <th>Distancia</th>
+                  <th>Data</th>
+                  <th>Tempo</th>
                   <th>Ações</th>
                 </tr>
               </thead>
               <tbody>
-                {usuarios.map((usuario) => (
-                  <tr key={usuario.id}>
-                    <td>
-                      {usuario.foto_perfil ? (
-                        <img
-                          src={usuario.foto_perfil}
-                          alt="Perfil"
-                          className="foto-perfil"
-                        />
-                      ) : (
-                        <span className="sem-foto">-</span>
-                      )}
-                    </td>
-                    <td>{usuario.id}</td>
-                    <td>{usuario.nome}</td>
-                    <td>{usuario.email}</td>
+                {treinos.map((treino) => (
+                  <tr key={treino.id}>
+                    <td>{treino.id}</td>
+                    <td>{treino.distancia}</td>
+                    <td>{treino.data}</td>
+                    <td>{treino.tempo}</td>
                     <td className="text-center">
                       <button
                         className="btn btn-sm btn-primary me-2"
                         title="Editar"
-                        onClick={() => handleEdit(usuario.id)}
+                        onClick={() => handleEdit(treino.id)}
                       >
                         <FaPencilAlt />
                       </button>
                       <button
                         className="btn btn-sm btn-danger"
                         title="Excluir"
-                        onClick={() => handleDelete(usuario.id)}
+                        onClick={() => handleDelete(treino.id)}
                       >
                         <FaTrashAlt />
                       </button>
@@ -155,18 +162,10 @@ const HeroFuncionario = () => {
             </table>
           </div>
           <div className="text-end mt-3">
-            <a href="/funcionario/usuario/novo" className="btn btn-success">
-              <FaPlus /> Novo Usuário
+            <a href="/funcionario/usuario/treino" className="btn btn-success">
+              <FaPlus /> Novo Treino
             </a>
           </div>
-        </section>
-
-        <section
-          className="section-funcionario"
-          id="section2"
-          ref={(el) => (sectionsRef.current[1] = el)}
-        >
-          <h1>Treinos</h1>
         </section>
 
         <section

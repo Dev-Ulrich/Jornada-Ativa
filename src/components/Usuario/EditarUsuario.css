@@ -1,0 +1,162 @@
+/* Variáveis iguais ao HeroFuncionario */
+:root {
+  --color-base: #c3c3c3;
+  --bg-base: #fff;
+  --text-base: black;
+  --hover-base: white;
+  --table-base: gray;
+}
+
+.dark-mode {
+  --color-base: rgb(95, 95, 95);
+  --bg-base: #181a1b;
+  --text-base: white;
+  --hover-base: #23272b;
+  --table-base: #23272b;
+}
+
+/* Centraliza e aumenta o card */
+.editar-usuario-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: var(--color-base);
+}
+
+.editar-usuario-card {
+  background: var(--table-base);
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.10);
+  padding: 36px 40px 28px 40px;
+  min-width: 520px;
+  max-width: 700px;
+  margin: 32px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centraliza conteúdo interno */
+}
+
+.editar-usuario-card h2 {
+  color: var(--text-base);
+  font-size: 2.5rem;    
+  font-weight: bold;
+  margin-bottom: 24px;
+  text-align: center;
+  width: 100%;
+}
+
+.table {
+  width: 100%;
+  font-size: 1.1rem;
+  background: transparent;
+}
+
+th, td {
+  padding: 14px 12px;
+  vertical-align: middle;
+}
+
+th {
+  width: 160px;
+  background: #666;
+  color: #fff;
+  font-weight: bold;
+}
+
+td {
+  background: var(--table-base);
+  color: var(--text-base);
+}
+
+input[type="text"], input[type="email"], input[type="file"] {
+  width: 100%;
+  background: var(--bg-base);
+  color: var(--text-base);
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 7px 10px;
+}
+
+.foto-perfil {
+  display: block;
+  margin-top: 8px;
+  border: 2px solid #fff;
+}
+
+.btn-success, .btn-secondary {
+  font-size: 1rem;
+  padding: 7px 22px;
+  margin-right: 10px;
+}
+
+
+/* Dark Mode */
+.trilho-funcionario {
+  position: fixed;
+  top: 32px;
+  right: 48px;
+  width: 50px;
+  height: 50px;
+  float: right;  
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1000;
+  transition: background 0.2s;
+}
+
+.trilho-funcionario:hover {
+  background: #ececec;
+}
+
+.indicador-funcionario {
+  color: #222;
+  font-size: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Dark mode para o botão */
+.dark-mode .trilho-funcionario {
+  background: #23272b;
+}
+
+.dark-mode .indicador-funcionario {
+  color: #fff;
+}
+
+
+
+/* Dark mode para o card */
+.dark-mode .editar-usuario-container {
+  background: var(--color-base);
+}
+
+.dark-mode .editar-usuario-card {
+  background: var(--table-base);
+}
+
+.dark-mode th {
+  background: #343a40;
+  color: #fff;
+}
+
+.dark-mode td {
+  background: var(--table-base);
+  color: var(--text-base);
+}
+
+.dark-mode input[type="text"], 
+.dark-mode input[type="email"], 
+.dark-mode input[type="file"] {
+  background: #181a1b;
+  color: #fff;
+  border: 1px solid #444;
+}

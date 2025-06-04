@@ -5,18 +5,18 @@ import "./Login.css";
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, SetError] = useState(""); //exibir mensagem de erro
+  const [error, setError] = useState(""); //exibir mensagem de erro
   const navigate = useNavigate();
 
   // Dados Fixos para validação
-  const fixedEmail = "admin@admin.com.br";
-  const fixedSenha = "123456";
+  const fixedEmail = "admin@admin.com.br" && "victorulrich07@gmail.com";
+  const fixedSenha = "123456" && "12345678";
 
   // Função chamada ao submeter o formulario
   const handleSubmit = (e) => {
     e.preventDefault(); //Previne o envio padrão do formulario
 
-    SetError(""); // Limpar o erro anterior
+    setError(""); // Limpar o erro anterior
 
     if (username === fixedEmail && password === fixedSenha) {
       navigate("/jornadaativa/usuario/herofuncionario");
