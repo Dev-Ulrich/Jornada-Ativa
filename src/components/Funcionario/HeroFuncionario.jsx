@@ -5,7 +5,7 @@ import { FaPowerOff, FaTrashAlt, FaPencilAlt, FaPlus } from "react-icons/fa";
 import api from "../../services/api";
 import UsuarioTabela from "../Usuario/UsuarioTabela";
 import NovoUsuario from "../Usuario/NovoUsuario";
-import ExcluirUsuario from "../Usuario/ExcluirUsuario";
+
 
 
 const HeroFuncionario = () => {
@@ -111,8 +111,8 @@ const navigate = useNavigate();
         >
           <UsuarioTabela
             usuarios={usuarios}
-            handleEdit={handleEdit}
-            handleDelete={handleDelete}
+          /*   handleEdit={handleEdit}*/
+        /*    handleDelete={handleDelete} */
           />
         </section>
 

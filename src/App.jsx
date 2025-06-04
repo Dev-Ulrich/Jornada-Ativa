@@ -6,8 +6,6 @@ import Hero from "./components/Hero";
 import Login from "./components/Login/Login";
 import HeroFuncionario from "./components/Funcionario/HeroFuncionario";
 import NovoUsuario from "./components/Usuario/NovoUsuario";
-import EditarUsuario from "./components/Usuario/EditarUsuario";
-import ExcluirUsuario from "./components/Usuario/ExcluirUsuario";
 import UsuarioTabela from "./components/Usuario/UsuarioTabela";
 
 function App() {
@@ -20,24 +18,15 @@ function App() {
           <Route exact path="/" element={<Hero />} />
           <Route path="/jornadaativa/usuario/login" element={<Login />} />
           <Route
-            path="/jornadaativa/usuario/herofuncionario"
+            path="/funcionario/herofuncionario"
             element={<HeroFuncionario />}
           />
           <Route
-            path="/jornadaativa/usuario/usuario"
+            path="/funcionario/usuario"
             element={<UsuarioTabela />}
           />
-          <Route
-            path="/jornadaativa/usuario/novousuario"
-            element={<NovoUsuario />}
-          />
-          <Route
-            path="/funcionario/usuario/editar/:id"
-            element={<EditarUsuario />}
-          />
-          <Route
-            path="/jornadaativa/usuario/excluirusuario/:id"
-            element={<ExcluirUsuario />}
+          <Route path="/funcionario/usuario/novousuario" 
+          element={<NovoUsuario />} 
           />
         </Routes>
       </Router>

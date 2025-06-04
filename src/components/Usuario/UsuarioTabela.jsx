@@ -1,6 +1,5 @@
 import React from "react";
 import { FaPencilAlt, FaTrashAlt, FaPlus } from "react-icons/fa";
-import EditarUsuario from "./EditarUsuario";
 
 const UsuarioTabela = ({ usuarios, handleEdit, handleDelete }) => (
   <section className="section-funcionario" id="section1">
@@ -20,16 +19,16 @@ const UsuarioTabela = ({ usuarios, handleEdit, handleDelete }) => (
           {usuarios.map((usuario) => (
             <tr key={usuario.id}>
               <td>
-                {usuario.foto_perfil ? (
-                  <img
-                    src={usuario.foto_perfil}
-                    alt="Perfil"
-                    className="foto-perfil"
-                  />
-                ) : (
-                  <span className="sem-foto">-</span>
-                )}
-              </td>
+  {usuario.fotoPerfil ? (
+    <img
+  src={`http://localhost:8081${usuario.fotoPerfil}`} // Ajuste a URL base da API
+  alt="Perfil"
+  className="foto-perfil"
+/>
+  ) : (
+    <span className="sem-foto">-</span>
+  )}
+</td>
               <td>{usuario.id}</td>
               <td>{usuario.nome}</td>
               <td>{usuario.email}</td>

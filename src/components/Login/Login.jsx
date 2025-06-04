@@ -19,7 +19,7 @@ const Login = () => {
     setError(""); // Limpar o erro anterior
 
     if (username === fixedEmail && password === fixedSenha) {
-      navigate("/jornadaativa/usuario/herofuncionario");
+      navigate("/funcionario/herofuncionario");
     } else {
       setError("Email ou Senha inválidos!");
     }
