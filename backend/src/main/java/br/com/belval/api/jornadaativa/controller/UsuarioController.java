@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -90,25 +89,44 @@ public ResponseEntity<?> criarUsuario(
         .body(usuario);
 }
     @PutMapping("/usuarios/{id}")
-    public ResponseEntity<Object> atualizarUsuario(
-            @PathVariable Integer id,
-            @RequestBody Usuarios usuario) {
+public ResponseEntity<Object> atualizarUsuario(
+    @PathVariable Integer id,
+    @RequestParam("nome") String nome,
+    @RequestParam("email") String email,
+    @RequestParam(value = "files", required = false) MultipartFile file) {
 
-        Optional<Usuarios> usuarioOpt = repository.findById(id);
+  Optional<Usuarios> usuarioOpt = repository.findById(id);
 
-        if (usuarioOpt.isEmpty()) {
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body("Usuário não encontrado!");
-        }
+  if (usuarioOpt.isEmpty()) {
+    return ResponseEntity
+        .status(HttpStatus.NOT_FOUND)
+        .body("Usuário não encontrado!");
+  }
 
-        usuario.setId(id);
-        repository.save(usuario);
+  Usuarios usuario = usuarioOpt.get();
+  usuario.setNome(nome);
+  usuario.setEmail(email);
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body("Usuário atualizado com sucesso!");
+  if (file != null && !file.isEmpty()) {
+    String uploadDir = "E:/Jornada-Ativa/backend/uploads/";
+    String fileName = file.getOriginalFilename();
+    try {
+      file.transferTo(new File(uploadDir + fileName));
+      usuario.setFotoPerfil("/uploads/" + fileName);
+    } catch (IOException e) {
+      e.printStackTrace();
+      return ResponseEntity
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body("Erro ao salvar o arquivo.");
     }
+  }
+
+  repository.save(usuario);
+
+  return ResponseEntity
+      .status(HttpStatus.OK)
+      .body("Usuário atualizado com sucesso!");
+}
 
     @DeleteMapping("/usuarios/{id}")
     public ResponseEntity<Object> deletarUsuario(@PathVariable Integer id) {
