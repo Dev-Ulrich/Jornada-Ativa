@@ -1,0 +1,21 @@
+:root{
+  --color-base: #c3c3c3;
+  --bg-base: #fff;
+  --text-base: black;
+  --hover-base: white;
+  --indicador-base:#c3c3c3;
+  --roll-base: white;
+  --indicador-base-funcionario: #fff;
+  --table-base: gray;
+}
+
+.dark-mode{
+  --color-base: rgb(95, 95, 95);
+  --bg-base: black;
+  --text-base: white;
+  --hover-base: black;
+  --indicador-base:rgb(39, 39, 39);
+  --roll-base: rgb(95, 95 ,95);
+  --indicador-base-funcionario: rgb(39, 39, 39);
+  --table-base: gray;
+}

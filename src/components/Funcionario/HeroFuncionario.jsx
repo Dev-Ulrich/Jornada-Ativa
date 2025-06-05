@@ -8,6 +8,7 @@ import NovoUsuario from "../Usuario/NovoUsuario";
 
 
 
+
 const HeroFuncionario = () => {
   const sectionsRef = useRef([]);
   const navLinksRef = useRef([]);
@@ -78,11 +79,6 @@ const HeroFuncionario = () => {
   }, []);
 
 
-const handleDelete = (id) => {
- 
-  excluirUsuario(id); 
-};
-
 const navigate = useNavigate();
 
   const handleEdit = (id) => {
@@ -111,8 +107,8 @@ const navigate = useNavigate();
         >
           <UsuarioTabela
             usuarios={usuarios}
-          /*   handleEdit={handleEdit}*/
-        /*    handleDelete={handleDelete} */
+            setUsuarios={setUsuarios}
+            handleEdit={handleEdit}
           />
         </section>
 
@@ -121,51 +117,7 @@ const navigate = useNavigate();
           id="section2"
           ref={(el) => (sectionsRef.current[1] = el)}
         >
-          <h1 className="titulo-treino">Treinos</h1>
-          <div className="table-responsive">
-            <table className="table table-bordered table-striped table-hover">
-              <thead className="table-dark">
-                <tr>
-                  <th>Id</th>
-                  <th>Distancia</th>
-                  <th>Data</th>
-                  <th>Tempo</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {treinos.map((treino) => (
-                  <tr key={treino.id}>
-                    <td>{treino.id}</td>
-                    <td>{treino.distancia}</td>
-                    <td>{treino.data}</td>
-                    <td>{treino.tempo}</td>
-                    <td className="text-center">
-                      <button
-                        className="btn btn-sm btn-primary me-2"
-                        title="Editar"
-                        onClick={() => handleEdit(treino.id)}
-                      >
-                        <FaPencilAlt />
-                      </button>
-                      <button
-                        className="btn btn-sm btn-danger"
-                        title="Excluir"
-                        onClick={() => handleDelete(treino.id)}
-                      >
-                        <FaTrashAlt />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="text-end mt-3">
-            <a href="/funcionario/usuario/treino" className="btn btn-success">
-              <FaPlus /> Novo Treino
-            </a>
-          </div>
+          <h1>Treino</h1>
         </section>
 
         <section
