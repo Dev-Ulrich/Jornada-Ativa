@@ -7,6 +7,8 @@ import Login from "./components/Login/Login";
 import HeroFuncionario from "./components/Funcionario/HeroFuncionario";
 import NovoUsuario from "./components/Usuario/NovoUsuario";
 import UsuarioTabela from "./components/Usuario/UsuarioTabela";
+import TreinoTabela from "./components/Treino/TreinoTabela";
+import NovoTreino from "./components/Treino/NovoTreino";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -27,6 +29,14 @@ function App() {
           />
           <Route path="/funcionario/usuario/novousuario" 
           element={<NovoUsuario />} 
+          />
+          <Route
+            path="/funcionario/treino"
+            element={<TreinoTabela />}
+          />
+          <Route
+            path="/funcionario/treino/novotreino"
+            element={<NovoTreino />}
           />
         </Routes>
       </Router>

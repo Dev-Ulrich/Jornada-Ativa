@@ -5,6 +5,8 @@ import { FaPowerOff, FaTrashAlt, FaPencilAlt, FaPlus } from "react-icons/fa";
 import api from "../../services/api";
 import UsuarioTabela from "../Usuario/UsuarioTabela";
 import NovoUsuario from "../Usuario/NovoUsuario";
+import TreinoTabela from "../Treino/TreinoTabela";
+import NovoTreino from "../Treino/NovoTreino";
 
 
 
@@ -68,7 +70,7 @@ const HeroFuncionario = () => {
   const [treinos, setTreinos] = useState([]);
 
 
-  //Funcionario
+  //Usuarios
   useEffect(() => {
     api
       .get("/usuarios")
@@ -77,6 +79,17 @@ const HeroFuncionario = () => {
       })
       .catch((error) => console.error("Erro ao buscar usuários: ", error));
   }, []);
+
+  //treinos
+  useEffect(() => {
+    api
+      .get("/treinos")
+      .then((response) => {
+        setTreinos(response.data);
+      })
+      .catch((error) => console.error("Erro ao buscar treinos: ", error));
+  }, []);
+
 
 
 const navigate = useNavigate();
@@ -117,7 +130,12 @@ const navigate = useNavigate();
           id="section2"
           ref={(el) => (sectionsRef.current[1] = el)}
         >
-          <h1>Treino</h1>
+          <TreinoTabela
+          treinos={treinos}
+          setTreinos={setTreinos}
+          h1andleEdit={handleEdit}
+          />
+        
         </section>
 
         <section
