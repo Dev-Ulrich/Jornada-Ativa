@@ -1,14 +1,11 @@
 import "./HeroFuncionario.css";
 import React, { useState, useEffect, useRef, use } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaPowerOff, FaTrashAlt, FaPencilAlt, FaPlus } from "react-icons/fa";
+import { FaPowerOff} from "react-icons/fa";
 import api from "../../services/api";
 import UsuarioTabela from "../Usuario/UsuarioTabela";
-import NovoUsuario from "../Usuario/NovoUsuario";
 import TreinoTabela from "../Treino/TreinoTabela";
-import NovoTreino from "../Treino/NovoTreino";
-
-
+import TipoTreinoTabela from "../TipoTreino/TipoTreinoTabela";
 
 
 const HeroFuncionario = () => {
@@ -68,6 +65,7 @@ const HeroFuncionario = () => {
   //Final Dark Mode
   const [usuarios, setUsuarios] = useState([]);
   const [treinos, setTreinos] = useState([]);
+  const [tipoTreinos, setTipoTreinos] = useState([]);
 
 
   //Usuarios
@@ -88,6 +86,16 @@ const HeroFuncionario = () => {
         setTreinos(response.data);
       })
       .catch((error) => console.error("Erro ao buscar treinos: ", error));
+  }, []);
+
+  //tipotreinos
+  useEffect(() => {
+    api
+      .get("/tipoTreinos")
+      .then((response) => {
+        setTipoTreinos(response.data);
+      })
+      .catch((error) => console.error("Erro ao buscar tipo de treinos: ", error));
   }, []);
 
 
@@ -143,7 +151,11 @@ const navigate = useNavigate();
           id="section3"
           ref={(el) => (sectionsRef.current[2] = el)}
         >
-          <h1>Tipos Treinos</h1>
+          <TipoTreinoTabela
+          tipoTreinos={tipoTreinos}
+          setTiposTreinos={setTipoTreinos}
+          handleEdit={handleEdit}
+          />
         </section>
 
         <section

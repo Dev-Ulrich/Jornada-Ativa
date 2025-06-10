@@ -9,6 +9,8 @@ import NovoUsuario from "./components/Usuario/NovoUsuario";
 import UsuarioTabela from "./components/Usuario/UsuarioTabela";
 import TreinoTabela from "./components/Treino/TreinoTabela";
 import NovoTreino from "./components/Treino/NovoTreino";
+import TipoTreinoTabela from "./components/TipoTreino/TipoTreinoTabela";
+import NovoTipoTreino from "./components/TipoTreino/NovoTipoTreino";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -37,6 +39,14 @@ function App() {
           <Route
             path="/funcionario/treino/novotreino"
             element={<NovoTreino />}
+          />
+          <Route
+            path="/funcionario/tipotreino"
+            element={<TipoTreinoTabela />}
+          />
+          <Route
+            path="/funcionario/tipotreino/novotipotreino"
+            element={<NovoTipoTreino />}
           />
         </Routes>
       </Router>
