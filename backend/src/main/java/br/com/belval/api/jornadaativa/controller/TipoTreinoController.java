@@ -13,27 +13,27 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.belval.api.jornadaativa.model.TipoTreinos;
+import br.com.belval.api.jornadaativa.model.TipoTreino;
 import br.com.belval.api.jornadaativa.repository.TipoTreinoRepository;
 
 @RestController
 public class TipoTreinoController {
 
     @Autowired
-    private TipoTreinoRepository tipoTreinoRepository;
+    private TipoTreinoRepository repository;
 
-    @GetMapping("/tipoTreino")
-    public ResponseEntity<Iterable<TipoTreinos>> obterTipoTreinos() {
+    @GetMapping("/tipoTreinos")
+    public ResponseEntity<Iterable<TipoTreino>> obterTipoTreinos() {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(tipoTreinoRepository.findAll());
+                .body(repository.findAll());
     }
 
-    @GetMapping("/tipoTreino/{idTipoTreino}")
+    @GetMapping("/tipoTreinos/{id}")
     public ResponseEntity<Object> buscarPorId(
-            @PathVariable Integer idTipoTreino) {
+            @PathVariable Integer id) {
 
-        Optional<TipoTreinos> tipoTreino = tipoTreinoRepository.findById(idTipoTreino);
+        Optional<TipoTreino> tipoTreino = repository.findById(id);
 
         if (tipoTreino.isPresent()) {
             return ResponseEntity
@@ -45,24 +45,24 @@ public class TipoTreinoController {
                 .body("TipoTreino não encontrado");
     }
 
-    @PostMapping("/tipoTreino")
-    public ResponseEntity<TipoTreinos> criarTipoTreino(
-            @RequestBody TipoTreinos tipoTreino) {
+    @PostMapping("/tipoTreinos")
+    public ResponseEntity<TipoTreino> criarTipoTreino(
+            @RequestBody TipoTreino tipoTreino) {
 
         System.out.println("TipoTreino ..." + tipoTreino.toString());
-        tipoTreinoRepository.save(tipoTreino);
+        repository.save(tipoTreino);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(tipoTreino);
     }
 
-    @PutMapping("/tipoTreino/{idTipoTreino}")
+    @PutMapping("/tipoTreinos/{id}")
     public ResponseEntity<Object> atualizarTipoTreino(
-            @PathVariable Integer idTipoTreino,
-            @RequestBody TipoTreinos tipoTreino) {
+            @PathVariable Integer id,
+            @RequestBody TipoTreino tipoTreino) {
 
-        Optional<TipoTreinos> tipoTreinoOpt = tipoTreinoRepository.findById(idTipoTreino);
+        Optional<TipoTreino> tipoTreinoOpt = repository.findById(id);
 
         if (tipoTreinoOpt.isEmpty()) {
             return ResponseEntity
@@ -70,19 +70,19 @@ public class TipoTreinoController {
                     .body("TipoTreino não encontrado!");
         }
 
-        tipoTreino.setIdTipoTreino(idTipoTreino);
-        tipoTreinoRepository.save(tipoTreino);
+        tipoTreino.setId(id);
+        repository.save(tipoTreino);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body("TipoTreino atualizado com sucesso!");
     }
 
-    @DeleteMapping("/tipoTreino/{idTipoTreino}")
+    @DeleteMapping("/tipoTreinos/{id}")
     public ResponseEntity<Object> deletarTipoTreino(
-            @PathVariable("idTipoTreino") Integer idTipoTreino) {
+            @PathVariable("id") Integer id) {
 
-        Optional<TipoTreinos> tipoTreinoOptional = tipoTreinoRepository.findById(idTipoTreino);
+        Optional<TipoTreino> tipoTreinoOptional = repository.findById(id);
 
         if (tipoTreinoOptional.isEmpty()) {
             return ResponseEntity
@@ -90,8 +90,8 @@ public class TipoTreinoController {
                     .body("TipoTreino não encontrado!");
         }
 
-        TipoTreinos tipoTreino = tipoTreinoOptional.get();
-        tipoTreinoRepository.delete(tipoTreino);
+        TipoTreino tipoTreino = tipoTreinoOptional.get();
+        repository.delete(tipoTreino);
 
         return ResponseEntity
                 .status(HttpStatus.OK)

@@ -4,11 +4,11 @@ import java.util.List;
 
 import org.springframework.data.repository.CrudRepository;
 
-import br.com.belval.api.jornadaativa.model.TipoTreinos;
+import br.com.belval.api.jornadaativa.model.TipoTreino;
 
-public interface TipoTreinoRepository extends CrudRepository<TipoTreinos, Integer> {
+public interface TipoTreinoRepository extends CrudRepository<TipoTreino, Integer> {
 
-    List<TipoTreinos> findByResistenciaContainingIgnoreCase(String resistencia);
+    List<TipoTreino> findByResistenciaContainingIgnoreCase(String resistencia);
 
-    List<TipoTreinos> findByCaminhadaContainingIgnoreCase(String caminhada);
+    List<TipoTreino> findByCaminhadaContainingIgnoreCase(String caminhada);
 }

@@ -8,22 +8,22 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 @Entity
-public class TipoTreinos {
+public class TipoTreino {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idTipoTreino;
+    private Integer id;
     private double velocidade;
     private String resistencia;
     private String caminhada;
 
-    public TipoTreinos() {}
+    public TipoTreino() {}
 
-    public Integer getIdTipoTreino() {
-        return idTipoTreino;
+    public Integer getId() {
+        return id;
     }
 
-    public void setIdTipoTreino(Integer idTipoTreino) {
-        this.idTipoTreino = idTipoTreino;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public double getVelocidade() {
@@ -52,7 +52,7 @@ public class TipoTreinos {
 
     @Override
     public int hashCode() {
-        return Objects.hash(idTipoTreino, velocidade, resistencia, caminhada);
+        return Objects.hash(id, velocidade, resistencia, caminhada);
     }
 
     @Override
@@ -61,8 +61,8 @@ public class TipoTreinos {
             return true;
         if (obj == null || getClass() != obj.getClass())
             return false;
-        TipoTreinos other = (TipoTreinos) obj;
-        return Objects.equals(idTipoTreino, other.idTipoTreino)
+        TipoTreino other = (TipoTreino) obj;
+        return Objects.equals(id, other.id)
             && Double.compare(velocidade, other.velocidade) == 0
             && Objects.equals(resistencia, other.resistencia)
             && Objects.equals(caminhada, other.caminhada);
@@ -70,6 +70,6 @@ public class TipoTreinos {
 
     @Override
     public String toString() {
-        return "TipoTreino [idTipoTreino=" + idTipoTreino + ", velocidade=" + velocidade + ", resistencia=" + resistencia + ", caminhada=" + caminhada + "]";
+        return "TipoTreino [id=" + id + ", velocidade=" + velocidade + ", resistencia=" + resistencia + ", caminhada=" + caminhada + "]";
     }
 }
