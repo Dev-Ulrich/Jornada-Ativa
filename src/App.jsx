@@ -11,6 +11,8 @@ import TreinoTabela from "./components/Treino/TreinoTabela";
 import NovoTreino from "./components/Treino/NovoTreino";
 import TipoTreinoTabela from "./components/TipoTreino/TipoTreinoTabela";
 import NovoTipoTreino from "./components/TipoTreino/NovoTipoTreino";
+import ComunidadeTabela from "./components/Comunidade/ComunidadeTabela";
+import NovaComunidade from "./components/Comunidade/NovaComunidade";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -48,6 +50,14 @@ function App() {
             path="/funcionario/tipotreino/novotipotreino"
             element={<NovoTipoTreino />}
           />
+          <Route
+          path="/funcionario/comunidade/comunidade"
+          element={<ComunidadeTabela />}
+        />
+        <Route
+          path="/funcionario/comunidade/novacomunidade"
+          element={<NovaComunidade />}
+        />
         </Routes>
       </Router>
     </>

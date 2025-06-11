@@ -6,6 +6,7 @@ import api from "../../services/api";
 import UsuarioTabela from "../Usuario/UsuarioTabela";
 import TreinoTabela from "../Treino/TreinoTabela";
 import TipoTreinoTabela from "../TipoTreino/TipoTreinoTabela";
+import ComunidadaTabela from "../Comunidade/ComunidadeTabela";
 
 
 const HeroFuncionario = () => {
@@ -66,6 +67,7 @@ const HeroFuncionario = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [treinos, setTreinos] = useState([]);
   const [tipoTreinos, setTipoTreinos] = useState([]);
+  const [comunidades, setComunidades] = useState([]);
 
 
   //Usuarios
@@ -97,6 +99,17 @@ const HeroFuncionario = () => {
       })
       .catch((error) => console.error("Erro ao buscar tipo de treinos: ", error));
   }, []);
+
+  //Comunidades
+  useEffect(() => {
+    api
+      .get("/comunidades")
+      .then((response) => {
+        setComunidades(response.data);
+      })
+      .catch((error) => console.error("Erro ao buscar comunidades: ", error));
+  }, []);
+
 
 
 
@@ -170,7 +183,11 @@ const navigate = useNavigate();
           id="section5"
           ref={(el) => (sectionsRef.current[4] = el)}
         >
-          <h1>Comunidades</h1>
+          <ComunidadaTabela
+          comunidadaes={comunidades}
+          setComunidades={setComunidades}
+          handleEdit={handleEdit}
+          />
         </section>
       </header>
       <nav className="navbar">
