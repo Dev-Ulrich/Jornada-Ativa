@@ -1,13 +1,12 @@
 import "./HeroFuncionario.css";
 import React, { useState, useEffect, useRef, use } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaPowerOff} from "react-icons/fa";
+import { FaPowerOff } from "react-icons/fa";
 import api from "../../services/api";
 import UsuarioTabela from "../Usuario/UsuarioTabela";
 import TreinoTabela from "../Treino/TreinoTabela";
 import TipoTreinoTabela from "../TipoTreino/TipoTreinoTabela";
-import ComunidadaTabela from "../Comunidade/ComunidadeTabela";
-
+import ComunidadeTabela from "../Comunidade/ComunidadeTabela";
 
 const HeroFuncionario = () => {
   const sectionsRef = useRef([]);
@@ -69,7 +68,6 @@ const HeroFuncionario = () => {
   const [tipoTreinos, setTipoTreinos] = useState([]);
   const [comunidades, setComunidades] = useState([]);
 
-
   //Usuarios
   useEffect(() => {
     api
@@ -97,7 +95,9 @@ const HeroFuncionario = () => {
       .then((response) => {
         setTipoTreinos(response.data);
       })
-      .catch((error) => console.error("Erro ao buscar tipo de treinos: ", error));
+      .catch((error) =>
+        console.error("Erro ao buscar tipo de treinos: ", error)
+      );
   }, []);
 
   //Comunidades
@@ -110,10 +110,7 @@ const HeroFuncionario = () => {
       .catch((error) => console.error("Erro ao buscar comunidades: ", error));
   }, []);
 
-
-
-
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const handleEdit = (id) => {
     navigate(`/funcionario/usuario/editar/${id}`);
@@ -152,11 +149,10 @@ const navigate = useNavigate();
           ref={(el) => (sectionsRef.current[1] = el)}
         >
           <TreinoTabela
-          treinos={treinos}
-          setTreinos={setTreinos}
-          h1andleEdit={handleEdit}
+            treinos={treinos}
+            setTreinos={setTreinos}
+            h1andleEdit={handleEdit}
           />
-        
         </section>
 
         <section
@@ -165,9 +161,9 @@ const navigate = useNavigate();
           ref={(el) => (sectionsRef.current[2] = el)}
         >
           <TipoTreinoTabela
-          tipoTreinos={tipoTreinos}
-          setTiposTreinos={setTipoTreinos}
-          handleEdit={handleEdit}
+            tipoTreinos={tipoTreinos}
+            setTiposTreinos={setTipoTreinos}
+            handleEdit={handleEdit}
           />
         </section>
 
@@ -183,10 +179,10 @@ const navigate = useNavigate();
           id="section5"
           ref={(el) => (sectionsRef.current[4] = el)}
         >
-          <ComunidadaTabela
-          comunidadaes={comunidades}
-          setComunidades={setComunidades}
-          handleEdit={handleEdit}
+          <ComunidadeTabela
+            comunidades={comunidades}
+            setComunidades={setComunidades}
+            handleEdit={handleEdit}
           />
         </section>
       </header>
