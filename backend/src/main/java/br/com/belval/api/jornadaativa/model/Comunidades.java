@@ -2,7 +2,6 @@ package br.com.belval.api.jornadaativa.model;
 
 import java.util.Objects;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -17,9 +16,7 @@ public class Comunidades {
     private String nome;
     private String descricao;
     private String integrantes;
-
-    @Column(name = "foto_comunidade")
-    private String fotoComunidade;
+    private String fotoPerfil;
 
     public Comunidades() {
     }
@@ -56,17 +53,17 @@ public class Comunidades {
         this.integrantes = integrantes;
     }
 
-    public String getFotoComunidade() {
-        return fotoComunidade;
+    public String getFotoPerfil() {
+        return fotoPerfil;
     }
 
-    public void setFotoComunidade(String fotoComunidade) {
-        this.fotoComunidade = fotoComunidade;
-    }
+    public void setFotoPerfil(String fotoPerfil) {
+    this.fotoPerfil = fotoPerfil;
+}
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, nome, descricao, integrantes, fotoComunidade);
+        return Objects.hash(id, nome, descricao, integrantes, fotoPerfil);
     }
 
     @Override
@@ -80,17 +77,12 @@ public class Comunidades {
                 Objects.equals(nome, other.nome) &&
                 Objects.equals(descricao, other.descricao) &&
                 Objects.equals(integrantes, other.integrantes) &&
-                Objects.equals(fotoComunidade, other.fotoComunidade);
+                Objects.equals(fotoPerfil, other.fotoPerfil);
     }
 
     @Override
     public String toString() {
-        return "Comunidades{" +
-                "id=" + id +
-                ", nome='" + nome + '\'' +
-                ", descricao='" + descricao + '\'' +
-                ", integrantes='" + integrantes + '\'' +
-                ", fotoComunidade='" + fotoComunidade + '\'' +
-                '}';
+        return "Comunidade [id=" + id + ", nome=" + nome + ", descricao=" + descricao + ", integrantes=" + integrantes + ", fotoPerfil="
+                + fotoPerfil + "]";
     }
 }
