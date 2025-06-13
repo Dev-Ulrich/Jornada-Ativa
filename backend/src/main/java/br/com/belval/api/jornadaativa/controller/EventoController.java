@@ -44,7 +44,7 @@ public class EventoController {
     }
 
     @PostMapping("/eventos")
-    public ResponseEntity<Eventos> criarEvento(Eventos evento) {
+    public ResponseEntity<Eventos> criarEvento(@RequestBody Eventos evento) {
         eventosRepository.save(evento);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
