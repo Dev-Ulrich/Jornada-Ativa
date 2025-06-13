@@ -1,0 +1,95 @@
+.novo-evento-container {
+  max-width: 900px;
+  max-height: 1200px;
+  margin: 250px auto;
+  padding: 30px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.novo-evento-voltar {
+  display: block;
+  margin-bottom: 20px;
+  color: white;
+  text-decoration: none;
+  font-size: 1.5rem;
+  padding: 8px 12px;
+}
+
+.novo-evento-voltar:hover{
+    color: #ff6f00;
+}
+
+.novo-evento-voltar-icone {
+  margin-right: 5px;
+}
+
+.novo-evento-titulo {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 2rem;
+}
+
+.novo-evento-campo {
+  margin-bottom: 20px;
+}
+
+.novo-evento-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.novo-evento-input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1.1rem;
+}
+
+.novo-evento-botao {
+  background-color: #ff6f00;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1.5rem;
+}
+
+/* Dark-Mode  Button */
+.trilho-evento{
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  border: none;
+  border-radius: 50%;
+  position: absolute;
+  top: 43px;
+  right: 8.5em; /* alterado de left para right */
+  cursor: pointer;
+  z-index: 10;
+}
+
+.trilho-evento .indicador-evento{
+  width: 50px;
+  height: 50px;
+  background-color: var(--indicador-base-funcionario);
+  border-radius: 50%;
+} 
+
+.trilho-evento .indicador-evento i{
+  display: flex;
+  text-align: center;
+  margin-top: 18px;
+  margin-left: 16px;
+  align-items: center;
+  color: var(--text-base)
+}
+
+/* ------------------------------- */

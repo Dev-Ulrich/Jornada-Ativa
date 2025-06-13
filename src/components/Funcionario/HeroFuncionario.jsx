@@ -7,6 +7,7 @@ import UsuarioTabela from "../Usuario/UsuarioTabela";
 import TreinoTabela from "../Treino/TreinoTabela";
 import TipoTreinoTabela from "../TipoTreino/TipoTreinoTabela";
 import ComunidadeTabela from "../Comunidade/ComunidadeTabela";
+import EventoTabela from "../Evento/EventoTabela";
 
 const HeroFuncionario = () => {
   const sectionsRef = useRef([]);
@@ -67,6 +68,7 @@ const HeroFuncionario = () => {
   const [treinos, setTreinos] = useState([]);
   const [tipoTreinos, setTipoTreinos] = useState([]);
   const [comunidades, setComunidades] = useState([]);
+  const [eventos, setEventos] = useState([]);
 
   //Usuarios
   useEffect(() => {
@@ -108,6 +110,16 @@ const HeroFuncionario = () => {
         setComunidades(response.data);
       })
       .catch((error) => console.error("Erro ao buscar comunidades: ", error));
+  }, []);
+
+  //Eventos
+  useEffect(() => {
+    api
+      .get("/eventos")
+      .then((response) => {
+        setEventos(response.data);
+      })
+      .catch((error) => console.error("Erro ao buscar eventos: ", error));
   }, []);
 
   const navigate = useNavigate();
@@ -172,7 +184,11 @@ const HeroFuncionario = () => {
           id="section4"
           ref={(el) => (sectionsRef.current[3] = el)}
         >
-          <h1>Eventos</h1>
+          <EventoTabela
+            eventos={eventos}
+            setEventos={setEventos}
+            handleEdit={handleEdit}
+          />
         </section>
         <section
           className="section-funcionario"
