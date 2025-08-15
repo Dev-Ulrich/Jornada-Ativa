@@ -98,6 +98,9 @@ Monorepo para o projeto Jornada Ativa
     src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg" 
 />
 
+<br/>
+<br/>
+
 <p>Backend: Vá para packages/backend e rode Maven normalmente (./mvnw spring-boot:run).</p>
 
 <p>Frontend: Vá para packages/frontend e rode npm install e npm run dev.</p>
