@@ -9,7 +9,7 @@ Matheus Rodrigues(Coordenador de equipe),
 Erik dos Santos(Gerente de banco de dados),
 Kauan dos Santos(Desenvolvedor de Banco de dados)`**
 
-Painel admnistrativo para controle de informações do aplicativo Jornada Ativa
+Monorepo para o projeto Jornada Ativa
 
 <p align="left">
     <a href="mailto:victorulrich07@gmail.com">
@@ -97,6 +97,12 @@ Painel admnistrativo para controle de informações do aplicativo Jornada Ativa
     style="padding-right: 10px;" 
     src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg" 
 />
+
+<p>Backend: Vá para packages/backend e rode Maven normalmente (./mvnw spring-boot:run).</p>
+
+<p>Frontend: Vá para packages/frontend e rode npm install e npm run dev.</p>
+
+<p>Flutter: Vá para packages/jornada_ativa_app e rode flutter run.</p>
 
 
 <br/>
