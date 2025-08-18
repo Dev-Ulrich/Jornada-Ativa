@@ -2,6 +2,8 @@ package br.com.belval.api.jornadaativa.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -18,25 +20,29 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import br.com.belval.api.jornadaativa.model.Usuarios;
+import br.com.belval.api.jornadaativa.model.Usuario;
 import br.com.belval.api.jornadaativa.repository.UsuarioRepository;
 
 @RestController
 public class UsuarioController {
+
     private static final Logger logger = LoggerFactory.getLogger(UsuarioController.class);
+
     @Autowired
     private UsuarioRepository repository;
 
-    @GetMapping("/usuarios")
-    public ResponseEntity<Iterable<Usuarios>> obterUsuarios() {
+    // Buscar todos
+    @GetMapping("/usuario")
+    public ResponseEntity<Iterable<Usuario>> obterUsuario() {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(repository.findAll());
     }
 
-    @GetMapping("/usuarios/{id}")
-    public ResponseEntity<Object> buscarPorId(@PathVariable Integer id) {
-        Optional<Usuarios> usuario = repository.findById(id);
+    // Buscar por ID
+    @GetMapping("/usuario/{idUsuario}")
+    public ResponseEntity<Object> buscarPorId(@PathVariable Long idUsuario) {
+        Optional<Usuario> usuario = repository.findById(idUsuario);
 
         if (usuario.isPresent()) {
             return ResponseEntity
@@ -49,39 +55,49 @@ public class UsuarioController {
                 .body("Usuário não encontrado!");
     }
 
-    @PostMapping("/usuarios")
+    // Criar
+    @PostMapping("/usuario")
     public ResponseEntity<?> criarUsuario(
             @RequestParam("nome") String nome,
             @RequestParam("email") String email,
             @RequestParam("senha") String senha,
-            @RequestParam(value = "files", required = false) MultipartFile file // Altere para MultipartFile file
-    ) {
-        logger.info("Recebendo requisição para criar usuário com nome: " + nome + ", email: " + email + ", arquivo: "
-                + (file != null ? file.getOriginalFilename() : "null"));
-        Usuarios usuario = new Usuarios();
+            @RequestParam("genero") String genero,
+            @RequestParam("dataNascimento") LocalDate dataNascimento,
+            @RequestParam("nivel") Integer nivel,
+            @RequestParam("altura") BigDecimal altura,
+            @RequestParam("peso") BigDecimal peso,
+            @RequestParam(value = "file", required = false) MultipartFile file) {
+
+        logger.info("Recebendo requisição para criar usuário com nome: " + nome +
+                ", email: " + email +
+                ", arquivo: " + (file != null ? file.getOriginalFilename() : "null"));
+
+        Usuario usuario = new Usuario();
         usuario.setNome(nome);
         usuario.setEmail(email);
         usuario.setSenha(senha);
+        usuario.setGenero(genero);
+        usuario.setDataNascimento(dataNascimento);
+        usuario.setNivel(nivel);
+        usuario.setAltura(altura);
+        usuario.setPeso(peso);
 
-        String uploadDir = "E:/Jornada-Ativa/backend/uploads/"; // Declaração da variável uploadDir
-        String fileName = null; // Declaração da variável fileName
-        if (file != null && !file.isEmpty()) { // Altere a condição para verificar se o arquivo não é nulo e não está
-                                               // vazio
-            fileName = file.getOriginalFilename();
+        String uploadDir = "E:/Jornada-Ativa/backend/uploads/";
+        if (file != null && !file.isEmpty()) {
+            String fileName = file.getOriginalFilename();
             File uploadPath = new File(uploadDir);
             if (!uploadPath.exists()) {
                 uploadPath.mkdirs();
             }
             try {
                 file.transferTo(new File(uploadDir + fileName));
-                logger.info("Arquivo transferido com sucesso: " + fileName); // Adicione esta linha
+                logger.info("Arquivo transferido com sucesso: " + fileName);
                 usuario.setFotoPerfil("/uploads/" + fileName);
             } catch (IOException e) {
                 logger.error("Erro ao salvar o arquivo: " + fileName, e);
-                e.printStackTrace();
             }
         } else {
-            logger.warn("Arquivo recebido está vazio.");
+            logger.warn("Arquivo recebido está vazio ou nulo.");
         }
 
         repository.save(usuario);
@@ -91,14 +107,15 @@ public class UsuarioController {
                 .body(usuario);
     }
 
-    @PutMapping("/usuarios/{id}")
+    // Atualizar
+    @PutMapping("/usuario/{idUsuario}")
     public ResponseEntity<Object> atualizarUsuario(
-            @PathVariable Integer id,
+            @PathVariable Long idUsuario,
             @RequestParam("nome") String nome,
             @RequestParam("email") String email,
-            @RequestParam(value = "files", required = false) MultipartFile file) {
+            @RequestParam(value = "file", required = false) MultipartFile file) {
 
-        Optional<Usuarios> usuarioOpt = repository.findById(id);
+        Optional<Usuario> usuarioOpt = repository.findById(idUsuario);
 
         if (usuarioOpt.isEmpty()) {
             return ResponseEntity
@@ -106,7 +123,7 @@ public class UsuarioController {
                     .body("Usuário não encontrado!");
         }
 
-        Usuarios usuario = usuarioOpt.get();
+        Usuario usuario = usuarioOpt.get();
         usuario.setNome(nome);
         usuario.setEmail(email);
 
@@ -117,7 +134,7 @@ public class UsuarioController {
                 file.transferTo(new File(uploadDir + fileName));
                 usuario.setFotoPerfil("/uploads/" + fileName);
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error("Erro ao salvar o arquivo: " + fileName, e);
                 return ResponseEntity
                         .status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body("Erro ao salvar o arquivo.");
@@ -131,9 +148,10 @@ public class UsuarioController {
                 .body("Usuário atualizado com sucesso!");
     }
 
-    @DeleteMapping("/usuarios/{id}")
-    public ResponseEntity<Object> deletarUsuario(@PathVariable Integer id) {
-        Optional<Usuarios> usuarioOptional = repository.findById(id);
+    // Deletar
+    @DeleteMapping("/usuario/{idUsuario}")
+    public ResponseEntity<Object> deletarUsuario(@PathVariable Long idUsuario) {
+        Optional<Usuario> usuarioOptional = repository.findById(idUsuario);
 
         if (usuarioOptional.isEmpty()) {
             return ResponseEntity
@@ -141,7 +159,7 @@ public class UsuarioController {
                     .body("Usuário não encontrado!");
         }
 
-        Usuarios usuario = usuarioOptional.get();
+        Usuario usuario = usuarioOptional.get();
         repository.delete(usuario);
 
         return ResponseEntity

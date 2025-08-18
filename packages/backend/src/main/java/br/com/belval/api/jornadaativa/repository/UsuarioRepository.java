@@ -3,10 +3,24 @@ package br.com.belval.api.jornadaativa.repository;
 import java.util.List;
 
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
-import br.com.belval.api.jornadaativa.model.Usuarios;
+import br.com.belval.api.jornadaativa.model.Usuario;
 
-public interface UsuarioRepository extends CrudRepository<Usuarios, Integer> {
+@Repository
+public interface UsuarioRepository extends CrudRepository<Usuario, Long> {
 
-    List<Usuarios> findByNomeContainingIgnoreCase(String nome);
+    // Buscar usuário por e-mail
+    Usuario findByEmail(String email);
+
+    // Buscar usuário por nome
+    Usuario findByNome(String nome);
+
+    // Buscar usuários por nível
+    List<Usuario> findByNivel(Integer nivel);
+
+    // Buscar usuários contendo parte do nome (ex: "Vic" -> "Victor")
+    List<Usuario> findByNomeContainingIgnoreCase(String nome);
+
+
 }
