@@ -98,11 +98,14 @@ Monorepo para o projeto Jornada Ativa
     src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg" 
 />
 
-<p>Backend: Vá para packages/backend e rode Maven normalmente (./mvnw spring-boot:run).</p>
+<br/>
+<br/>
 
-<p>Frontend: Vá para packages/frontend e rode npm install e npm run dev.</p>
+<p>Backend: Vá para packages/backend e rode Maven normalmente mvn spring-boot:run</p>
 
-<p>Flutter: Vá para packages/jornada_ativa_app e rode flutter run.</p>
+<p>Frontend: Vá para packages/frontend e rode npm install e npm run dev</p>
+
+<p>Flutter: Vá para packages/jornada_ativa_app e rode flutter run</p>
 
 
 <br/>
