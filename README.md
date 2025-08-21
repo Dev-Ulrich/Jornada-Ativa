@@ -4,10 +4,11 @@
 
 **`Desenvolvedores: 
 Victor Ulrich(Scrum Master/Desenvolvedor Full Stack),
+Eduardo Rodrigues(Desenvolvedor Front-End/UI Design)
 Amanda Yuka(Desenvolvedora Front End),
 Matheus Rodrigues(Coordenador de equipe),
-Erik dos Santos(Gerente de banco de dados),
-Kauan dos Santos(Desenvolvedor de Banco de dados)`**
+Erik dos Santos(Gerente de Banco de Dados),
+Kauan dos Santos(Desenvolvedor de Banco de Dados)`**
 
 Monorepo para o projeto Jornada Ativa
 
