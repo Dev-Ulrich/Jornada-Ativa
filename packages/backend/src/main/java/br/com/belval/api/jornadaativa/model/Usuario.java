@@ -2,151 +2,76 @@ package br.com.belval.api.jornadaativa.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Objects;
+import java.time.LocalDateTime;
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import br.com.belval.api.jornadaativa.util.BigDecimalDeserializer;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Table(name = "usuario")
 @Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Table(name = "usuario")
+
 public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idUsuario;
+    @Column(nullable = false, length = 100)
     private String nome;
+    @Column(nullable = false, unique = true, length = 150)
     private String email;
-    private String senha;
+    @Column(name = "senha_hash", nullable = false, length = 255)
+    private String senha_hash;
+    @Column(length = 20)
     private String genero;
+    @Column(name = "data_nascimento", nullable = false)
     private LocalDate dataNascimento;
+    @Column
     private Integer nivel;
+    @Column(precision = 5, scale = 2)
+    @JsonDeserialize(using = BigDecimalDeserializer.class)
     private BigDecimal altura;
+    @Column(precision = 5, scale = 2)
+    @JsonDeserialize(using = BigDecimalDeserializer.class)
     private BigDecimal peso;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+    @Column(name = "foto_perfil", length = 255)
     private String fotoPerfil;
 
-    public Usuario() {
-    }
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Postagem> ponstagens;
 
-    public Long getIdUsuario() {
-        return idUsuario;
-    }
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<HistoricoTreino> historicosTreinos;
 
-    public void setIdUsuario(Long idUsuario) {
-        this.idUsuario = idUsuario;
-    }
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<UsuarioComunidade> comunidadesParticipa;
 
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getSenha() {
-        return senha;
-    }
-
-    public void setSenha(String senha) {
-        this.senha = senha;
-    }
-
-    public String getGenero() {
-        return genero;
-    }
-
-    public void setGenero(String genero) {
-        this.genero = genero;
-    }
-
-    public LocalDate getDataNascimento() {
-        return dataNascimento;
-    }
-
-    public void setDataNascimento(LocalDate dataNascimento) {
-        this.dataNascimento = dataNascimento;
-    }
-
-    public Integer getNivel() {
-        return nivel;
-    }
-
-    public void setNivel(Integer nivel) {
-        this.nivel = nivel;
-    }
-
-    public BigDecimal getAltura() {
-        return altura;
-    }
-
-    public void setAltura(BigDecimal altura) {
-        this.altura = altura;
-    }
-
-    public BigDecimal getPeso() {
-        return peso;
-    }
-
-    public void setPeso(BigDecimal peso) {
-        this.peso = peso;
-    }
-
-    public String getFotoPerfil() {
-        return fotoPerfil;
-    }
-
-    public void setFotoPerfil(String fotoPerfil) {
-        this.fotoPerfil = fotoPerfil;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(idUsuario, nome, email, senha, genero,
-                dataNascimento, altura, peso, nivel, fotoPerfil);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null || getClass() != obj.getClass())
-            return false;
-        Usuario other = (Usuario) obj;
-        return Objects.equals(idUsuario, other.idUsuario) &&
-                Objects.equals(nome, other.nome) &&
-                Objects.equals(email, other.email) &&
-                Objects.equals(senha, other.senha) &&
-                Objects.equals(genero, other.genero) &&
-                Objects.equals(dataNascimento, other.dataNascimento) &&
-                Objects.equals(altura, other.altura) &&
-                Objects.equals(peso, other.peso) &&
-                Objects.equals(nivel, other.nivel) &&
-                Objects.equals(fotoPerfil, other.fotoPerfil);
-    }
-
-    @Override
-    public String toString() {
-        return "Usuario {" +
-                "idUsuario=" + idUsuario +
-                ", nome='" + nome + '\'' +
-                ", email='" + email + '\'' +
-                ", senha='" + senha + '\'' +
-                ", genero='" + genero + '\'' +
-                ", dataNascimento=" + dataNascimento +
-                ", altura=" + altura +
-                ", peso=" + peso +
-                ", nivel=" + nivel +
-                ", fotoPerfil='" + fotoPerfil + '\'' +
-                '}';
-    }
+    @OneToMany(mappedBy = "usuarioCriador", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Comunidades> ComunidadesCriadas;
 }

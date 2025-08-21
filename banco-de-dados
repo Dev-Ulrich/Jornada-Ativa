@@ -1,0 +1,126 @@
+-- Criação do banco de dados
+CREATE DATABASE JornadaAtiva;
+GO
+ 
+USE JornadaAtiva;
+GO
+ 
+-- ========================
+-- Tabela Usuario
+-- ========================
+CREATE TABLE Usuario (
+    id_usuario BIGINT IDENTITY(1,1) PRIMARY KEY,
+    nome NVARCHAR(255) NOT NULL,
+    email NVARCHAR(255) NOT NULL UNIQUE,
+    senha_hash NVARCHAR(255) NOT NULL, -- hash da senha
+    genero VARCHAR(10) NOT NULL,
+    data_nascimento DATE NOT NULL,
+    ft_perfil NVARCHAR(255),
+    nivel VARCHAR(50) NOT NULL,        -- categórico (iniciante, intermediário, avançado)
+    altura DECIMAL(3,2) NOT NULL,      -- em metros
+    peso DECIMAL(5,2) NOT NULL,        -- em kg
+    created_at DATETIME DEFAULT GETDATE(),
+    updated_at DATETIME DEFAULT GETDATE()
+);
+GO
+ 
+-- ========================
+-- Tabela Treino (modelos de treino)
+-- ========================
+CREATE TABLE Treino (
+    id_treino BIGINT IDENTITY(1,1) PRIMARY KEY,
+    nome NVARCHAR(255) NOT NULL,
+    descricao NVARCHAR(255),
+    created_at DATETIME DEFAULT GETDATE()
+);
+GO
+ 
+-- ========================
+-- Tabela Historico_Treino (treinos realizados pelo usuário)
+-- ========================
+CREATE TABLE Historico_Treino (
+    id_historico_treino BIGINT IDENTITY(1,1) PRIMARY KEY,
+    data DATE NOT NULL,
+    tempo DECIMAL(8,2) NOT NULL,       -- tempo total em minutos
+    v_media DECIMAL(8,2) NOT NULL,     -- km/h
+    distancia DECIMAL(8,2) NOT NULL,   -- km
+    kcal DECIMAL(6,2) NOT NULL,        -- calorias gastas
+    pace DECIMAL(4,2) NOT NULL,        -- min/km
+    id_usuario BIGINT NOT NULL,
+    id_treino BIGINT NULL,
+    created_at DATETIME DEFAULT GETDATE(),
+    CONSTRAINT fk_historico_usuario FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario),
+    CONSTRAINT fk_historico_treino FOREIGN KEY (id_treino) REFERENCES Treino(id_treino)
+);
+GO
+ 
+-- ========================
+-- Tabela Pontos GPS (trajeto do treino)
+-- ========================
+CREATE TABLE Treino_PontosGPS (
+    id_ponto BIGINT IDENTITY(1,1) PRIMARY KEY,
+    id_historico_treino BIGINT NOT NULL,
+    latitude DECIMAL(9,6) NOT NULL,
+    longitude DECIMAL(9,6) NOT NULL,
+    momento DATETIME DEFAULT GETDATE(), -- horário em que foi salvo
+    CONSTRAINT fk_pontos_historico FOREIGN KEY (id_historico_treino) REFERENCES Historico_Treino(id_historico_treino)
+);
+GO
+ 
+-- ========================
+-- Tabela Eventos (corridas externas)
+-- ========================
+CREATE TABLE Eventos (
+    id_evento BIGINT IDENTITY(1,1) PRIMARY KEY,
+    nome NVARCHAR(255) NOT NULL,
+    descricao NVARCHAR(255) NOT NULL,
+    link_evento NVARCHAR(255) NOT NULL,
+    data_evento DATE,
+    imagem_evento NVARCHAR(255),
+    created_at DATETIME DEFAULT GETDATE()
+);
+GO
+ 
+-- ========================
+-- Tabela Comunidade
+-- ========================
+CREATE TABLE Comunidade (
+    id_comunidade BIGINT IDENTITY(1,1) PRIMARY KEY,
+    nome NVARCHAR(255) NOT NULL,
+    ft_comunidade NVARCHAR(255),
+    id_usuario_criador BIGINT NOT NULL,
+    descricao NVARCHAR(255) NOT NULL,
+    created_at DATETIME DEFAULT GETDATE(),
+    CONSTRAINT fk_comunidade_usuario FOREIGN KEY (id_usuario_criador) REFERENCES Usuario(id_usuario)
+);
+GO
+ 
+-- ========================
+-- Tabela Usuario_Comunidade (membros das comunidades)
+-- ========================
+CREATE TABLE Usuario_Comunidade (
+    id_usuario BIGINT NOT NULL,
+    id_comunidade BIGINT NOT NULL,
+    data_entrada DATETIME DEFAULT GETDATE(),
+    CONSTRAINT pk_usuario_comunidade PRIMARY KEY (id_usuario, id_comunidade),
+    CONSTRAINT fk_uc_usuario FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario),
+    CONSTRAINT fk_uc_comunidade FOREIGN KEY (id_comunidade) REFERENCES Comunidade(id_comunidade)
+);
+GO
+ 
+-- ========================
+-- Tabela Postagem (conteúdo nas comunidades)
+-- ========================
+CREATE TABLE Postagem (
+    id_postagem BIGINT IDENTITY(1,1) PRIMARY KEY,
+    conteudo NVARCHAR(MAX) NOT NULL,
+    coracao INT DEFAULT 0,
+    likes INT DEFAULT 0,
+    emoji_feliz INT DEFAULT 0,
+    id_comunidade BIGINT NOT NULL,
+    id_usuario BIGINT NOT NULL,
+    created_at DATETIME DEFAULT GETDATE(),
+    CONSTRAINT fk_postagem_comunidade FOREIGN KEY (id_comunidade) REFERENCES Comunidade(id_comunidade),
+    CONSTRAINT fk_postagem_usuario FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario)
+);
+GO

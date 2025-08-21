@@ -1,88 +1,51 @@
 package br.com.belval.api.jornadaativa.model;
 
-import java.util.Objects;
+import java.time.LocalDateTime;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.*;
+import lombok.*;
+import java.util.List;
 
 @Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Table(name = "comunidade")
 public class Comunidades {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @Column(name = "id_comunidade")
+    private Long idComunidade;
+
+    @Column(nullable = false, length = 255)
     private String nome;
+
+    @Column(name = "ft_comunidade", length = 255)
+    private String ftComunidade;
+
+    @Column(name = "id_usuario_criador", nullable = false)
+    private Long idUsuarioCriador;
+
+    @Column(nullable = false, length = 255)
     private String descricao;
-    private String integrantes;
-    private String fotoPerfil;
 
-    public Comunidades() {
-    }
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
-    public Integer getId() {
-        return id;
-    }
+    @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_usuario_criador", referencedColumnName = "id_usuario", nullable = true)
+    private Usuario usuarioCriador;
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+    @OneToMany(mappedBy = "comunidade", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<UsuarioComunidade> membros;
 
-    public String getNome() {
-        return nome;
-    }
+    @OneToMany(mappedBy = "comunidade", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Postagem> postagens;
 
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public String getDescricao() {
-        return descricao;
-    }
-
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
-    }
-
-    public String getIntegrantes() {
-        return integrantes;
-    }
-
-    public void setIntegrantes(String integrantes) {
-        this.integrantes = integrantes;
-    }
-
-    public String getFotoPerfil() {
-        return fotoPerfil;
-    }
-
-    public void setFotoPerfil(String fotoPerfil) {
-    this.fotoPerfil = fotoPerfil;
-}
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, nome, descricao, integrantes, fotoPerfil);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null || getClass() != obj.getClass())
-            return false;
-        Comunidades other = (Comunidades) obj;
-        return Objects.equals(id, other.id) &&
-                Objects.equals(nome, other.nome) &&
-                Objects.equals(descricao, other.descricao) &&
-                Objects.equals(integrantes, other.integrantes) &&
-                Objects.equals(fotoPerfil, other.fotoPerfil);
-    }
-
-    @Override
-    public String toString() {
-        return "Comunidade [id=" + id + ", nome=" + nome + ", descricao=" + descricao + ", integrantes=" + integrantes + ", fotoPerfil="
-                + fotoPerfil + "]";
-    }
 }
