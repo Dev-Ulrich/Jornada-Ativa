@@ -1,5 +1,5 @@
 -- Criação do banco de dados
-CREATE DATABASE JornadaAtiva;
+CREATE DATABASE jornada_ativa;
 GO
  
 USE JornadaAtiva;

@@ -48,4 +48,6 @@ public class Comunidades {
     @JsonIgnore
     private List<Postagem> postagens;
 
+    
+
 }
