@@ -19,10 +19,8 @@ public class TreinoPontosGPS {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_ponto")
     private Long idPonto;
-
-    @Column(nullable = false)
-    private Long idHistoricoTreino;
 
     @Column(nullable = false, precision = 9, scale = 6)
     @JsonDeserialize(using = BigDecimalDeserializer.class)
@@ -36,6 +34,6 @@ public class TreinoPontosGPS {
     private LocalDateTime momento;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "historico_treino_id", referencedColumnName = "idHistoricoTreino")
+    @JoinColumn(name = "id_historico_treino", referencedColumnName = "id_historico_treino", nullable = false)
     private HistoricoTreino historicoTreino;
 }

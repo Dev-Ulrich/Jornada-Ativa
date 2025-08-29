@@ -12,6 +12,8 @@ public interface EventosRepository extends CrudRepository<Eventos, Integer> {
 
     List<Eventos> findByNomeContainingIgnoreCase(String nome);
 
+    List<Eventos> findByIdEvento(Long idEvento);
+
     List<Eventos> findByCreatedAt(LocalDateTime createdAt);
 
     List<Eventos> findByDataEvento(LocalDate dataEvento);

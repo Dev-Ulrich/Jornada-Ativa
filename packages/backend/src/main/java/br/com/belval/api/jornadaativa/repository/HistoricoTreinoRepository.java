@@ -16,5 +16,7 @@ public interface HistoricoTreinoRepository extends CrudRepository<HistoricoTrein
 
     List<HistoricoTreino> findByDistancia(BigDecimal distancia);
 
+    List<HistoricoTreino> findByPace(BigDecimal pace);
+
     List<HistoricoTreino> findByCreatedAt(LocalDateTime createdAt);
 }

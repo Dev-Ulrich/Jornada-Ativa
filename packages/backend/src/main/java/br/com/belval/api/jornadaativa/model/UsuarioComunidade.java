@@ -20,12 +20,10 @@ public class UsuarioComunidade {
     private LocalDateTime dataEntrada;
 
     @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
-    @MapsId("idUsuario")
     @JoinColumn(name = "id_usuario")
-    private Usuario usuario;
+    private Usuario usuario;    
 
     @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
-    @MapsId("idComunidade")
     @JoinColumn(name = "id_comunidade")
     private Comunidades comunidade;
 }

@@ -35,6 +35,7 @@ public class HistoricoTreino {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_historico_treino")
     private Long idHistoricoTreino;
     @Column(nullable = false)
     private LocalDate data;
@@ -58,11 +59,11 @@ public class HistoricoTreino {
     private LocalDateTime createdAt;
 
     @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario_id", referencedColumnName = "idUsuario", nullable = true)
+    @JoinColumn(name = "id_usuario", referencedColumnName = "id_usuario", nullable = true)
     private Usuario usuario;
 
     @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
-    @JoinColumn(name = "treino_id", referencedColumnName = "idTreino", nullable = true)
+    @JoinColumn(name = "id_treino", referencedColumnName = "id_treino", nullable = true)
     private Treino treino;
 
     @OneToMany(mappedBy = "historicoTreino", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

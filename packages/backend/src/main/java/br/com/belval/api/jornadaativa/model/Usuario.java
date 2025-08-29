@@ -11,19 +11,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import br.com.belval.api.jornadaativa.util.BigDecimalDeserializer;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorColumn;
-import jakarta.persistence.DiscriminatorType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -35,7 +24,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Table(name = "usuario")
-
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "role", discriminatorType = DiscriminatorType.STRING)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "role")
@@ -46,29 +34,41 @@ import lombok.NoArgsConstructor;
 public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_usuario")
     private Long idUsuario;
+
     @Column(nullable = false, length = 100)
     private String nome;
+
     @Column(nullable = false, unique = true, length = 150)
     private String email;
+
     @Column(name = "senha_hash", nullable = false, length = 255)
     private String senha_hash;
+
     @Column(length = 20)
     private String genero;
+
     @Column(name = "data_nascimento", nullable = false)
     private LocalDate dataNascimento;
+
     @Column
     private Integer nivel;
+
     @Column(precision = 5, scale = 2)
     @JsonDeserialize(using = BigDecimalDeserializer.class)
     private BigDecimal altura;
+
     @Column(precision = 5, scale = 2)
     @JsonDeserialize(using = BigDecimalDeserializer.class)
     private BigDecimal peso;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
     @Column(name = "foto_perfil", length = 255)
     private String fotoPerfil;
 

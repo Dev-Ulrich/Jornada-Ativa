@@ -35,10 +35,10 @@ public class Postagem {
 
 
     @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario_id", referencedColumnName = "idUsuario", nullable = true)
+    @JoinColumn(name = "id_usuario", referencedColumnName = "id_usuario", nullable = true)
     private Usuario usuario;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "comunidade_id", referencedColumnName = "idComunidade")
+    @JoinColumn(name = "id_comunidade", referencedColumnName = "id_comunidade")
     private Comunidades comunidade;
 }

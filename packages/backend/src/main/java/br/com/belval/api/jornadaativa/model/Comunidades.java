@@ -27,9 +27,6 @@ public class Comunidades {
     @Column(name = "ft_comunidade", length = 255)
     private String ftComunidade;
 
-    @Column(name = "id_usuario_criador", nullable = false)
-    private Long idUsuarioCriador;
-
     @Column(nullable = false, length = 255)
     private String descricao;
 
@@ -47,7 +44,5 @@ public class Comunidades {
     @OneToMany(mappedBy = "comunidade", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Postagem> postagens;
-
-    
 
 }
