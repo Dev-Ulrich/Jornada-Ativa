@@ -1,4 +1,4 @@
-package br.com.belval.api.jornadaativa.model;
+package br.com.belval.api.jornadaativa.model.entity;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,9 +28,9 @@ public class Treino {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_treino")
     private Long idTreino;
-    @Column(nullable = false, length = 255)
+    @Column(name= "nome", nullable = false, length = 255)
     private String nome;
-    @Column(length = 255)
+    @Column(name= "descricao", length = 255)
     private String descricao;
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

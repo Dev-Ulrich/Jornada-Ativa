@@ -1,4 +1,4 @@
-package br.com.belval.api.jornadaativa.model;
+package br.com.belval.api.jornadaativa.model.entity;
 
 import java.util.List;
 
@@ -11,12 +11,12 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Entity
-@DiscriminatorValue("CLIENTE")
+@DiscriminatorValue("ADMIN")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class Cliente extends Usuario {
+public class Admin extends Usuario {
 
     @OneToMany(mappedBy = "usuario")
     private List<HistoricoTreino> historicoTreinos;
@@ -26,7 +26,5 @@ public class Cliente extends Usuario {
 
     @OneToMany(mappedBy = "usuario")
     private List<Postagem> postagens;
-
-    
 
 }

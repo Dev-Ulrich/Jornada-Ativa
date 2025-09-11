@@ -1,4 +1,4 @@
-package br.com.belval.api.jornadaativa.model;
+package br.com.belval.api.jornadaativa.model.entity;
 
 import java.time.LocalDateTime;
 

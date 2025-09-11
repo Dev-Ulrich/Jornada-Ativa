@@ -3,20 +3,17 @@ package br.com.belval.api.jornadaativa.exceptions;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import lombok.extern.slf4j.Slf4j;
 
 @RestControllerAdvice
 @Slf4j
 public class AppExceptionHander {
-    private static final Logger log = LoggerFactory.getLogger(AppExceptionHander.class);
 
     private final ZoneId zoneBrasil = ZoneId.of("America/Sao_Paulo");
 
@@ -34,13 +31,13 @@ public class AppExceptionHander {
 
     // Erro 403 (Acesso proibido)
     @ExceptionHandler(Forbidden.class)
-    public ResponseEntity<Object> handleForbide(NotFound ex) {
+    public ResponseEntity<Object> handleForbide(Forbidden ex) {
         return buildErrorResponse(ex, HttpStatus.FORBIDDEN, ex.getMessage());
     }
 
     // Erro 500 (Problemas no Servidor)
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Object> handleGenericException(NotFound ex) {
+    public ResponseEntity<Object> handleGenericException(Exception ex) {
         return buildErrorResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR, "Ocorreu um erro interno no servidor.");
     }
 

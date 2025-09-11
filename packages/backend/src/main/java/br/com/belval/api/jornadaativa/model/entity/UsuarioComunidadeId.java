@@ -1,4 +1,4 @@
-package br.com.belval.api.jornadaativa.model;
+package br.com.belval.api.jornadaativa.model.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
