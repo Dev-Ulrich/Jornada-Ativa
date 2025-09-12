@@ -1,3 +1,7 @@
+
+package br.com.belval.api.jornadaativa.model.services;
+
+
 import br.com.belval.api.jornadaativa.model.entity.HistoricoTreino;
 import br.com.belval.api.jornadaativa.model.repository.HistoricoTreinoRepository;
 import lombok.AllArgsConstructor;
@@ -12,11 +16,11 @@ import java.util.List;
 
 public class HistoricoTreinoSerivceImpl implements HistoricoTreinoService {
 
-        private HistoricoTreinoRepository historicoTreinoRepository;
+        private final HistoricoTreinoRepository historicoTreinoRepository;
 
         @Override
         public HistoricoTreino findById(Long id) {
-            return historicotreinoRepository.findById(id)
+            return historicoTreinoRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Historico não encontrada com o id " + id));
         }
 
@@ -38,5 +42,3 @@ public class HistoricoTreinoSerivceImpl implements HistoricoTreinoService {
             historicoTreinoRepository.deleteById(id);
         }
     }
-
-}

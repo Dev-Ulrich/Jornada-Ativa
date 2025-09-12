@@ -14,6 +14,4 @@ public interface HistoricoTreinoService {
 
     public void delete(Long id);
 
-    public HistoricoTreino update(HistoricoTreino historicoTreino, Long id);
-
 }

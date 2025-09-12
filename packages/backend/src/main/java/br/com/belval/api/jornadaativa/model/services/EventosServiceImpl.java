@@ -13,30 +13,28 @@ import java.util.List;
 @Service
 @Transactional
 @AllArgsConstructor
-
-
 public class EventosServiceImpl implements EventosService {
     private final EventosRepository eventosRepository;
-         return eventosRepository.findById(id)
-            .
 
-    orElseThorow(() ->new
-
-    NotFound("Evento não encontrado com o id "+id));
+    @Override
+    public Eventos findById(Long id) {
+        return eventosRepository.findById(id)
+                .orElseThrow(() -> new NotFound("Evento não encontrado com o id " + id));
+    }
 
 
     @Override
     public List<Eventos> findAll() {
-        return eventosRepository.findbyAll();
+        return eventosRepository.findAll();
     }
 
     @Override
     public Eventos save(Eventos eventos) {
-        return eventos.Repository.save(eventos);
+        return eventosRepository.save(eventos);
     }
 
     @Override
-    public void delete(long id) {
+    public void delete(Long id) {
         if (!eventosRepository.existsById(id)) {
             throw new NotFound("Evento não encontrado com o id" + id);
         }
@@ -45,9 +43,12 @@ public class EventosServiceImpl implements EventosService {
 
     @Override
     public Eventos update(Eventos eventos, long id) {
-        Eventos EventoAtual = findById(id);
-        EventoAtual.setNome(eventos.getNome());
-        EventoAtual.setDescricao(eventos.getDescricao());
+        Eventos eventoAtual = findById(id);
+        eventoAtual.setNome(eventos.getNome());
+        eventoAtual.setDescricao(eventos.getDescricao());
+        eventoAtual.setDataEvento(eventos.getDataEvento());
+        eventoAtual.setLinkEvento(eventos.getLinkEvento());
+        eventoAtual.setImagemEvento(eventos.getImagemEvento());
 
         return eventosRepository.save(eventoAtual);
     }

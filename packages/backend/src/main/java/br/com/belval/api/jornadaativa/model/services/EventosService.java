@@ -6,13 +6,13 @@ import java.util.List;
 
 public interface EventosService {
 
-    public Eventos findById (long id);
+    Eventos findById (Long id);
 
     List<Eventos> findAll();
 
-    public Eventos save(Eventos eventos);
+    Eventos save(Eventos eventos);
 
-    public void delete(Eventos eventos);
+    void delete(Long id);
 
-    public void delete(Eventos eventos, long id);
+    Eventos update(Eventos eventos, long id);
 }

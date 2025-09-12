@@ -43,8 +43,8 @@ public class ComunidadesServiceImpl implements ComunidadesService {
     public Comunidades update(Comunidades comunidades, Long id) {
         Comunidades comunidadeAtual = findById(id);
         comunidadeAtual.setNome(comunidades.getNome());
-        comunidadeAtual.setFtComunidade(comunidades.getFtComunidade);
-        comunidadeAtual.setDescricao(comunidades.getDescricao);
+        comunidadeAtual.setFtComunidade(comunidades.getFtComunidade());
+        comunidadeAtual.setDescricao(comunidades.getDescricao());
         return comunidadesRepository.save(comunidadeAtual);
     }
 }
