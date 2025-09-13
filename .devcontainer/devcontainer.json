@@ -1,4 +1,7 @@
 {
-  "name": "Java 21 Container",
-  "image": "mcr.microsoft.com/devcontainers/java:21"
+  "name": "Java 21 + Maven",
+  "image": "mcr.microsoft.com/devcontainers/java:21",
+  "features": {
+    "maven": "latest"
+  }
 }
