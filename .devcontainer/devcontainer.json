@@ -1,0 +1,4 @@
+{
+  "name": "Java 21 Container",
+  "image": "mcr.microsoft.com/devcontainers/java:21"
+}
