@@ -1,41 +1,55 @@
+//No terminal, dentro do seu projeto react, executa
+//npm install -g json-server
+//npm install axios
+
+//comandos de inicializacao
+//npx json-server --watch db.json --port 3001
+//npm run dev
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
 
 const Login = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState(""); //exibir mensagem de erro
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
-  // Dados Fixos para validação
-  const fixedEmail = "admin@admin.com.br" && "victorulrich07@gmail.com";
-  const fixedSenha = "123456" && "12345678";
-
   // Função chamada ao submeter o formulario
-  const handleSubmit = (e) => {
-    e.preventDefault(); //Previne o envio padrão do formulario
+  const handleLogin = async (e) => {
+    e.preventDefault();
 
-    setError(""); // Limpar o erro anterior
+    try {
+      const response = await fetch(
+        `http://localhost:3001/usuario?email=${email}&senha=${senha}`
+      );
+      const data = await response.json();
 
-    if (username === fixedEmail && password === fixedSenha) {
-      navigate("/funcionario/herofuncionario");
-    } else {
-      setError("Email ou Senha inválidos!");
+      if (data.length > 0) {
+        setMessage("Login realizado com sucesso!");
+        localStorage.setItem("usuarioLogado", JSON.stringify(data[0]));
+        // Redireciona para a Home
+        navigate("/admin/dashboard");
+      } else {
+        setMessage("Email ou senha inválidos.");
+      }
+    } catch (error) {
+      setMessage("Erro ao conectar com o servidor.");
     }
   };
 
   return (
     <div className="body">
       <main className="container">
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleLogin}>
           <h1>Login J.A</h1>
           <div className="input-box">
             <input
               type="text"
               placeholder="Email"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
             <i className="bx bxs-user"></i>
           </div>
@@ -43,8 +57,8 @@ const Login = () => {
             <input
               type="password"
               placeholder="Senha"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
             />
             <i className="bx bxs-lock-alt"></i>
           </div>
@@ -56,7 +70,7 @@ const Login = () => {
             </label>
           </div>
           {/*Exibe mensagem de erro, se houver*/}
-          {error && <p className="erro-message">{error}</p>}
+          {message && <p>{message}</p>}
 
           <button type="submit" className="login">
             Login

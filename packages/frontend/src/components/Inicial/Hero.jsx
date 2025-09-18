@@ -1,5 +1,4 @@
 import './Hero.css';
-import './Responsive.css';
 import { FaWhatsapp, FaInstagram, FaTiktok, FaPowerOff  } from "react-icons/fa";
 import { MdAttachEmail } from "react-icons/md";
 import { BsUiChecks } from "react-icons/bs";
