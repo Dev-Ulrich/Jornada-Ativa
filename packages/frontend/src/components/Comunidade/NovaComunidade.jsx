@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FaArrowLeft, FaPowerOff } from "react-icons/fa";
-import "./NovaComunidade.css"; // Importe o arquivo CSS correto
+import "./NovaComunidade.css";
 import api from "../../services/api";
 
 const NovaComunidade = () => {
@@ -14,17 +14,16 @@ const NovaComunidade = () => {
 
   const token = localStorage.getItem("token");
 
-  const handleImageChange = (e) => {
-    const selectedFile = e.target.files[0];
-    setFoto(selectedFile);
-    if (selectedFile) {
-      setPreview(URL.createObjectURL(selectedFile));
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setFoto(file);
+      setPreview(URL.createObjectURL(file));
     }
   };
 
-  const enviarComunidade = async (e) => {
-    e.preventDefault();
-
+  const enviarComunidade = async (event) => {
+    event.preventDefault();
     const formData = new FormData();
     formData.append("nome", nome);
     formData.append("descricao", descricao);
@@ -37,10 +36,9 @@ const NovaComunidade = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log(response.data);
       const nomeComunidade =
         response.data?.data?.nome || response.data?.nome || "Comunidade";
-      alert(nomeComunidade + "Comunidade cadastrada com sucesso!");
+      alert(nomeComunidade + " cadastrada com sucesso!");
       setNome("");
       setDescricao("");
       setIntegrantes("");
@@ -52,7 +50,7 @@ const NovaComunidade = () => {
     }
   };
 
-  // Dark Mode (moved inside component)
+  // Dark Mode
   const [darkMode, setDarkMode] = useState(() => {
     const storedDarkMode = localStorage.getItem("dark-mode");
     return storedDarkMode === "active";
@@ -85,10 +83,7 @@ const NovaComunidade = () => {
       </header>
 
       <div className="nova-comunidade-container">
-        <Link
-          to="/funcionario/herofuncionario"
-          className="nova-comunidade-voltar"
-        >
+        <Link to="/admin/dashboard" className="nova-comunidade-voltar">
           <FaArrowLeft className="nova-comunidade-voltar-icone" />
           Voltar
         </Link>
@@ -121,19 +116,6 @@ const NovaComunidade = () => {
             />
           </div>
           <div className="nova-comunidade-campo">
-            <label htmlFor="integrantes" className="nova-comunidade-label">
-              Número de Integrantes:
-            </label>
-            <input
-              type="number"
-              id="integrantes"
-              value={integrantes}
-              onChange={(e) => setIntegrantes(e.target.value)}
-              required
-              className="nova-comunidade-input"
-            />
-          </div>
-          <div className="nova-comunidade-campo">
             <label htmlFor="image" className="nova-comunidade-label">
               Foto da Comunidade:
             </label>
@@ -148,9 +130,7 @@ const NovaComunidade = () => {
             />
             {preview && (
               <div className="nova-comunidade-preview">
-                <p className="nova-comunidade-preview-texto">
-                  Imagem Original:
-                </p>
+                <p className="nova-comunidade-preview-texto">Imagem Original:</p>
                 <img
                   src={preview}
                   alt="Original"

@@ -50,6 +50,7 @@ body.dark-mode .area-placeholder {
   align-items: center;
   justify-content: center;
   margin-bottom: 12px;
+  margin-left: 190px;
   transition: background 0.2s;
 }
 body.dark-mode .trilho-dashboard {
@@ -98,6 +99,8 @@ body.dark-mode .indicador-dashboard {
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  margin-left: 42px;
+  
 }
 
 .avatar-placeholder {
@@ -332,3 +335,32 @@ body.dark-mode .indicador-dashboard {
     height: auto;
   }
 }
+
+.novo-usuario-btn {
+  position: absolute;
+  right: 32px;
+  bottom: 32px;
+  background: #ff8633;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 28px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px #0002;
+  transition: background 0.2s;
+  text-decoration: none;
+}
+
+.novo-usuario-btn:hover {
+  background: #ff6f00;
+}
+
+.usuario-tabela-wrapper {
+  position: relative;
+}
+

@@ -1,7 +1,124 @@
+.usuario-tabela-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  min-height: 80vh;
+  position: relative;
+}
+
+/* Container da tabela */
+.usuario-tabela-container {
+  background: linear-gradient(90deg, #b0b0b0 0%, #d0d0d0 100%);
+  border-radius: 18px 18px 0 0;
+  box-shadow: 0 1px 8px #111;
+  padding: 32px 40px 24px 40px;
+  margin: 32px 0 0 0;
+  width: 80vw;
+  max-width: 1400px;
+}
+
+body.dark-mode .usuario-tabela-container {
+  background: linear-gradient(90deg, #222 0%, #444 100%);
+  box-shadow: 0 1px 8px #222;
+}
+
+/* Título */
+.usuario-tabela-container h1,
+.usuario-tabela-container h2 {
+  color: #222;
+  margin-bottom: 18px;
+  font-size: 2.6rem;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+body.dark-mode .usuario-tabela-container h1,
+body.dark-mode .usuario-tabela-container h2 {
+  color: #fff;
+}
+
+/* Tabela */
+.usuario-tabela-container table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #ff8633; /* Fundo laranja */
+  margin-top: 18px;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px #e0c08020;
+}
+
+/* Cabeçalho */
+.usuario-tabela-container th {
+  background: #ff8633;
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 600;
+  padding: 16px 8px;
+  border-right: 2px solid #fff2;
+  border-bottom: 2px solid #fff2;
+  text-align: left;
+}
+
+.usuario-tabela-container th:last-child {
+  border-right: none;
+}
+
+/* Células */
+.usuario-tabela-container td {
+  background: #fff;
+  color: #222;
+  font-size: 1.08rem;
+  padding: 14px 8px;
+  border-bottom: 1px solid #eee;
+  vertical-align: middle;
+}
+
+body.dark-mode .usuario-tabela-container td {
+  background: #222;
+  color: #fff;
+  border-bottom: 1px solid #444;
+}
+
+.usuario-tabela-container tr:last-child td {
+  border-bottom: none;
+}
+
+/* Status */
+.usuario-tabela-container .status-ativo {
+  color: #2ecc40;
+  font-weight: 600;
+}
+
+.usuario-tabela-container .status-bloqueado {
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+/* Data de cadastro */
+.usuario-tabela-container .data-cadastro {
+  background: #eee;
+  border-radius: 12px;
+  padding: 4px 10px;
+  font-size: 1rem;
+  display: inline-block;
+}
+
+body.dark-mode .usuario-tabela-container .data-cadastro {
+  background: #444;
+  color: #fff;
+}
+
+/* Paginação */
 .pagination {
   display: flex;
   list-style: none;
   padding: 0;
+  margin-top: 18px;
+  justify-content: center;
 }
 
 .page-item {
@@ -12,10 +129,112 @@
   color: #ff6f00;
   text-decoration: none;
   padding: 5px 10px;
-  border: 1px solid var(--text-base);
+  border: 1px solid #ff8633;
+  border-radius: 4px;
+  background: #fff;
   cursor: pointer;
+  transition: background 0.2s, color 0.2s;
 }
 
-.page-link:hover {
-  background-color: #f0f0f0;
+.page-link:hover,
+.page-link.active {
+  background-color: #ff8633;
+  color: #fff;
+}
+
+body.dark-mode .page-link {
+  background: #222;
+  color: #ff8633;
+  border: 1px solid #ff8633;
+}
+
+body.dark-mode .page-link:hover,
+body.dark-mode .page-link.active {
+  background: #ff8633;
+  color: #fff;
+}
+
+/* Foto de perfil */
+.foto-perfil {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ff8633;
+  background: #fff;
+}
+
+.sem-foto {
+  color: #bbb;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* Botão Novo Usuário */
+.novo-usuario-btn {
+  position: absolute;
+  right: 32px;
+  bottom: 32px;
+  background: #ff8633;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 28px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px #0002;
+  transition: background 0.2s;
+  text-decoration: none;
+}
+
+.novo-usuario-btn:hover {
+  background: #ff6f00;
+}
+
+/* Botões de ação */
+.btn-acao {
+  border: none;
+  outline: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  margin: 0 4px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #fff;
+  transition: filter 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-acao.editar {
+  background: #2176ff;
+}
+
+.btn-acao.excluir {
+  background: #e74c3c;
+}
+
+.btn-acao:hover {
+  filter: brightness(0.9);
+}
+
+/* Responsivo */
+@media (max-width: 900px) {
+  .usuario-tabela-container {
+    padding: 16px 4px;
+    font-size: 0.95rem;
+  }
+  .usuario-tabela-container h1 {
+    font-size: 1.5rem;
+  }
+  .usuario-tabela-container th,
+  .usuario-tabela-container td {
+    padding: 8px 2px;
+    font-size: 0.95rem;
+  }
 }

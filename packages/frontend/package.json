@@ -19,6 +19,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
+    "react-input-mask": "^3.0.0-alpha.2",
     "react-router-dom": "^6.30.0"
   },
   "devDependencies": {

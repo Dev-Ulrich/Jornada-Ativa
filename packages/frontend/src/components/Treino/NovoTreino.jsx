@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import api from "../../services/api";
 import { Link } from "react-router-dom";
 import { FaArrowLeft, FaPowerOff } from "react-icons/fa";
 import "./NovoTreino.css";
 
 const NovoTreino = () => {
-  const [data, setData] = useState("");
-  const [distancia, setDistancia] = useState("");
-  const [tempo, setTempo] = useState("");
+  const [nome, setNome] = useState("");
+  const [descricao, setDescricao] = useState("");
+  const [nivel, setNivel] = useState("");
   const token = localStorage.getItem("token");
 
   const enviarTreino = async (event) => {
@@ -17,9 +17,9 @@ const NovoTreino = () => {
       const response = await api.post(
         "/treinos",
         {
-          data: data,
-          distancia: distancia,
-          tempo: tempo,
+          nome,
+          descricao,
+          nivel,
         },
         {
           headers: {
@@ -28,11 +28,10 @@ const NovoTreino = () => {
         }
       );
 
-      console.log(response.data);
       alert("Treino cadastrado com sucesso!");
-      setData("");
-      setDistancia("");
-      setTempo("");
+      setNome("");
+      setDescricao("");
+      setNivel("");
     } catch (error) {
       console.error("Não foi possível salvar o treino ", error);
       alert("Erro ao cadastrar treino. Verifique os dados e tente novamente.");
@@ -59,8 +58,6 @@ const NovoTreino = () => {
     setDarkMode((prevDarkMode) => !prevDarkMode);
   };
 
-  //Final Dark Mode
-
   return (
     <div>
       <header>
@@ -74,50 +71,54 @@ const NovoTreino = () => {
       </header>
 
       <div className="novo-treino-container">
-        <Link to="/funcionario/herofuncionario" className="novo-treino-voltar">
+        <Link to="/admin/dashboard" className="novo-treino-voltar">
           <FaArrowLeft className="novo-treino-voltar-icone" />
           Voltar
         </Link>
         <h2 className="novo-treino-titulo">Novo Treino</h2>
         <form onSubmit={enviarTreino}>
           <div className="novo-treino-campo">
-            <label htmlFor="data" className="novo-treino-label">
-              Data:
-            </label>
-            <input
-              type="date"
-              id="data"
-              value={data}
-              onChange={(e) => setData(e.target.value)}
-              required
-              className="novo-treino-input"
-            />
-          </div>
-          <div className="novo-treino-campo">
-            <label htmlFor="distancia" className="novo-treino-label">
-              Distância:
-            </label>
-            <input
-              type="number"
-              id="distancia"
-              value={distancia}
-              onChange={(e) => setDistancia(e.target.value)}
-              required
-              className="novo-treino-input"
-            />
-          </div>
-          <div className="novo-treino-campo">
-            <label htmlFor="tempo" className="novo-treino-label">
-              Tempo:
+            <label htmlFor="nome" className="novo-treino-label">
+              Nome:
             </label>
             <input
               type="text"
-              id="tempo"
-              value={tempo}
-              onChange={(e) => setTempo(e.target.value)}
+              id="nome"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
               required
               className="novo-treino-input"
             />
+          </div>
+          <div className="novo-treino-campo">
+            <label htmlFor="descricao" className="novo-treino-label">
+              Descrição:
+            </label>
+            <input
+              type="text"
+              id="descricao"
+              value={descricao}
+              onChange={(e) => setDescricao(e.target.value)}
+              required
+              className="novo-treino-input"
+            />
+          </div>
+          <div className="novo-treino-campo">
+            <label htmlFor="nivel" className="novo-treino-label">
+              Nível:
+            </label>
+            <select
+              id="nivel"
+              value={nivel}
+              onChange={(e) => setNivel(e.target.value)}
+              required
+              className="novo-treino-input"
+            >
+              <option value="">Selecione</option>
+              <option value="Iniciante">Iniciante</option>
+              <option value="Intermediário">Intermediário</option>
+              <option value="Avançado">Avançado</option>
+            </select>
           </div>
           <button type="submit" className="novo-treino-botao">
             Cadastrar Treino

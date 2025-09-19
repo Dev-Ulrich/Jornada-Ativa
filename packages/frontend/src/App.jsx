@@ -4,7 +4,6 @@ import "./App.css";
 
 import Hero from "./components/Inicial/Hero";
 import Login from "./components/Login/Login";
-import HeroFuncionario from "./components/Funcionario/HeroFuncionario";
 import NovoUsuario from "./components/Usuario/NovoUsuario";
 import UsuarioTabela from "./components/Usuario/UsuarioTabela";
 import TreinoTabela from "./components/Treino/TreinoTabela";
@@ -16,7 +15,6 @@ import NovoEvento from "./components/Evento/NovoEvento";
 import DashBoard from "./components/DashBoard/DashBoard";
 
 function App() {
-  
   const [count, setCount] = useState(0);
 
   return (
@@ -29,41 +27,28 @@ function App() {
           <Route path="/jornadaativa/usuario/login" element={<Login />} />
           {/* DashBoard */}
           <Route path="/admin/dashboard" element={<DashBoard />} />
-          <Route
-            path="/funcionario/herofuncionario"
-            element={<HeroFuncionario />}
-          />
           {/* Tabela Usuário */}
-          <Route path="/funcionario/usuario" element={<UsuarioTabela />} />
+          <Route path="/admin/usuario" element={<UsuarioTabela />} />
           {/* Cadastro Novo Usuário */}
-          <Route
-            path="/funcionario/usuario/novousuario"
-            element={<NovoUsuario />}
-          />
+          <Route path="/admin/usuario/novousuario" element={<NovoUsuario />} />
           {/* Tabela Treino */}
-          <Route path="/funcionario/treino" element={<TreinoTabela />} />
+          <Route path="/admin/treino" element={<TreinoTabela />} />
           {/* Cadastro Novo Treino */}
-          <Route
-            path="/funcionario/treino/novotreino"
-            element={<NovoTreino />}
-          />
+          <Route path="/admin/treino/novotreino" element={<NovoTreino />} />
           {/* Tabela Comunidade */}
           <Route
-            path="/funcionario/comunidade/comunidade"
+            path="/admin/comunidade/comunidade"
             element={<ComunidadeTabela />}
           />
           {/* Cadastro Nova Comunidade */}
           <Route
-            path="/funcionario/comunidade/novacomunidade"
+            path="/admin/comunidade/novacomunidade"
             element={<NovaComunidade />}
           />
           {/* Tabela Evento */}
-          <Route path="/funcionario/evento/evento" element={<EventoTabela />} />
+          <Route path="/admin/evento/evento" element={<EventoTabela />} />
           {/* Cadastro Novo Evento */}
-          <Route
-            path="/funcionario/evento/novoevento"
-            element={<NovoEvento />}
-          />
+          <Route path="/admin/evento/novoevento" element={<NovoEvento />} />
         </Routes>
       </Router>
     </>
