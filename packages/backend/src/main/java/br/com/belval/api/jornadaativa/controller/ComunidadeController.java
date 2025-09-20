@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/comunidade")
 @AllArgsConstructor
-public class ComunidadeController {
+public class    ComunidadeController {
 
     private final ComunidadesService comunidadesService;
 

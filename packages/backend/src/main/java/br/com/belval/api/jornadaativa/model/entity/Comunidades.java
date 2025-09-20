@@ -30,8 +30,14 @@ public class Comunidades {
     @Column(nullable = false, length = 255)
     private String descricao;
 
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+    }
 
     @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario_criador", referencedColumnName = "id_usuario", nullable = true)
