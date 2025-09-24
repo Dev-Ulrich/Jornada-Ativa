@@ -11,7 +11,7 @@
     "start": "json-server --watch db.json --port 3003"
   },
   "dependencies": {
-    "axios": "^1.9.0",
+    "axios": "^1.12.2",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
     "i": "^0.3.7",

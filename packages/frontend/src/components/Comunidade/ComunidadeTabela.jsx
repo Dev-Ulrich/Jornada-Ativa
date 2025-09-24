@@ -1,18 +1,32 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import api from "../../services/api"; // importe o api
 import "./ComunidadeTabela.css";
 
-const ComunidadeTabela = ({ comunidades }) => {
+const ComunidadeTabela = () => {
+  const [comunidades, setComunidades] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const communitiesPerPage = 10;
 
+  useEffect(() => {
+    api
+      .get("/api/comunidade")
+      .then((res) => setComunidades(res.data))
+      .catch((err) => console.error("Erro ao buscar comunidades:", err));
+  }, []);
+
   const indexOfLastCommunity = currentPage * communitiesPerPage;
   const indexOfFirstCommunity = indexOfLastCommunity - communitiesPerPage;
-  const currentComunidades = comunidades
-    ? comunidades.slice(indexOfFirstCommunity, indexOfLastCommunity)
-    : [];
+  const currentComunidades = comunidades.slice(
+    indexOfFirstCommunity,
+    indexOfLastCommunity
+  );
 
   const pageNumbers = [];
-  for (let i = 1; i <= Math.ceil((comunidades?.length || 0) / communitiesPerPage); i++) {
+  for (
+    let i = 1;
+    i <= Math.ceil(comunidades.length / communitiesPerPage);
+    i++
+  ) {
     pageNumbers.push(i);
   }
 
@@ -39,24 +53,28 @@ const ComunidadeTabela = ({ comunidades }) => {
                 <td>
                   {comunidade.fotoComunidade ? (
                     <img
-                      src={`http://localhost:8081${comunidade.fotoComunidade}`}
+                      src={`http://localhost:8081${comunidade.ftComunidade}`}
                       alt="Comunidade"
                       className="foto-comunidade"
                     />
                   ) : (
-                    <span className="sem-foto">-</span>
+                    "NULL"
                   )}
                 </td>
-                <td>{comunidade.id}</td>
+                <td>{comunidade.idComunidade}</td>
                 <td>{comunidade.nome}</td>
                 <td>{comunidade.descricao}</td>
-                <td>{comunidade.integrantes}</td>
+                <td>{comunidade.integrantes ?? "NULL"}</td>
                 <td>
                   <button className="btn-acao editar" title="Editar">
-                    <span role="img" aria-label="editar">✏️</span>
+                    <span role="img" aria-label="editar">
+                      ✏️
+                    </span>
                   </button>
                   <button className="btn-acao excluir" title="Excluir">
-                    <span role="img" aria-label="excluir">🗑️</span>
+                    <span role="img" aria-label="excluir">
+                      🗑️
+                    </span>
                   </button>
                 </td>
               </tr>
@@ -79,7 +97,8 @@ const ComunidadeTabela = ({ comunidades }) => {
           </ul>
         </nav>
         <a href="/admin/comunidade/novacomunidade" className="novo-usuario-btn">
-          <span style={{ fontSize: "1.3em", fontWeight: "bold" }}>+</span> Nova Comunidade
+          <span style={{ fontSize: "1.3em", fontWeight: "bold" }}>+</span> Nova
+          Comunidade
         </a>
       </div>
     </div>

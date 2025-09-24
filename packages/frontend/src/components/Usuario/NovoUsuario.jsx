@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import { FaArrowLeft, FaPowerOff } from "react-icons/fa";
 import "./NovoUsuario.css";
 
+
+
 const formatarData = (valor) => {
   valor = valor.replace(/\D/g, "");
   if (valor.length > 2) valor = valor.slice(0,2) + "/" + valor.slice(2);
@@ -54,7 +56,7 @@ const NovoUsuario = () => {
     if (image) formData.append("files", image);
 
     try {
-      const response = await api.post("/usuarios", formData, {
+      const response = await api.post("/api/usuario", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

@@ -31,9 +31,10 @@ const NovaComunidade = () => {
     if (foto) formData.append("fotoPerfil", foto);
 
     try {
-      const response = await api.post("/comunidades", formData, {
+      const response = await api.post("/api/comunidade", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       });
       const nomeComunidade =
@@ -130,7 +131,9 @@ const NovaComunidade = () => {
             />
             {preview && (
               <div className="nova-comunidade-preview">
-                <p className="nova-comunidade-preview-texto">Imagem Original:</p>
+                <p className="nova-comunidade-preview-texto">
+                  Imagem Original:
+                </p>
                 <img
                   src={preview}
                   alt="Original"
