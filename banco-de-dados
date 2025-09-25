@@ -1,5 +1,5 @@
 -- Criação do banco de dados
-CREATE DATABASE jornada_ativa;
+CREATE DATABASE JornadaAtiva;
 GO
  
 USE JornadaAtiva;
@@ -19,6 +19,7 @@ CREATE TABLE Usuario (
     nivel VARCHAR(50) NOT NULL,        -- categórico (iniciante, intermediário, avançado)
     altura DECIMAL(3,2) NOT NULL,      -- em metros
     peso DECIMAL(5,2) NOT NULL,        -- em kg
+    role VARCHAR(45) NULL,
     created_at DATETIME DEFAULT GETDATE(),
     updated_at DATETIME DEFAULT GETDATE()
 );
@@ -124,3 +125,18 @@ CREATE TABLE Postagem (
     CONSTRAINT fk_postagem_usuario FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario)
 );
 GO
+ 
+-- ========================
+-- Tabela de Tokens (tokens de login)
+-- ========================
+ 
+CREATE TABLE tokens (
+id BIGINT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+expired BIT NOT NULL,
+revoked BIT NOT NULL,
+token VARCHAR(255) NULL,
+token_type VARCHAR(255) NULL,
+id_usuario BIGINT NULL,
+CONSTRAINT fk_token_usuario_id FOREIGN KEY(id_usuario) REFERENCES Usuario(id)
+ 
+)
