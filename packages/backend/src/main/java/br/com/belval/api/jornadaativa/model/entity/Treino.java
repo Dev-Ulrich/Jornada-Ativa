@@ -22,12 +22,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "treino")
+@Table(name = "Treino")
 public class Treino {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_treino")
-    private Long idTreino;
+    private Long id;
     @Column(name= "nome", nullable = false, length = 255)
     private String nome;
     @Column(name= "descricao", length = 255)

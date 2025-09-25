@@ -36,7 +36,7 @@ public class HistoricoTreino {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_historico_treino")
-    private Long idHistoricoTreino;
+    private Long id;
     @Column(nullable = false)
     private LocalDate data;
     @Column(nullable = false, precision = 8, scale = 2)

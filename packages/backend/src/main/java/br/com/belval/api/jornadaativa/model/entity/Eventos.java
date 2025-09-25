@@ -11,13 +11,13 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "eventos")
+@Table(name = "Eventos")
 public class Eventos {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_evento")
-    private Long idEvento;
+    private Long id;
 
     @Column(nullable = false, length = 255)
     private String nome;

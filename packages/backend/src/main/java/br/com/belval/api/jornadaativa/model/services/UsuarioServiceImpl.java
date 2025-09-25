@@ -46,7 +46,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         Usuario usuarioAtual = findById(id);
         usuarioAtual.setNome(usuario.getNome());
         usuarioAtual.setEmail(usuario.getEmail());
-        usuarioAtual.setSenha_hash(usuario.getSenha_hash());
+        usuarioAtual.setPassword(usuario.getPassword());
         usuarioAtual.setDataNascimento(usuario.getDataNascimento());
         usuarioAtual.setAltura(usuario.getAltura());
         usuarioAtual.setCreatedAt(usuario.getCreatedAt());

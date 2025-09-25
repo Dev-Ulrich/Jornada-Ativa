@@ -13,13 +13,13 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "comunidade")
+@Table(name = "Comunidade")
 public class Comunidades {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_comunidade")
-    private Long idComunidade;
+    private Long id;
 
     @Column(nullable = false, length = 255)
     private String nome;

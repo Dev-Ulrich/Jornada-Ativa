@@ -10,13 +10,13 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "postagem")
+@Table(name = "Postagem")
 public class Postagem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_postagem")
-    private Long idPostagem;
+    private Long id;
 
     @Column(nullable = false, columnDefinition = "NVARCHAR(MAX)")
     private String conteudo;

@@ -13,6 +13,8 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private static final String[] WHITE_LIST_URL = {
+            "/",
+            "/imagens/**",
             "/api/usuario/**",
             "/api/comunidade/**",
             "/api/evento/**",

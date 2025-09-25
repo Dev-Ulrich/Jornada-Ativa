@@ -12,19 +12,6 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @DiscriminatorValue("ADMIN")
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@EqualsAndHashCode(callSuper = false)
 public class Admin extends Usuario {
-
-    @OneToMany(mappedBy = "usuario")
-    private List<HistoricoTreino> historicoTreinos;
-
-    @OneToMany(mappedBy = "usuario")
-    private List<UsuarioComunidade> comunidades;
-
-    @OneToMany(mappedBy = "usuario")
-    private List<Postagem> postagens;
 
 }

@@ -14,13 +14,13 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "treino_pontos_gps")
+@Table(name = "Treino_PontosGPS")
 public class TreinoPontosGPS {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_ponto")
-    private Long idPonto;
+    private Long id;
 
     @Column(nullable = false, precision = 9, scale = 6)
     @JsonDeserialize(using = BigDecimalDeserializer.class)
