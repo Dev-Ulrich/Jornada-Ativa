@@ -43,6 +43,7 @@ public class Usuario implements UserDetails {
     @Column(nullable = false, unique = true, length = 150)
     private String email;
 
+    @JsonIgnore
     @Column(name = "senha_hash", nullable = false, length = 255)
     private String password;
 
@@ -63,11 +64,11 @@ public class Usuario implements UserDetails {
     @JsonDeserialize(using = BigDecimalDeserializer.class)
     private BigDecimal peso;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    private LocalDateTime updatedAt = LocalDateTime.now();;
 
     @Column(name = "ft_perfil", length = 255)
     private String fotoPerfil;
@@ -94,7 +95,7 @@ public class Usuario implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return role.getAuthorities();
+        return role != null ? role.getAuthorities() : List.of();
     }
     @Override
     public String getUsername() {

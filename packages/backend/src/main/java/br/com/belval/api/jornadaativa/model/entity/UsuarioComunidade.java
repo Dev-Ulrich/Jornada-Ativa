@@ -1,7 +1,5 @@
 package br.com.belval.api.jornadaativa.model.entity;
 
-import java.time.LocalDateTime;
-
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,17 +11,19 @@ import lombok.*;
 @Table(name = "Usuario_Comunidade")
 public class UsuarioComunidade {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @Column(name = "data_entrada", nullable = false, updatable = false)
-    private LocalDateTime dataEntrada;
+    @EmbeddedId
+    private UsuarioComunidadeId id;
 
     @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
+    @MapsId("idUsuario")
     @JoinColumn(name = "id_usuario")
-    private Usuario usuario;    
+    private Usuario usuario;
 
     @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
+    @MapsId("idComunidade")
     @JoinColumn(name = "id_comunidade")
     private Comunidades comunidade;
+
+    @Column(name = "data_entrada", nullable = false)
+    private java.time.LocalDateTime dataEntrada;
 }
