@@ -17,7 +17,7 @@ public class AppExceptionHander {
 
     private final ZoneId zoneBrasil = ZoneId.of("America/Sao_Paulo");
 
-    // Erro 400
+    // Erro 400 ( Url mal formada pelo front-end)
     @ExceptionHandler(BadRequest.class)
     public ResponseEntity<Object> handleBadRequest(BadRequest ex) {
         return buildErrorResponse(ex, HttpStatus.BAD_REQUEST, ex.getMessage());

@@ -9,4 +9,6 @@ import br.com.belval.api.jornadaativa.model.entity.Usuario;
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
+    Optional<Usuario> findByEmail(String email);
+
 }
