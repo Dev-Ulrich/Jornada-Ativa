@@ -1,18 +1,14 @@
 package br.com.belval.api.jornadaativa.model.repository;
 
-import java.time.LocalDate;
-import java.util.List;
 
-
+import br.com.belval.api.jornadaativa.model.entity.Treinos;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import br.com.belval.api.jornadaativa.model.entity.Treino;
-
-import java.time.LocalDateTime;
-
-import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
 
 @Repository
-public interface TreinoRepository extends JpaRepository<Treino, Long> {
+public interface TreinoRepository extends JpaRepository<Treinos, Long> {
 
+    List<Treinos> findByNomeContainingIgnoreCase(String nome);
 }

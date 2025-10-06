@@ -1,49 +1,24 @@
 package br.com.belval.api.jornadaativa.model.entity;
 
 
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import jakarta.persistence.*;
+import lombok.*;
 
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.io.Serializable;
 
-import static br.com.belval.api.jornadaativa.model.entity.Permission.*;
+@Entity
+@Table(name = "roles",
+        uniqueConstraints = @UniqueConstraint(name = "UK_roles_name", columnNames = "name"))
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+public class Role implements Serializable {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_role")
+    private Long id;
 
-public enum Role {
+    @Enumerated(EnumType.STRING)
+    @Column(name = "name", nullable = false, length = 40)
+    private RoleName name;
 
-    ADMIN (
-            Set.of (
-                    ADMIN_READ,
-                    ADMIN_UPDATE,
-                    ADMIN_DELETE,
-                    ADMIN_CREATE
-            )
-    ),
-    CLIENTE (
-            Set.of (
-                    CLIENTE_READ,
-                    CLIENTE_UPDATE,
-                    CLIENTE_DELETE,
-                    CLIENTE_CREATE
-            )
-    );
-
-    private final Set<Permission> permissions;
-
-    Role(Set<Permission> permissions) {this.permissions = permissions;}
-
-    public List<SimpleGrantedAuthority> getAuthorities() {
-
-        var authorities = getPermissions()
-                .stream()
-                .map(permission -> new SimpleGrantedAuthority(permission.toString()))
-                .collect(Collectors.toList());
-        authorities.add(new SimpleGrantedAuthority("ROLE_" + this.name()));
-        return authorities;
-    }
-
-    public Set<Permission> getPermissions() {
-        return permissions;
-    }
-    
+    @Column(name = "description", length = 120)
+    private String description;
 }

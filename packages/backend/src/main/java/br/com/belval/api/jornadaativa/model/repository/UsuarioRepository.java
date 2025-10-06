@@ -1,14 +1,17 @@
 package br.com.belval.api.jornadaativa.model.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 
+import br.com.belval.api.jornadaativa.model.entity.Usuarios;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import br.com.belval.api.jornadaativa.model.entity.Usuario;
+import java.util.Optional;
+
 
 @Repository
-public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
+public interface UsuarioRepository extends JpaRepository<Usuarios, Long> {
 
-    Optional<Usuario> findByEmail(String email);
+    Optional<Usuarios> findByEmail(String email);
 
+    boolean existsByEmail(String email);
 }

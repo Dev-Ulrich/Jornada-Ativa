@@ -1,63 +1,113 @@
 package br.com.belval.api.jornadaativa.controller;
 
-
-import br.com.belval.api.jornadaativa.exceptions.BadRequest;
+import br.com.belval.api.jornadaativa.dto.evento.EventoCreateDTO;
+import br.com.belval.api.jornadaativa.dto.evento.EventoResponseDTO;
+import br.com.belval.api.jornadaativa.dto.evento.EventoUpdateDTO;
 import br.com.belval.api.jornadaativa.model.entity.Eventos;
-import br.com.belval.api.jornadaativa.model.entity.Usuario;
-import br.com.belval.api.jornadaativa.model.repository.EventosRepository;
-import br.com.belval.api.jornadaativa.model.services.EventosService;
-import lombok.AllArgsConstructor;
+import br.com.belval.api.jornadaativa.model.service.EventosService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.List;
 
+@RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/eventos")
-@AllArgsConstructor
+@RequestMapping("/eventos")
 public class EventosController {
 
-    private final EventosRepository eventosRepository;
     private final EventosService eventosService;
 
-    @GetMapping
-    public ResponseEntity<List<Eventos>> findAll() {
-        return ResponseEntity.ok().body(eventosService.findAll());
-    }
-
+    // POST /eventos -> cria (DTO -> Entity)
     @PostMapping
-    public ResponseEntity<Eventos> save(@RequestBody Eventos eventos) {
-        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/eventos").toUriString());
-        return ResponseEntity.created(uri).body(eventosService.save(eventos));
+    public ResponseEntity<EventoResponseDTO> criar(@Valid @RequestBody EventoCreateDTO dto,
+                                                   UriComponentsBuilder uriBuilder) {
+        Eventos salvo = eventosService.criar(toEntity(dto));
+        URI location = uriBuilder.path("/eventos/{id}").buildAndExpand(salvo.getId()).toUri(); // getId()
+        return ResponseEntity.created(location).body(toResponse(salvo));
     }
 
+    // GET /eventos/{id}
     @GetMapping("/{id}")
-    public ResponseEntity<Eventos> findById(@PathVariable(value = "id") String id) {
-        try {
-            return ResponseEntity.ok().body(eventosService.findById(Long.parseLong(id)));
-        } catch (NumberFormatException e) {
-            throw new BadRequest("'" + id + "' não é um número inteiro válido. Por favor, forneça um valor inteiro, como 10.");
-        }
+    public ResponseEntity<EventoResponseDTO> buscarPorId(@PathVariable Long id) {
+        Eventos e = eventosService.buscarPorId(id);
+        return ResponseEntity.ok(toResponse(e));
     }
 
+    // GET /eventos?nome=...
+    @GetMapping
+    public ResponseEntity<List<EventoResponseDTO>> listar(
+            @RequestParam(value = "nome", required = false) String nome
+    ) {
+        List<Eventos> lista = eventosService.listar(nome);
+        return ResponseEntity.ok(lista.stream().map(this::toResponse).toList());
+    }
+
+    // GET /eventos/proximos?aPartirDe=yyyy-MM-dd
+    @GetMapping("/proximos")
+    public ResponseEntity<List<EventoResponseDTO>> proximos(
+            @RequestParam(value = "aPartirDe", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate aPartirDe
+    ) {
+        List<Eventos> lista = eventosService.proximos(aPartirDe);
+        return ResponseEntity.ok(lista.stream().map(this::toResponse).toList());
+    }
+
+    // PUT /eventos/{id} -> atualizar (DTO -> Entity)
     @PutMapping("/{id}")
-    public ResponseEntity<Eventos> update(@RequestBody Eventos eventos, @PathVariable(value = "id") String id) {
-        try {
-            return ResponseEntity.ok().body(eventosService.update(eventos, Long.parseLong(id)));
-        } catch (NumberFormatException e) {
-            throw new BadRequest("'" + id + "' não é um número inteiro válido. Por favor, forneça um valor inteiro, como 10.");
-        }
+    public ResponseEntity<EventoResponseDTO> atualizar(@PathVariable Long id,
+                                                       @Valid @RequestBody EventoUpdateDTO dto) {
+        Eventos atualizado = eventosService.atualizar(id, toEntity(dto));
+        return ResponseEntity.ok(toResponse(atualizado));
     }
 
+    // DELETE /eventos/{id}
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> delete(@PathVariable(value = "id") String id) {
-        try {
-            eventosService.delete(Long.parseLong(id));
-            return ResponseEntity.ok().body("Evento com o id " + id + " excluido com sucesso!");
-        } catch (NumberFormatException e) {
-            throw new BadRequest("'" + id + "' não é um número inteiro válido. Por favor, forneça um valor inteiro, como 10.");
-        }
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
+        eventosService.excluir(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // ======= mapeamentos =======
+
+    private Eventos toEntity(EventoCreateDTO dto) {
+        if (dto == null) return null;
+        Eventos e = new Eventos();
+        e.setNome(dto.getNome());
+        e.setDescricao(dto.getDescricao());
+        e.setImagemEvento(dto.getImagemEvento());
+        e.setDataEvento(dto.getDataEvento());
+        e.setLinkEvento(dto.getLinkEvento());
+        return e;
+    }
+
+    private Eventos toEntity(EventoUpdateDTO dto) {
+        if (dto == null) return null;
+        Eventos e = new Eventos();
+        // campos opcionais: o service deve aplicar "patch" de não-nulos
+        e.setNome(dto.getNome());
+        e.setDescricao(dto.getDescricao());
+        e.setImagemEvento(dto.getImagemEvento());
+        e.setDataEvento(dto.getDataEvento());
+        e.setLinkEvento(dto.getLinkEvento());
+        return e;
+    }
+
+    private EventoResponseDTO toResponse(Eventos e) {
+        if (e == null) return null;
+        EventoResponseDTO dto = new EventoResponseDTO();
+        dto.setId(e.getId()); // <- getId()
+        dto.setNome(e.getNome());
+        dto.setDescricao(e.getDescricao());
+        dto.setImagemEvento(e.getImagemEvento());
+        dto.setDataEvento(e.getDataEvento());
+        dto.setLinkEvento(e.getLinkEvento());
+        dto.setCreatedAt(e.getCreatedAt());
+        return dto;
     }
 }
