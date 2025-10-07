@@ -18,6 +18,8 @@ import java.time.OffsetDateTime;
 @Builder
 public class HistoricoTreinoUpdateDTO {
 
+
+    private Long usuarioId;
     @JsonFormat(pattern = "yyyy-MM-dd") private LocalDate data;
     @Digits(integer = 6, fraction = 2) private BigDecimal tempo;
     @Digits(integer = 6, fraction = 2) private BigDecimal vMedia;

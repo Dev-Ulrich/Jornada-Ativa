@@ -7,6 +7,8 @@ import br.com.belval.api.jornadaativa.model.entity.HistoricoTreinos;
 import br.com.belval.api.jornadaativa.model.service.HistoricoTreinosService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -21,6 +23,7 @@ public class HistoricoTreinosController {
 
     private final HistoricoTreinosService historicoService;
 
+    // CREATE
     @PostMapping
     public ResponseEntity<HistoricoTreinoResponseDTO> criar(
             @Valid @RequestBody HistoricoTreinoCreateDTO dto,
@@ -30,34 +33,50 @@ public class HistoricoTreinosController {
                 dto.getUsuarioId(),
                 dto.getTreinoId(),
                 toEntity(dto),
-                null
+                null // pontos: se quiser suportar, adicione List<PontoDTO> no DTO
         );
         URI location = uriBuilder.path("/historico-treinos/{id}").buildAndExpand(salvo.getId()).toUri();
         return ResponseEntity.created(location).body(toResponse(salvo));
     }
 
-    @GetMapping("/{id}")
+    // READ by ID (regex evita capturar /usuario/...)
+    @GetMapping("/{id:\\d+}")
     public ResponseEntity<HistoricoTreinoResponseDTO> buscarPorId(@PathVariable Long id) {
         HistoricoTreinos historico = historicoService.buscarPorId(id);
         return ResponseEntity.ok(toResponse(historico));
     }
 
-    @GetMapping("/usuario/{usuarioId}")
-    public ResponseEntity<List<HistoricoTreinoResponseDTO>> listarPorUsuario(@PathVariable Long usuarioId) {
+    // LIST por usuário - paginado: GET /historico-treinos/usuario/{usuarioId}?page=0&size=20
+    @GetMapping("/usuario/{usuarioId:\\d+}")
+    public ResponseEntity<Page<HistoricoTreinoResponseDTO>> listarPorUsuario(
+            @PathVariable Long usuarioId,
+            Pageable pageable
+    ) {
+        Page<HistoricoTreinos> page = historicoService.listarPorUsuario(usuarioId, pageable);
+        return ResponseEntity.ok(page.map(this::toResponse));
+    }
+
+    // LIST por usuário - tudo: GET /historico-treinos/usuario/{usuarioId}/all
+    @GetMapping("/usuario/{usuarioId:\\d+}/all")
+    public ResponseEntity<List<HistoricoTreinoResponseDTO>> listarTodosPorUsuario(
+            @PathVariable Long usuarioId
+    ) {
         List<HistoricoTreinos> lista = historicoService.listarPorUsuario(usuarioId);
         return ResponseEntity.ok(lista.stream().map(this::toResponse).toList());
     }
 
-    @PutMapping("/{id}")
+    // UPDATE parcial (PUT também chama o método parcial)
+    @PutMapping("/{id:\\d+}")
     public ResponseEntity<HistoricoTreinoResponseDTO> atualizar(
             @PathVariable Long id,
-            @Valid @RequestBody HistoricoTreinoUpdateDTO dto
+            @RequestBody HistoricoTreinoUpdateDTO dto
     ) {
-        HistoricoTreinos atualizado = historicoService.atualizar(id, toEntity(dto));
+        HistoricoTreinos atualizado = historicoService.atualizarParcial(id, dto);
         return ResponseEntity.ok(toResponse(atualizado));
     }
 
-    @DeleteMapping("/{id}")
+    // DELETE
+    @DeleteMapping("/{id:\\d+}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
         historicoService.excluir(id);
         return ResponseEntity.noContent().build();
@@ -74,19 +93,6 @@ public class HistoricoTreinosController {
         h.setDistancia(dto.getDistancia());
         h.setKcal(dto.getKcal());
         h.setPace(dto.getPace());
-        return h;
-    }
-
-    private HistoricoTreinos toEntity(HistoricoTreinoUpdateDTO dto) {
-        if (dto == null) return null;
-        HistoricoTreinos h = new HistoricoTreinos();
-        h.setData(dto.getData());
-        h.setTempo(dto.getTempo());
-        h.setVMedia(dto.getVMedia());
-        h.setDistancia(dto.getDistancia());
-        h.setKcal(dto.getKcal());
-        h.setPace(dto.getPace());
-        // treinoId handled in service if needed
         return h;
     }
 

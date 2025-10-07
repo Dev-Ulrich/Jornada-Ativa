@@ -17,6 +17,7 @@ public class TreinosService {
 
     private final TreinoRepository treinoRepository;
 
+
     @Transactional
     public Treinos criar(Treinos treino) {
         return treinoRepository.save(treino);
@@ -25,8 +26,8 @@ public class TreinosService {
     @Transactional
     public Treinos atualizar(Long id, Treinos dto) {
         Treinos treino = buscarPorId(id);
-        treino.setNome(dto.getNome());
-        treino.setDescricao(dto.getDescricao());
+        if (dto.getNome() != null) treino.setNome(dto.getNome());
+        if (dto.getDescricao() != null) treino.setDescricao(dto.getDescricao());
         return treinoRepository.save(treino);
     }
 
