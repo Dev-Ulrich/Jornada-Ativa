@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -63,6 +64,12 @@ public class UsuariosController {
                                                                 @RequestBody UsuariosUpdateDTO dto) {
         Usuarios atualizado = usuariosService.atualizarParcial(id, dto);
         return ResponseEntity.ok(toResponse(atualizado));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Map<String,Object>> deletar(@PathVariable Long id) {
+        Map<String, Object> resposta = usuariosService.deletar(id);
+        return ResponseEntity.ok(resposta);
     }
 
     // ------------------------------------

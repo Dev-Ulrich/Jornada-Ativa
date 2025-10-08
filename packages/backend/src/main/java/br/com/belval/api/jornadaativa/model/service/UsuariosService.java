@@ -14,6 +14,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
+import java.util.Optional;
+
 @RequiredArgsConstructor
 @Service
 public class UsuariosService {
@@ -103,6 +106,20 @@ public class UsuariosService {
 
         u.setUpdatedAt(java.time.LocalDateTime.now());
         return usuarioRepository.save(u);
+    }
+
+    @Transactional
+    public Map<String, Object> deletar(Long id) {
+        Optional<Usuarios> usuario = usuarioRepository.findById(id);
+        if (usuario.isEmpty()) {
+            throw new Business("Usuário não encontrado para exclusão (ID: " + id + ")");
+        }
+        usuarioRepository.deleteById(id);
+
+        return Map.of(
+                "message", "Usuário deletado com sucesso.",
+                "userId", id
+        );
     }
 
     private RoleName toRoleName(String roleStr) {
