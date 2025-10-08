@@ -1,19 +1,14 @@
-import React, { useState, useEffect } from "react";
-import {
-  FaUser,
-  FaUsers,
-  FaCalendarAlt,
-  FaArchive,
-  FaPowerOff,
-  FaRunning 
-} from "react-icons/fa";
-import UsuarioTabela from "../Usuario/UsuarioTabela";
-import ComunidadeTabela from "../Comunidade/ComunidadeTabela";
-import EventoTabela from "../Evento/EventoTabela";
-import TreinoTabela from "../Treino/TreinoTabela";
-import { MdDashboard } from "react-icons/md";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Dashboard.css";
+import { MdDashboard } from "react-icons/md";
+import { FaUser, FaPowerOff, FaRunning, FaCalendarAlt } from "react-icons/fa";
+import UsuarioTabela from "@components/Usuario/UsuarioTabela";
+import EventoTabela from "@components/Evento/EventoTabela";
+import TreinoTabela from "@components/Treino/TreinoTabela";
+import api from "@services/api"; // ✅ usa o axios centralizado
+import "./DashBoard.css"; 
+import Sidebar from "@components/DashBoard/Sidebar";
+
 
 const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
 
@@ -24,6 +19,49 @@ const DashBoard = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [treinos, setTreinos] = useState([]);
 
+  // 🔹 Novos estados para métricas do dashboard
+  const [metrics, setMetrics] = useState({
+    totalEventos: 0,
+    totalEventosAtivos: 0,
+    totalUsuarios: 0,
+    totalInscricoes: 0,
+  });
+  const [loadingMetrics, setLoadingMetrics] = useState(true);
+
+  // 🔹 Função para buscar métricas no backend
+  async function loadMetrics() {
+    try {
+      setLoadingMetrics(true);
+
+      const [usuariosCount, eventosCount, eventosAtivosCount, inscricoesCount] =
+        await Promise.all([
+          api.get("/usuarios/count"),
+          api.get("/eventos/count"),
+          api.get("/eventos/ativos/count"),
+        ]);
+
+      setMetrics({
+        totalUsuarios: usuariosCount.data,
+        totalEventos: eventosCount.data,
+        totalEventosAtivos: eventosAtivosCount.data,
+      });
+    } catch (error) {
+      console.error("Erro ao buscar métricas do dashboard:", error);
+    } finally {
+      setLoadingMetrics(false);
+    }
+  }
+
+  
+
+  // 🔹 Carrega métricas quando abrir a tela de dashboard
+  useEffect(() => {
+    if (activeSection === "dashboard") {
+      loadMetrics();
+    }
+  }, [activeSection]);
+
+  // 🔹 Lógica já existente de carregamento dinâmico
   useEffect(() => {
     if (activeSection === "usuario") {
       import("../../services/api").then(({ default: api }) => {
@@ -43,7 +81,7 @@ const DashBoard = () => {
     }
   }, [activeSection]);
 
-  // Dark Mode
+  // 🔹 Dark mode
   const [darkMode, setDarkMode] = useState(() => {
     const storedDarkMode = localStorage.getItem("dark-mode");
     return storedDarkMode === "active";
@@ -65,139 +103,40 @@ const DashBoard = () => {
 
   return (
     <div className="dashboard-container">
-      <aside className="sidebar">
-        <div
-          className="trilho-dashboard"
-          id="trilho"
-          onClick={toggleDarkMode}
-          style={{ cursor: "pointer", marginBottom: "18px" }}
-          title="Alternar modo escuro"
-        >
-          <div className="indicador-dashboard">
-            <FaPowerOff />
-          </div>
-        </div>
-        <div className="sidebar-user">
-          <div className="avatar">
-            {usuarioLogado?.foto ? (
-              <img src={usuarioLogado.foto} alt="Foto do usuário" />
-            ) : (
-              <span className="avatar-placeholder">
-                {usuarioLogado?.nome ? usuarioLogado.nome[0] : <FaUser />}
-              </span>
-            )}
-          </div>
-          <h2>{usuarioLogado?.nome || "Usuário"}</h2>
-          <p>{usuarioLogado?.email || "email@email.com"}</p>
-        </div>
-        <nav className="menu">
-          <div
-            className="menu-item"
-            onClick={() => setActiveSection("dashboard")}
-          >
-            <MdDashboard /> DashBoard
-          </div>
-          <div
-            className="menu-item"
-            onClick={() => setActiveSection("usuario")}
-          >
-            <FaUser /> Usuário
-          </div>
-          <div
-            className="menu-item"
-            onClick={() => setActiveSection("comunidade")}
-          >
-            <FaUsers /> Comunidade
-          </div>
-          <div
-            className="menu-item"
-            onClick={() => setActiveSection("eventos")}
-          >
-            <FaCalendarAlt /> Eventos
-          </div>
-          <div
-            className="menu-item"
-            onClick={() => setActiveSection("treino")}
-          >
-            <FaRunning /> Treino
-          </div>
-        </nav>
-      </aside>
+      <Sidebar
+  activeSection={activeSection}
+  setActiveSection={setActiveSection}
+  darkMode={darkMode}
+  toggleDarkMode={toggleDarkMode}
+/>
+
+
       <main className="main">
         {activeSection === "dashboard" && (
           <>
             <section className="stats-row">
               <div className="stat-card">
                 <span>Eventos criados:</span>
-                <h1>67</h1>
+                <h1>{loadingMetrics ? "..." : metrics.totalEventos}</h1>
               </div>
               <div className="stat-card">
                 <span>Eventos ativos:</span>
-                <h1>34</h1>
+                <h1>{loadingMetrics ? "..." : metrics.totalEventosAtivos}</h1>
               </div>
               <div className="stat-card">
                 <span>Usuários cadastrados:</span>
-                <h1>476</h1>
-              </div>
-              <div className="stat-card">
-                <span>Inscrições realizadas:</span>
-                <h1>639</h1>
-              </div>
-            </section>
-            <section className="highlights-row">
-              <div className="highlight-card">
-                <h1>+900</h1>
-                <span>Downloads</span>
-              </div>
-              <div className="highlight-card">
-                <h1>+80%</h1>
-                <span>Crescimentos</span>
-              </div>
-              <div className="highlight-card">
-                <h1>+400</h1>
-                <span>Novos Usuários</span>
-              </div>
-            </section>
-            <section className="charts-row">
-              <div className="chart-box">
-                <h2>Usuários Novos</h2>
-                <div className="bar-placeholder">Gráfico de barras</div>
-                <div className="chart-labels">
-                  <span>Janeiro</span>
-                  <span>Fevereiro</span>
-                  <span>Março</span>
-                  <span>Abril</span>
-                  <span>Maio</span>
-                  <span>Junho</span>
-                  <span>Julho</span>
-                  <span>Agosto</span>
-                  <span>Setembro</span>
-                  <span>Outubro</span>
-                  <span>Novembro</span>
-                  <span>Dezembro</span>
-                </div>
-              </div>
-              <div className="chart-box">
-                <h2>Inscrições</h2>
-                <div className="area-placeholder">Gráfico de área</div>
-                <div className="chart-labels">
-                  <span>1ª semana ago</span>
-                  <span>2ª semana ago</span>
-                  <span>3ª semana ago</span>
-                  <span>4ª semana ago</span>
-                </div>
+                <h1>{loadingMetrics ? "..." : metrics.totalUsuarios}</h1>
               </div>
             </section>
           </>
         )}
+
         {activeSection === "usuario" && (
           <UsuarioTabela usuarios={usuarios} setUsuarios={setUsuarios} />
         )}
         {activeSection === "comunidade" && <ComunidadeTabela />}
         {activeSection === "eventos" && <EventoTabela />}
-        {activeSection === "treino" && (
-          <TreinoTabela treinos={treinos} />
-        )}
+        {activeSection === "treino" && <TreinoTabela treinos={treinos} />}
       </main>
     </div>
   );

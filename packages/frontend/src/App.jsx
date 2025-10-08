@@ -8,11 +8,11 @@ import NovoUsuario from "./components/Usuario/NovoUsuario";
 import UsuarioTabela from "./components/Usuario/UsuarioTabela";
 import TreinoTabela from "./components/Treino/TreinoTabela";
 import NovoTreino from "./components/Treino/NovoTreino";
-import ComunidadeTabela from "./components/Comunidade/ComunidadeTabela";
-import NovaComunidade from "./components/Comunidade/NovaComunidade";
 import EventoTabela from "./components/Evento/EventoTabela";
 import NovoEvento from "./components/Evento/NovoEvento";
 import DashBoard from "./components/DashBoard/DashBoard";
+import HealthIndicator from "./components/Health/HealthIndicator";
+import Sidebar from "./components/DashBoard/Sidebar";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -27,6 +27,8 @@ function App() {
           <Route path="/jornadaativa/usuario/login" element={<Login />} />
           {/* DashBoard */}
           <Route path="/admin/dashboard" element={<DashBoard />} />
+          {/* DashBoard SideBar*/}
+          <Route path="/admin/dashboard/sidebar" element={<Sidebar />} />
           {/* Tabela Usuário */}
           <Route path="/admin/usuario" element={<UsuarioTabela />} />
           {/* Cadastro Novo Usuário */}
@@ -35,16 +37,8 @@ function App() {
           <Route path="/admin/treino" element={<TreinoTabela />} />
           {/* Cadastro Novo Treino */}
           <Route path="/admin/treino/novotreino" element={<NovoTreino />} />
-          {/* Tabela Comunidade */}
-          <Route
-            path="/admin/comunidade/comunidade"
-            element={<ComunidadeTabela />}
-          />
-          {/* Cadastro Nova Comunidade */}
-          <Route
-            path="/admin/comunidade/novacomunidade"
-            element={<NovaComunidade />}
-          />
+          {/* Health Indicato*/}
+          <Route path="/admin/health" element={<HealthIndicator />} />
           {/* Tabela Evento */}
           <Route path="/admin/evento/evento" element={<EventoTabela />} />
           {/* Cadastro Novo Evento */}

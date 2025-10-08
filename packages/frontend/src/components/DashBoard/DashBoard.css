@@ -129,17 +129,25 @@ body.dark-mode .indicador-dashboard {
   margin-top: 20px;
   width: 100%;
 }
-.menu-item {
+.menu .menu-item {
   display: flex;
+  gap: 8px;
   align-items: center;
-  gap: 18px;
-  font-size: 1.3rem;
-  color: #222;
-  font-weight: 500;
-  padding: 18px 40px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  padding: 10px 12px;
   cursor: pointer;
-  transition: background .2s;
 }
+
+.menu .menu-item.is-active {
+  background: rgba(255,255,255,0.06);
+  border-left: 3px solid #f97316; /* laranja */
+  font-weight: 600;
+}
+
 .menu-item:hover {
   background: #e0e0e0;
 }

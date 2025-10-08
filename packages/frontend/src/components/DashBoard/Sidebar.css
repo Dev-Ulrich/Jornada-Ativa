@@ -1,0 +1,141 @@
+/* Usa suas variáveis do tema:
+:root {
+  --color-base:#c3c3c3; --bg-base:#fff; --text-base:black; --hover-base:white;
+  --indicador-base:#c3c3c3; --roll-base:white; --indicador-base-funcionario:#fff; --table-base:gray;
+}
+.dark-mode {
+  --color-base:rgb(95,95,95); --bg-base:black; --text-base:white; --hover-base:black;
+  --indicador-base:rgb(39,39,39); --roll-base:rgb(95,95,95); --indicador-base-funcionario:rgb(39,39,39); --table-base:gray;
+}
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+* { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+/* =========================
+   Sidebar container
+========================= */
+#sidebar{
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  background:var(--bg-base);
+  color:var(--text-base);
+  height:100vh;
+  border-radius:0 18px 18px 0;
+  position:relative;
+  transition:all .5s ease;
+  min-width:82px;              /* colapsada */
+  z-index:2;
+  border-right:none;
+  box-shadow:none;
+}
+#sidebar_content{ padding:12px; }
+
+/* =========================
+   Usuário
+========================= */
+#user{ display:flex; align-items:center; gap:8px; margin-bottom:24px; }
+#user_avatar{ width:50px; height:50px; object-fit:cover; border-radius:20px; }
+#user_infos{ display:flex; flex-direction:column; }
+#user_infos .name{ font-weight:600; color:var(--text-base); }
+#user_infos .email{ color:var(--color-base); font-size:12px; }
+
+/* =========================
+   Itens do menu (inclui Dark Mode)
+========================= */
+#side_items{ display:flex; flex-direction:column; gap:8px; list-style:none; margin:0; padding:0; }
+.side-item{ display:block; }
+
+.side-item button{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;          /* central quando colapsado */
+  gap:8px;
+  padding:14px;
+  background:transparent;
+  color:var(--text-base);
+  border:0;
+  border-radius:8px;
+  cursor:pointer;
+  transition:background-color .2s ease, color .2s ease, border-color .2s ease;
+  text-align:left;
+}
+
+/* ícones */
+.side-item button svg{ width:20px; height:20px; }
+
+/* hover e ativo usando suas cores */
+.side-item button:hover:not(.active){
+  background:var(--hover-base);
+  outline:1px solid var(--color-base);
+}
+
+.side-item button.active{
+  background:#ff8633;    /* usa o cinza do tema como realce */
+  color:var(--bg-base);            /* contraste: branco no claro, preto no escuro */
+}
+
+/* label que expande quando a sidebar abre */
+.item-description{
+  width:0;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+  font-size:14px;
+  transition:width .6s ease, height .6s ease, opacity .2s ease;
+  height:0;
+  opacity:0;
+}
+
+/* =========================
+   Botão hamburguer (opcional)
+========================= */
+#open_btn{
+  position:absolute; top:30px; right:-10px;
+  background:#ff8633;
+  color:var(--bg-base);
+  border-radius:50%;
+  width:20px; height:20px;
+  border:none; cursor:pointer;
+  display:grid; place-items:center;
+}
+#open_btn_icon{ transition:transform .3s ease; }
+
+/* =========================
+   Estado expandido
+========================= */
+#sidebar.open-sidebar{ 
+  min-width:260px; 
+border-right:1px solid var(--color-base);
+box-shadow: 4px 0 16px rgba(0,0,0,.06);
+}
+
+#sidebar.open-sidebar .side-item button{
+  justify-content:flex-start;
+  gap:14px;
+}
+
+#sidebar.open-sidebar .item-description{
+  width:150px; height:auto; opacity:1;
+}
+
+#sidebar.open-sidebar #open_btn_icon{ transform:rotate(180deg); }
+
+/* Placeholder com inicial quando não há foto */
+.avatar-initial {
+  width: 50px;
+  height: 50px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 18px;
+  background: var(--indicador-base-funcionario); /* sua variável */
+  color: var(--text-base);
+  border: 1px solid var(--color-base);
+  user-select: none;
+}
