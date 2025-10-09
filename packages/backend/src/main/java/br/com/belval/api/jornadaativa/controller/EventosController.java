@@ -58,6 +58,20 @@ public class EventosController {
         return ResponseEntity.ok(lista.stream().map(this::toResponse).toList());
     }
 
+    // 🔹 Total geral
+    @GetMapping("/count")
+    public ResponseEntity<Long> contarEventos() {
+        long total = eventosService.contarEventos();
+        return ResponseEntity.ok(total);
+    }
+
+    // 🔹 Total de eventos ativos
+    @GetMapping("/ativos/count")
+    public ResponseEntity<Long> contarEventosAtivos() {
+        long total = eventosService.contarEventosAtivos();
+        return ResponseEntity.ok(total);
+    }
+
     // PUT /eventos/{id} -> atualizar (DTO -> Entity)
     @PutMapping("/{id}")
     public ResponseEntity<EventoResponseDTO> atualizar(@PathVariable Long id,

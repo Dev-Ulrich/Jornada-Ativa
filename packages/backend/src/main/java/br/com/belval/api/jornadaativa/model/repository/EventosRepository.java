@@ -2,6 +2,7 @@ package br.com.belval.api.jornadaativa.model.repository;
 
 
 import br.com.belval.api.jornadaativa.model.entity.Eventos;
+import br.com.belval.api.jornadaativa.model.entity.StatusEvento;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -19,4 +20,7 @@ public interface EventosRepository extends JpaRepository<Eventos, Long> {
 
     // eventos em um intervalo
     List<Eventos> findByDataEventoBetweenOrderByDataEventoAsc(LocalDate inicio, LocalDate fim);
+
+    //Status evento
+    long countByStatus(StatusEvento status);
 }

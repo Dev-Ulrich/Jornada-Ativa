@@ -3,6 +3,7 @@ package br.com.belval.api.jornadaativa.model.service;
 
 import br.com.belval.api.jornadaativa.exceptions.NotFound;
 import br.com.belval.api.jornadaativa.model.entity.Eventos;
+import br.com.belval.api.jornadaativa.model.entity.StatusEvento;
 import br.com.belval.api.jornadaativa.model.repository.EventosRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,18 @@ import java.util.List;
 public class EventosService {
 
     private final EventosRepository eventosRepository;
+
+
+    // 🔹 Total de eventos cadastrados
+    public long contarEventos() {
+        return eventosRepository.count();
+    }
+
+    // 🔹 Total de eventos com status "ATIVO"
+    public long contarEventosAtivos() {
+        return eventosRepository.countByStatus(StatusEvento.ATIVO);
+    }
+
 
     @Transactional
     public Eventos criar(Eventos e) {
