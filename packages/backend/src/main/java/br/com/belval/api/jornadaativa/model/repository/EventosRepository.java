@@ -4,6 +4,8 @@ package br.com.belval.api.jornadaativa.model.repository;
 import br.com.belval.api.jornadaativa.model.entity.Eventos;
 import br.com.belval.api.jornadaativa.model.entity.StatusEvento;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -23,4 +25,10 @@ public interface EventosRepository extends JpaRepository<Eventos, Long> {
 
     //Status evento
     long countByStatus(StatusEvento status);
+<<<<<<< HEAD
+=======
+
+    @Query("SELECT e FROM Eventos e WHERE YEAR(e.dataEvento) = :ano")
+    List<Eventos> findByAno(@Param("ano") int ano);
+>>>>>>> 51a3312
 }

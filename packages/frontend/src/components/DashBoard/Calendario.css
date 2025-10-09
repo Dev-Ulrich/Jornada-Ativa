@@ -1,0 +1,84 @@
+/* Respeita suas variáveis globais de tema */
+.cal-card {
+  background: var(--bg-base);
+  color: var(--text-base);
+  border: 1px solid var(--color-base);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+/* Cabeçalho */
+.cal-header {
+  position: relative;
+  background: var(--hover-base);
+  padding: 16px 20px 24px 20px;
+}
+.cal-badge { font-size: 12px; opacity: .85; }
+.cal-day { font-size: 56px; font-weight: 800; line-height: 1; margin-top: 4px; }
+.cal-title {
+  position: absolute; top: 10px; right: 12px;
+  font-size: 10px; letter-spacing: .12em; opacity: .7;
+}
+
+/* Mês/Ano */
+.cal-month {
+  background: var(--bg-base);
+  border-top: 1px solid var(--color-base);
+  text-align: center;
+  padding: 10px 0;
+  font-weight: 600;
+}
+
+/* Grid */
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  padding: 16px;
+  text-align: center;
+  font-size: 14px;
+}
+.cal-week { color: var(--text-base); opacity: .7; }
+
+/* Células */
+.cal-cell {
+  height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--color-base);
+  border-radius: 8px;
+  transition: transform .08s ease;
+}
+.cal-cell:hover { transform: translateY(-1px); }
+
+/* Hoje */
+.cal-today { outline: 1px dashed var(--color-base); }
+
+/* Eventos — cores pedidas */
+.cal-upcoming {
+  /* laranja #ff8633 */
+  background: rgba(255,134,51,.25);
+  border-color: #ff8633;
+  color: #ffccad;
+}
+.cal-past {
+  /* verde para dias já passados */
+  background: rgba(22,163,74,.22);
+  border-color: #15803d;
+  color: #c6f6d5;
+}
+
+/* Notificações do dia */
+.cal-notify { padding: 0 16px 16px; font-size: 30px; }
+.cal-notify-title { font-weight: 600; }
+.cal-notify-list { margin-top: 6px; }
+.cal-notify-item { margin: 2px 0; font-size: 15px; }
+.cal-notify-empty { margin-top: 6px; opacity: .7; }
+
+/* Modo compacto */
+.cal-compact .cal-header { padding: 12px 14px 16px; }
+.cal-compact .cal-day { font-size: 42px; }
+.cal-compact .cal-title { font-size: 9px; top: 8px; right: 10px; }
+.cal-compact .cal-month { padding: 8px 0; font-size: 13px; }
+.cal-compact .cal-grid { gap: 6px; padding: 12px; font-size: 12px; }
+.cal-compact .cal-cell { height: 30px; border-radius: 6px; }
+.cal-compact .cal-notify { padding: 0 12px 12px; font-size: 12px; }

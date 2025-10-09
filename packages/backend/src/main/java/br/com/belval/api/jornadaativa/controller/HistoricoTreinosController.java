@@ -40,14 +40,14 @@ public class HistoricoTreinosController {
     }
 
     // READ by ID (regex evita capturar /usuario/...)
-    @GetMapping("/{id:\\d+}")
+    @GetMapping("/{id}")
     public ResponseEntity<HistoricoTreinoResponseDTO> buscarPorId(@PathVariable Long id) {
         HistoricoTreinos historico = historicoService.buscarPorId(id);
         return ResponseEntity.ok(toResponse(historico));
     }
 
     // LIST por usuário - paginado: GET /historico-treinos/usuario/{usuarioId}?page=0&size=20
-    @GetMapping("/usuario/{usuarioId:\\d+}")
+    @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<Page<HistoricoTreinoResponseDTO>> listarPorUsuario(
             @PathVariable Long usuarioId,
             Pageable pageable
@@ -57,7 +57,7 @@ public class HistoricoTreinosController {
     }
 
     // LIST por usuário - tudo: GET /historico-treinos/usuario/{usuarioId}/all
-    @GetMapping("/usuario/{usuarioId:\\d+}/all")
+    @GetMapping("/usuario/{usuarioId}/all")
     public ResponseEntity<List<HistoricoTreinoResponseDTO>> listarTodosPorUsuario(
             @PathVariable Long usuarioId
     ) {
@@ -66,7 +66,7 @@ public class HistoricoTreinosController {
     }
 
     // UPDATE parcial (PUT também chama o método parcial)
-    @PutMapping("/{id:\\d+}")
+    @PutMapping("/{id}")
     public ResponseEntity<HistoricoTreinoResponseDTO> atualizar(
             @PathVariable Long id,
             @RequestBody HistoricoTreinoUpdateDTO dto
@@ -76,7 +76,7 @@ public class HistoricoTreinosController {
     }
 
     // DELETE
-    @DeleteMapping("/{id:\\d+}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
         historicoService.excluir(id);
         return ResponseEntity.noContent().build();

@@ -13,6 +13,10 @@ import NovoEvento from "./components/Evento/NovoEvento";
 import DashBoard from "./components/DashBoard/DashBoard";
 import HealthIndicator from "./components/Health/HealthIndicator";
 import Sidebar from "./components/DashBoard/Sidebar";
+import GraficoUsuarios from "./components/DashBoard/GraficoUsuarios";
+import EventosMes from "./components/DashBoard/EventosMes"
+import Calendario from "@components/DashBoard/Calendario";
+import ProximosEventos from "@components/DashBoard/ProximosEventos";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -29,8 +33,14 @@ function App() {
           <Route path="/admin/dashboard" element={<DashBoard />} />
           {/* DashBoard SideBar*/}
           <Route path="/admin/dashboard/sidebar" element={<Sidebar />} />
-          {/* Tabela Usuário */}
-          <Route path="/admin/usuario" element={<UsuarioTabela />} />
+          {/* DashBoard Grafico Usuarios*/}
+          <Route path="/admin/dashboard/graficousuarios" element={<GraficoUsuarios />} />
+          {/* DashBoard Calendario*/}
+          <Route path="/admin/dashboard/calendario" element={<Calendario />} />
+          {/* DashBoard Eventos por mes*/}
+          <Route path="/admin/dashboard/eventosmes" element={<EventosMes />} />
+          {/* DashBoard Proximos Eventos*/}
+          <Route path="/admin/dashboard/proximoseventos" element={<ProximosEventos />} />
           {/* Cadastro Novo Usuário */}
           <Route path="/admin/usuario/novousuario" element={<NovoUsuario />} />
           {/* Tabela Treino */}

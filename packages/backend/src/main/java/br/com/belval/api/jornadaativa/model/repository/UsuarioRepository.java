@@ -5,6 +5,7 @@ import br.com.belval.api.jornadaativa.model.entity.Usuarios;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 
@@ -15,4 +16,9 @@ public interface UsuarioRepository extends JpaRepository<Usuarios, Long> {
 
     boolean existsByEmail(String email);
 
+<<<<<<< HEAD
+=======
+    long countByCreatedAtBetween(LocalDateTime inicio, LocalDateTime fim);
+
+>>>>>>> 51a3312
 }

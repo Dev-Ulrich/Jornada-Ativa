@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +33,19 @@ public class EventosService {
     }
 
 
+<<<<<<< HEAD
+=======
+    public Map<Integer, Long> contarEventosPorMes(int ano) {
+        List<Eventos> eventos = eventosRepository.findByAno(ano); // You may need to implement this query
+        Map<Integer, Long> contagemPorMes = eventos.stream()
+                .collect(Collectors.groupingBy(
+                        e -> e.getDataEvento().getMonthValue(),
+                        Collectors.counting()
+                ));
+        return contagemPorMes;
+    }
+
+>>>>>>> 51a3312
     @Transactional
     public Eventos criar(Eventos e) {
         return eventosRepository.save(e);
@@ -43,6 +58,7 @@ public class EventosService {
         evento.setDescricao(dados.getDescricao());
         evento.setLinkEvento(dados.getLinkEvento());
         evento.setDataEvento(dados.getDataEvento());
+        evento.setStatus(dados.getStatus());
         evento.setImagemEvento(dados.getImagemEvento());
         return eventosRepository.save(evento);
     }

@@ -11,6 +11,12 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
+
+:root{
+  --sidebar-collapsed: 82px;   /* largura quando fechada */
+  --sidebar-expanded: 260px;   /* largura quando aberta */
+}
+
 * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
 
 /* =========================
@@ -22,7 +28,7 @@
   justify-content:space-between;
   background:var(--bg-base);
   color:var(--text-base);
-  height:100vh;
+  height:120vh;
   border-radius:0 18px 18px 0;
   position:relative;
   transition:all .5s ease;
