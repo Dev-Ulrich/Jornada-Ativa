@@ -6,9 +6,14 @@ import UsuarioTabela from "@components/Usuario/UsuarioTabela";
 import EventoTabela from "@components/Evento/EventoTabela";
 import TreinoTabela from "@components/Treino/TreinoTabela";
 import api from "@services/api"; // ✅ usa o axios centralizado
-import "./DashBoard.css"; 
-import Sidebar from "@components/DashBoard/Sidebar";
+import GraficoUsuarios from "@components/DashBoard/GraficoUsuarios";
+import Calendario from "@components/DashBoard/Calendario";
+import EventosMes from "@components/DashBoard/EventosMes";
+import ProximosEventos from "@components/DashBoard/ProximosEventos";
 
+
+import "./DashBoard.css";
+import Sidebar from "@components/DashBoard/Sidebar";
 
 const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
 
@@ -18,6 +23,12 @@ const DashBoard = () => {
 
   const [usuarios, setUsuarios] = useState([]);
   const [treinos, setTreinos] = useState([]);
+
+  const eventosDemo = [
+    { id: 1, nome: "Corrida Parque", data: "2025-10-12" },
+    { id: 2, nome: "Longão", data: "2025-10-15" },
+    { id: 3, nome: "Trail Japi", data: "2025-10-01" }, // passado → verde
+  ];
 
   // 🔹 Novos estados para métricas do dashboard
   const [metrics, setMetrics] = useState({
@@ -51,8 +62,6 @@ const DashBoard = () => {
       setLoadingMetrics(false);
     }
   }
-
-  
 
   // 🔹 Carrega métricas quando abrir a tela de dashboard
   useEffect(() => {
@@ -104,39 +113,60 @@ const DashBoard = () => {
   return (
     <div className="dashboard-container">
       <Sidebar
-  activeSection={activeSection}
-  setActiveSection={setActiveSection}
-  darkMode={darkMode}
-  toggleDarkMode={toggleDarkMode}
-/>
-
+        activeSection={activeSection}
+        setActiveSection={setActiveSection}
+        darkMode={darkMode}
+        toggleDarkMode={toggleDarkMode}
+      />
 
       <main className="main">
         {activeSection === "dashboard" && (
           <>
             <section className="stats-row">
-              <div className="stat-card">
-                <span>Eventos criados:</span>
-                <h1>{loadingMetrics ? "..." : metrics.totalEventos}</h1>
-              </div>
-              <div className="stat-card">
-                <span>Eventos ativos:</span>
-                <h1>{loadingMetrics ? "..." : metrics.totalEventosAtivos}</h1>
-              </div>
-              <div className="stat-card">
-                <span>Usuários cadastrados:</span>
-                <h1>{loadingMetrics ? "..." : metrics.totalUsuarios}</h1>
-              </div>
-            </section>
-          </>
+        <div className="stat-card">
+          <span>Eventos criados:</span>
+          <h1>{loadingMetrics ? "..." : metrics.totalEventos}</h1>
+        </div>
+        <div className="stat-card">
+          <span>Eventos ativos:</span>
+          <h1>{loadingMetrics ? "..." : metrics.totalEventosAtivos}</h1>
+        </div>
+        <div className="stat-card">
+          <span>Usuários cadastrados:</span>
+          <h1>{loadingMetrics ? "..." : metrics.totalUsuarios}</h1>
+        </div>
+      </section>
+          
+
+        <section className="dashboard-row-2col">
+          <div className="dashboard-col">
+    <GraficoUsuarios height={320} />
+  </div>
+
+           <div className="dashboard-col">
+    <Calendario eventos={eventosDemo} size="compact" />
+  </div>
+          <div className="dashboard-col">
+            <EventosMes height={200} />
+          </div>
+          <div className="dashboard-col">
+            <ProximosEventos limite={8} />
+          </div>
+          <footer className="ja-inline-footer">
+  © {new Date().getFullYear()} Jornada Ativa · Dashboard
+</footer>
+        </section>
+        </>
         )}
+        
 
         {activeSection === "usuario" && (
-          <UsuarioTabela usuarios={usuarios} setUsuarios={setUsuarios} />
-        )}
-        {activeSection === "comunidade" && <ComunidadeTabela />}
-        {activeSection === "eventos" && <EventoTabela />}
-        {activeSection === "treino" && <TreinoTabela treinos={treinos} />}
+    <UsuarioTabela usuarios={usuarios} setUsuarios={setUsuarios} />
+  )}
+
+  {activeSection === "eventos" && <EventoTabela />}
+
+  {activeSection === "treino" && <TreinoTabela treinos={treinos} />}
       </main>
     </div>
   );

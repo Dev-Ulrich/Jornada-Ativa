@@ -1,0 +1,91 @@
+/* Card base usando suas variáveis de tema */
+.prox-card {
+  background: var(--bg-base);
+  color: var(--text-base);
+  border: 1px solid var(--color-base);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+/* Cabeçalho */
+.prox-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--color-base);
+  padding-bottom: 8px;
+}
+.prox-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Corpo */
+.prox-body { padding-top: 8px; }
+.prox-hint {
+  font-size: 12px;
+  opacity: .8;
+  margin-bottom: 6px;
+}
+.prox-warn {
+  font-size: 12px;
+  background: var(--hover-base);
+  border: 1px solid var(--color-base);
+  border-radius: 8px;
+  padding: 6px 8px;
+  margin: 8px 0;
+}
+
+/* Tabela */
+.prox-table-wrap { overflow-x: auto; }
+.prox-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.prox-table thead th {
+  text-align: left;
+  color: var(--text-base);
+  opacity: .75;
+  font-weight: 600;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--color-base);
+}
+.prox-table tbody td {
+  padding: 10px 8px;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-base) 60%, transparent);
+  vertical-align: middle;
+}
+.prox-nome { font-weight: 600; }
+
+/* Empty */
+.prox-empty {
+  text-align: center;
+  opacity: .7;
+  padding: 16px 8px;
+}
+
+/* Chips de status */
+.chip {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 12px;
+  line-height: 1;
+}
+.chip-active {
+  background: color-mix(in srgb, #10b981 20%, transparent);
+  color: #10b981;
+  border-color: color-mix(in srgb, #10b981 60%, var(--bg-base));
+}
+.chip-inactive {
+  background: color-mix(in srgb, var(--color-base) 30%, transparent);
+  color: color-mix(in srgb, var(--text-base) 86%, black);
+  border-color: var(--color-base);
+}
+
+/* Dark mode herda das variáveis globais */
