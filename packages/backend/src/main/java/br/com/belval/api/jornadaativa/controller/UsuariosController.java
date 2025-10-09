@@ -50,6 +50,11 @@ public class UsuariosController {
         return ResponseEntity.ok(toResponse(u));
     }
 
+    @GetMapping("/count")
+    public ResponseEntity<Long> contarUsuarios() {
+        long total = usuariosService.contarUsuarios();
+        return ResponseEntity.ok(total);
+    }
     // Atualização completa (usa os campos presentes; os nulos são ignorados)
     @PutMapping("/{id}")
     public ResponseEntity<UsuariosResponseDTO> atualizar(@PathVariable Long id,
@@ -90,6 +95,8 @@ public class UsuariosController {
         dto.setUpdatedAt(u.getUpdatedAt());
         return dto;
     }
+
+
 
     // Usa o campo "role" (String) se preenchido;
     // senão, pega a primeira Role do Set<Role> (ROLE_*)

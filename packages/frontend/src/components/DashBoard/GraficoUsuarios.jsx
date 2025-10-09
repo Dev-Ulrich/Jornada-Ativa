@@ -39,8 +39,8 @@ export default function GraficoUsuarios() {
         setLoadingData(true);
         setErrData("");
         const [weekUsers, monthUsers] = await Promise.all([
-          api.get("/admin/usuarios/metricas?range=semana"),
-          api.get("/admin/usuarios/metricas?range=mes"),
+          api.get("/usuarios/metricas?range=semana"),
+          api.get("/usuarios/metricas?range=mes"),
         ]);
         setUsuariosSemana(mapUsuariosSemana(weekUsers.data));
         setUsuariosMes(mapUsuariosMes(monthUsers.data));
@@ -104,7 +104,10 @@ export default function GraficoUsuarios() {
   return (
     <div className="grafico-card">
       <div className="grafico-header">
-        <h3>Usuários cadastrados — {modo === "semana" ? "Última semana" : "Últimos 12 meses"}</h3>
+        <h3>
+          Usuários cadastrados —{" "}
+          {modo === "semana" ? "Última semana" : "Últimos 12 meses"}
+        </h3>
         <div className="grafico-tabs">
           <button
             type="button"
@@ -127,7 +130,9 @@ export default function GraficoUsuarios() {
         {loadingData && <div className="grafico-hint">Carregando dados…</div>}
         {errData && <div className="grafico-warn">{errData}</div>}
 
-        {loadingCharts && <div className="grafico-hint">Carregando gráfico…</div>}
+        {loadingCharts && (
+          <div className="grafico-hint">Carregando gráfico…</div>
+        )}
         {errCharts && (
           <div className="grafico-warn">
             {errCharts} <code>npm i recharts</code>
@@ -140,7 +145,10 @@ export default function GraficoUsuarios() {
               data={dataAtiva}
               margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
             >
-              <charts.CartesianGrid strokeDasharray="3 3" stroke="var(--color-base)" />
+              <charts.CartesianGrid
+                strokeDasharray="3 3"
+                stroke="var(--color-base)"
+              />
               {modo === "semana" ? (
                 <charts.XAxis dataKey="dia" stroke="var(--text-base)" />
               ) : (
@@ -157,7 +165,7 @@ export default function GraficoUsuarios() {
               <charts.Line
                 type="monotone"
                 dataKey="cadastros"
-                stroke="currentColor"
+                stroke="#ff8633" // <-- aqui
                 strokeWidth={2}
                 dot={{ r: 3 }}
                 activeDot={{ r: 5 }}

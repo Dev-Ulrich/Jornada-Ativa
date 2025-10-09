@@ -10,13 +10,13 @@ import "./ProximosEventos.css";
  * Props:
  *  - eventos?: Array<{ id, nome, data, status? }>  // se enviado, não busca na API
  *  - endpoint?: string                              // default: "/admin/eventos/proximos"
- *  - limite?: number                                // máximo de linhas (default 10)
+ *  - limite?: number                                // máximo de linhas (default 5)
  *  - titulo?: string                                // título do card
  */
 export default function ProximosEventos({
   eventos,
-  endpoint = "/admin/eventos/proximos",
-  limite = 10,
+  endpoint = "/eventos/proximos",
+  limite = 5,               // ✅ agora 5 por padrão
   titulo = "Próximos eventos",
 }) {
   const [rows, setRows] = useState([]);
@@ -32,10 +32,19 @@ export default function ProximosEventos({
       status: (e.status ?? e.ativo ?? e.active) ? "Ativo" : "Inativo",
     }));
 
+  // 🔹 util: converte para timestamp (para ordenar); datas inválidas vão pro final
+  const toTs = (d) => {
+    if (!d) return Number.POSITIVE_INFINITY;
+    const t = new Date(d).getTime();
+    return Number.isNaN(t) ? Number.POSITIVE_INFINITY : t;
+  };
+
   // carrega da API se o prop "eventos" não vier
   useEffect(() => {
     if (Array.isArray(eventos)) {
-      setRows(normalize(eventos));
+      const norm = normalize(eventos)
+        .sort((a, b) => toTs(a.data) - toTs(b.data));  // ✅ ordena asc
+      setRows(norm);
       setLoading(false);
       setError("");
       return;
@@ -45,7 +54,9 @@ export default function ProximosEventos({
         setLoading(true);
         setError("");
         const { data } = await api.get(endpoint);
-        setRows(normalize(data));
+        const norm = normalize(data)
+          .sort((a, b) => toTs(a.data) - toTs(b.data)); // ✅ ordena asc
+        setRows(norm);
       } catch (e) {
         console.error(e);
         setError("Falha ao carregar próximos eventos.");
@@ -56,6 +67,7 @@ export default function ProximosEventos({
     })();
   }, [endpoint, eventos]);
 
+  // ✅ aplica limite aqui
   const list = useMemo(() => rows.slice(0, limite), [rows, limite]);
 
   return (

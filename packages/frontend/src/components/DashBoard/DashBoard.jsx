@@ -5,12 +5,12 @@ import { FaUser, FaPowerOff, FaRunning, FaCalendarAlt } from "react-icons/fa";
 import UsuarioTabela from "@components/Usuario/UsuarioTabela";
 import EventoTabela from "@components/Evento/EventoTabela";
 import TreinoTabela from "@components/Treino/TreinoTabela";
-import api from "@services/api"; // ✅ usa o axios centralizado
+import api from "@services/api"; // ✅ axios centralizado
+
 import GraficoUsuarios from "@components/DashBoard/GraficoUsuarios";
 import Calendario from "@components/DashBoard/Calendario";
 import EventosMes from "@components/DashBoard/EventosMes";
 import ProximosEventos from "@components/DashBoard/ProximosEventos";
-
 
 import "./DashBoard.css";
 import Sidebar from "@components/DashBoard/Sidebar";
@@ -24,13 +24,7 @@ const DashBoard = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [treinos, setTreinos] = useState([]);
 
-  const eventosDemo = [
-    { id: 1, nome: "Corrida Parque", data: "2025-10-12" },
-    { id: 2, nome: "Longão", data: "2025-10-15" },
-    { id: 3, nome: "Trail Japi", data: "2025-10-01" }, // passado → verde
-  ];
-
-  // 🔹 Novos estados para métricas do dashboard
+  // 🔹 KPIs
   const [metrics, setMetrics] = useState({
     totalEventos: 0,
     totalEventosAtivos: 0,
@@ -39,18 +33,29 @@ const DashBoard = () => {
   });
   const [loadingMetrics, setLoadingMetrics] = useState(true);
 
-  // 🔹 Função para buscar métricas no backend
+  // 🔹 Próximos eventos (compartilhado por Calendário e Tabela)
+  const [proximosEventos, setProximosEventos] = useState([]);
+  const [loadingProx, setLoadingProx] = useState(true);
+
+  // Normalizador do backend -> front
+  const mapProximos = (arr = []) =>
+    (Array.isArray(arr) ? arr : []).map((e, i) => ({
+      id: e.id ?? e.idEvento ?? e.id_evento ?? i,
+      nome: e.nome ?? e.titulo ?? e.name ?? "-",
+      data: e.data ?? e.dataEvento ?? e.date ?? null,         // aceita ISO ou DD/MM/YYYY
+      hora: e.hora ?? e.horario ?? e.time ?? e.horaEvento ?? null,
+      status: (e.status ?? e.ativo ?? e.active) ? "Ativo" : "Inativo",
+    }));
+
+  // 🔹 Busca KPIs
   async function loadMetrics() {
     try {
       setLoadingMetrics(true);
-
-      const [usuariosCount, eventosCount, eventosAtivosCount, inscricoesCount] =
-        await Promise.all([
-          api.get("/usuarios/count"),
-          api.get("/eventos/count"),
-          api.get("/eventos/ativos/count"),
-        ]);
-
+      const [usuariosCount, eventosCount, eventosAtivosCount] = await Promise.all([
+        api.get("/usuarios/count"),
+        api.get("/eventos/count"),
+        api.get("/eventos/ativos/count"),
+      ]);
       setMetrics({
         totalUsuarios: usuariosCount.data,
         totalEventos: eventosCount.data,
@@ -63,14 +68,30 @@ const DashBoard = () => {
     }
   }
 
-  // 🔹 Carrega métricas quando abrir a tela de dashboard
+  // 🔹 Carrega KPIs ao entrar no dashboard
   useEffect(() => {
     if (activeSection === "dashboard") {
       loadMetrics();
     }
   }, [activeSection]);
 
-  // 🔹 Lógica já existente de carregamento dinâmico
+  // 🔹 Carrega próximos eventos (uma vez só)
+  useEffect(() => {
+    (async () => {
+      try {
+        setLoadingProx(true);
+        const { data } = await api.get("/eventos/proximos");
+        setProximosEventos(mapProximos(Array.isArray(data) ? data : data?.items || data?.results || []));
+      } catch (e) {
+        console.error("Falha ao carregar /eventos/proximos:", e);
+        setProximosEventos([]); // mantém vazio se falhar
+      } finally {
+        setLoadingProx(false);
+      }
+    })();
+  }, []);
+
+  // 🔹 Carrega seções listagens
   useEffect(() => {
     if (activeSection === "usuario") {
       import("../../services/api").then(({ default: api }) => {
@@ -106,9 +127,7 @@ const DashBoard = () => {
     }
   }, [darkMode]);
 
-  const toggleDarkMode = () => {
-    setDarkMode((prevDarkMode) => !prevDarkMode);
-  };
+  const toggleDarkMode = () => setDarkMode((p) => !p);
 
   return (
     <div className="dashboard-container">
@@ -122,51 +141,56 @@ const DashBoard = () => {
       <main className="main">
         {activeSection === "dashboard" && (
           <>
+            {/* KPIs */}
             <section className="stats-row">
-        <div className="stat-card">
-          <span>Eventos criados:</span>
-          <h1>{loadingMetrics ? "..." : metrics.totalEventos}</h1>
-        </div>
-        <div className="stat-card">
-          <span>Eventos ativos:</span>
-          <h1>{loadingMetrics ? "..." : metrics.totalEventosAtivos}</h1>
-        </div>
-        <div className="stat-card">
-          <span>Usuários cadastrados:</span>
-          <h1>{loadingMetrics ? "..." : metrics.totalUsuarios}</h1>
-        </div>
-      </section>
-          
+              <div className="stat-card">
+                <span>Eventos criados:</span>
+                <h1>{loadingMetrics ? "..." : metrics.totalEventos}</h1>
+              </div>
+              <div className="stat-card">
+                <span>Eventos ativos:</span>
+                <h1>{loadingMetrics ? "..." : metrics.totalEventosAtivos}</h1>
+              </div>
+              <div className="stat-card">
+                <span>Usuários cadastrados:</span>
+                <h1>{loadingMetrics ? "..." : metrics.totalUsuarios}</h1>
+              </div>
+            </section>
 
-        <section className="dashboard-row-2col">
-          <div className="dashboard-col">
-    <GraficoUsuarios height={320} />
-  </div>
+            {/* Gráfico + Calendário + Eventos por mês + Próximos eventos */}
+            <section className="dashboard-row-2col">
+              <div className="dashboard-col">
+                <GraficoUsuarios height={320} />
+              </div>
 
-           <div className="dashboard-col">
-    <Calendario eventos={eventosDemo} size="compact" />
-  </div>
-          <div className="dashboard-col">
-            <EventosMes height={200} />
-          </div>
-          <div className="dashboard-col">
-            <ProximosEventos limite={8} />
-          </div>
-          <footer className="ja-inline-footer">
-  © {new Date().getFullYear()} Jornada Ativa · Dashboard
-</footer>
-        </section>
-        </>
+              <div className="dashboard-col">
+                {/* ✅ Calendário consome /eventos/proximos */}
+                <Calendario eventos={proximosEventos} size="compact" />
+              </div>
+
+              <div className="dashboard-col">
+                <EventosMes height={200} />
+              </div>
+
+              <div className="dashboard-col">
+                {/* ✅ Tabela também consome o mesmo array */}
+                <ProximosEventos eventos={proximosEventos} limite={5} />
+              </div>
+
+              <footer className="ja-inline-footer">
+                © {new Date().getFullYear()} Jornada Ativa · Dashboard
+              </footer>
+            </section>
+          </>
         )}
-        
 
         {activeSection === "usuario" && (
-    <UsuarioTabela usuarios={usuarios} setUsuarios={setUsuarios} />
-  )}
+          <UsuarioTabela usuarios={usuarios} setUsuarios={setUsuarios} />
+        )}
 
-  {activeSection === "eventos" && <EventoTabela />}
+        {activeSection === "eventos" && <EventoTabela />}
 
-  {activeSection === "treino" && <TreinoTabela treinos={treinos} />}
+        {activeSection === "treino" && <TreinoTabela treinos={treinos} />}
       </main>
     </div>
   );

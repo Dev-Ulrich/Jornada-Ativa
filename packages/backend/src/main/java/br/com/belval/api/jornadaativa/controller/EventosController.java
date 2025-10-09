@@ -15,6 +15,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
@@ -58,6 +59,27 @@ public class EventosController {
         return ResponseEntity.ok(lista.stream().map(this::toResponse).toList());
     }
 
+    @GetMapping("/metricas/por-mes")
+    public ResponseEntity<Map<Integer, Long>> eventosPorMes(
+            @RequestParam int ano) {
+        Map<Integer, Long> metricas = eventosService.contarEventosPorMes(ano);
+        return ResponseEntity.ok(metricas);
+    }
+
+    // 🔹 Total geral
+    @GetMapping("/count")
+    public ResponseEntity<Long> contarEventos() {
+        long total = eventosService.contarEventos();
+        return ResponseEntity.ok(total);
+    }
+
+    // 🔹 Total de eventos ativos
+    @GetMapping("/ativos/count")
+    public ResponseEntity<Long> contarEventosAtivos() {
+        long total = eventosService.contarEventosAtivos();
+        return ResponseEntity.ok(total);
+    }
+
     // PUT /eventos/{id} -> atualizar (DTO -> Entity)
     @PutMapping("/{id}")
     public ResponseEntity<EventoResponseDTO> atualizar(@PathVariable Long id,
@@ -83,6 +105,7 @@ public class EventosController {
         e.setImagemEvento(dto.getImagemEvento());
         e.setDataEvento(dto.getDataEvento());
         e.setLinkEvento(dto.getLinkEvento());
+        e.setStatus(dto.getStatus());
         return e;
     }
 
@@ -95,6 +118,7 @@ public class EventosController {
         e.setImagemEvento(dto.getImagemEvento());
         e.setDataEvento(dto.getDataEvento());
         e.setLinkEvento(dto.getLinkEvento());
+        e.setStatus(dto.getStatus());
         return e;
     }
 
@@ -107,6 +131,7 @@ public class EventosController {
         dto.setImagemEvento(e.getImagemEvento());
         dto.setDataEvento(e.getDataEvento());
         dto.setLinkEvento(e.getLinkEvento());
+        dto.setStatus(e.getStatus());
         dto.setCreatedAt(e.getCreatedAt());
         return dto;
     }

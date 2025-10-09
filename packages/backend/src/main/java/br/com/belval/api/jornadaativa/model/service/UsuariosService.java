@@ -25,6 +25,10 @@ public class UsuariosService {
     private final RoleService roleService;
     private final PasswordEncoder passwordEncoder;
 
+    public long contarUsuarios() {
+        return usuarioRepository.count();
+    }
+
     @Transactional
     public Usuarios criarFromDto(UsuariosCreateDTO dto) {
         if (usuarioRepository.existsByEmail(dto.getEmail())) {
