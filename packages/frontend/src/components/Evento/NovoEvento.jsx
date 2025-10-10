@@ -1,194 +1,160 @@
-import React, { useState, useEffect, useRef } from "react";
-import api from "../../services/api";
-import { Link } from "react-router-dom";
-import { FaArrowLeft, FaPowerOff } from "react-icons/fa";
-import "./NovoEvento.css";
+import React, { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "@services/api";
+import "./EventoForm.css"; 
 
-const formatarData = (valor) => {
-  valor = valor.replace(/\D/g, "");
-  if (valor.length > 2) valor = valor.slice(0, 2) + "/" + valor.slice(2);
-  if (valor.length > 5) valor = valor.slice(0, 5) + "/" + valor.slice(5, 9);
-  return valor.slice(0, 10);
+
+// validações
+const isValidRequiredUrl = (v) => {
+  if (!v) return false;
+  try { new URL(v); return true; } catch { return false; }
+};
+const isValidOptionalUrl = (v) => {
+  if (!v) return true;
+  try { new URL(v); return true; } catch { return false; }
 };
 
-const NovoEvento = () => {
-  const [nome, setNome] = useState("");
-  const [descricao, setDescricao] = useState("");
-  const [link, setLink] = useState("");
-  const [dataEvento, setDataEvento] = useState("");
-  const [imagem, setImagem] = useState(null);
-  const [preview, setPreview] = useState(null);
-  const token = localStorage.getItem("token");
-  const fileInputRef = useRef(null);
+export default function NovoEvento() {
+  const navigate = useNavigate();
 
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setImagem(file);
-      setPreview(URL.createObjectURL(file));
-    }
+  const [form, setForm] = useState({
+    nome: "",
+    descricao: "",
+    dataEvento: "",
+    imagemEvento: "",
+    linkEvento: "",
+    status: "ATIVO",
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const canSubmit = useMemo(() => (
+    form.nome.trim().length > 2 &&
+    form.descricao.trim().length > 3 &&
+    /^\d{4}-\d{2}-\d{2}$/.test(form.dataEvento) &&
+    isValidRequiredUrl(form.linkEvento) &&
+    isValidOptionalUrl(form.imagemEvento) &&
+    form.status.trim().length > 0
+  ), [form]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((f) => ({ ...f, [name]: value }));
+    setError("");
+    setSuccess("");
   };
 
-  const enviarEvento = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    let dataFormatada = "";
-    if (dataEvento.length === 10) {
-      const [dia, mes, ano] = dataEvento.split("/");
-      dataFormatada = `${ano}-${mes}-${dia}`;
-    }
-
-    const formData = new FormData();
-    formData.append("nome", nome);
-    formData.append("descricao", descricao);
-    formData.append("link", link);
-    formData.append("dataEvento", dataFormatada);
-    if (imagem) formData.append("imagem", imagem);
+    if (!canSubmit || submitting) return;
+    setSubmitting(true);
+    setError("");
+    setSuccess("");
 
     try {
-      const response = await api.post("/eventos", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      alert("Evento cadastrado com sucesso!");
-      setNome("");
-      setDescricao("");
-      setLink("");
-      setDataEvento("");
-      setImagem(null);
-      setPreview(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    } catch (error) {
-      console.error("Não foi possivel salvar o evento", error);
-      alert("Erro ao cadastrar evento. Verifique os dados e tente novamente.");
+      const payload = {
+        nome: form.nome.trim(),
+        descricao: form.descricao.trim(),
+        dataEvento: form.dataEvento,     // yyyy-MM-dd (LocalDate)
+        imagemEvento: form.imagemEvento || null,
+        linkEvento: form.linkEvento.trim(),
+        status: form.status.trim(),
+      };
+      await api.post("/eventos", payload);
+      setSuccess("Evento criado com sucesso!");
+      setTimeout(() => navigate("/admin/eventos"), 1000);
+    } catch (err) {
+      const msg = err?.response?.data?.message || err?.message || "Erro ao criar evento";
+      setError(msg);
+    } finally {
+      setSubmitting(false);
     }
-  };
-
-  // Dark Mode
-  const [darkMode, setDarkMode] = useState(() => {
-    const storedDarkMode = localStorage.getItem("dark-mode");
-    return storedDarkMode === "active";
-  });
-
-  useEffect(() => {
-    if (darkMode) {
-      document.body.classList.add("dark-mode");
-      localStorage.setItem("dark-mode", "active");
-    } else {
-      document.body.classList.remove("dark-mode");
-      localStorage.setItem("dark-mode", "inactive");
-    }
-  }, [darkMode]);
-
-  const toggleDarkMode = () => {
-    setDarkMode((prevDarkMode) => !prevDarkMode);
   };
 
   return (
-    <div>
-      <header>
-        <div className="trilho-evento" id="trilho" onClick={toggleDarkMode}>
-          <div className="indicador-evento">
-            <i>
-              <FaPowerOff />
-            </i>
+  <div className="ev-form-page">
+    <div className="ev-container">
+      <div className="ev-topbar">
+        <h1 className="ev-title">Novo Evento</h1>
+        <button type="button" onClick={() => navigate("/admin/eventos")} className="ev-back">
+          ← Voltar para Tabela
+        </button>
+      </div>
+
+      <form onSubmit={handleSubmit} className="ev-grid">
+        <div>
+          <div className="ev-card">
+            <p className="ev-label" style={{marginBottom: 8}}>Pré-visualização</p>
+            <div className="ev-preview">
+              {form.imagemEvento ? (
+                <img src={form.imagemEvento} alt={form.nome || "Prévia do Evento"}
+                     onError={(e) => { e.currentTarget.style.display = "none"; }} />
+              ) : <div className="ev-label" style={{color:"#a3a3a3"}}>Imagem</div>}
+            </div>
+            <p className="ev-note">Dica: use uma URL pública (CDN/Imgur) para a imagem ou deixe em branco.</p>
           </div>
         </div>
-      </header>
 
-      <div className="novo-evento-container">
-        <Link to="/admin/dashboard" className="novo-evento-voltar">
-          <FaArrowLeft className="novo-evento-voltar-icone" />
-          Voltar
-        </Link>
-        <h2 className="novo-evento-titulo">Novo Evento</h2>
-        <form onSubmit={enviarEvento}>
-          <div className="novo-evento-campo">
-            <label htmlFor="nome" className="novo-evento-label">
-              Nome:
-            </label>
-            <input
-              type="text"
-              id="nome"
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-              required
-              className="novo-evento-input"
-            />
+        <div className="ev-grid" style={{gridTemplateColumns:"1fr"}}>
+          <div className="ev-field">
+            <label className="ev-label">Nome</label>
+            <input className="ev-input" name="nome" value={form.nome} onChange={handleChange} placeholder="Ex.: Corrida Noturna" />
           </div>
-          <div className="novo-evento-campo">
-            <label htmlFor="descricao" className="novo-evento-label">
-              Descrição:
-            </label>
-            <input
-              type="text"
-              id="descricao"
-              value={descricao}
-              onChange={(e) => setDescricao(e.target.value)}
-              required
-              className="novo-evento-input"
-            />
+
+          <div className="ev-field">
+            <label className="ev-label">Descrição</label>
+            <textarea className="ev-textarea" name="descricao" value={form.descricao}
+                      onChange={handleChange} placeholder="Detalhes do evento..." />
           </div>
-          <div className="novo-evento-campo">
-            <label htmlFor="link" className="novo-evento-label">
-              Link do Evento:
-            </label>
-            <input
-              type="text"
-              id="link"
-              value={link}
-              onChange={(e) => setLink(e.target.value)}
-              required
-              className="novo-evento-input"
-            />
+
+          <div className="ev-grid" style={{gridTemplateColumns:"1fr 1fr"}}>
+            <div className="ev-field">
+              <label className="ev-label">Data do Evento</label>
+              <input type="date" className="ev-input" name="dataEvento" value={form.dataEvento} onChange={handleChange} />
+              <span className="ev-note">Formato enviado: yyyy-MM-dd</span>
+            </div>
+
+            <div className="ev-field">
+              <label className="ev-label">Status</label>
+              <select className="ev-select" name="status" value={form.status} onChange={handleChange}>
+                <option value="ATIVO">Ativo</option>
+                <option value="INATIVO">Inativo</option>
+                <option value="CANCELADO">Cancelado</option>
+              </select>
+            </div>
           </div>
-          <div className="novo-evento-campo">
-            <label htmlFor="dataEvento" className="novo-evento-label">
-              Data do Evento:
-            </label>
-            <input
-              type="text"
-              id="dataEvento"
-              value={dataEvento}
-              onChange={(e) => setDataEvento(formatarData(e.target.value))}
-              required
-              className="novo-evento-input"
-              placeholder="dd/mm/aaaa"
-              maxLength={10}
-            />
+
+          <div className="ev-grid" style={{gridTemplateColumns:"1fr 1fr"}}>
+            <div className="ev-field">
+              <label className="ev-label">Link do Evento</label>
+              <input className="ev-input" name="linkEvento" value={form.linkEvento}
+                     onChange={handleChange} placeholder="https://exemplo.com/meu-evento" />
+              {!isValidRequiredUrl(form.linkEvento) && <p className="ev-alert-error">URL inválida</p>}
+            </div>
+
+            <div className="ev-field">
+              <label className="ev-label">Imagem (URL pública, opcional)</label>
+              <input className="ev-input" name="imagemEvento" value={form.imagemEvento}
+                     onChange={handleChange} placeholder="https://.../imagem.jpg" />
+              {!isValidOptionalUrl(form.imagemEvento) && <p className="ev-alert-error">URL inválida</p>}
+            </div>
           </div>
-          <div className="novo-evento-campo">
-            <label htmlFor="imagem" className="novo-evento-label">
-              Imagem do Evento:
-            </label>
-            <input
-              type="file"
-              id="imagem"
-              name="imagem"
-              accept="image/*"
-              onChange={handleImageChange}
-              ref={fileInputRef}
-              className="novo-evento-input"
-            />
-            {preview && (
-              <div className="novo-evento-preview">
-                <p className="novo-evento-preview-texto">Imagem Original:</p>
-                <img
-                  src={preview}
-                  alt="Evento"
-                  className="novo-evento-preview-imagem"
-                />
-              </div>
-            )}
+
+          {error && <div className="ev-alert-error">{error}</div>}
+          {success && <div className="ev-alert-ok">{success}</div>}
+
+          <div className="ev-actions">
+            <button type="submit" disabled={!canSubmit || submitting} className="ev-btn ev-btn-primary">
+              {submitting ? "Salvando..." : "Salvar Evento"}
+            </button>
+            <button type="button" onClick={() => setForm({ nome: "", descricao: "", dataEvento: "", imagemEvento: "", linkEvento: "", status: "ATIVO" })}
+                    className="ev-btn ev-btn-ghost">
+              Limpar
+            </button>
           </div>
-          <button type="submit" className="novo-evento-botao">
-            Cadastrar Evento
-          </button>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
-  );
-};
-
-export default NovoEvento;
+  </div>
+)}

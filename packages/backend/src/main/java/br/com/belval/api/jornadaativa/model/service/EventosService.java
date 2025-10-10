@@ -33,8 +33,7 @@ public class EventosService {
     }
 
 
-<<<<<<< HEAD
-=======
+
     public Map<Integer, Long> contarEventosPorMes(int ano) {
         List<Eventos> eventos = eventosRepository.findByAno(ano); // You may need to implement this query
         Map<Integer, Long> contagemPorMes = eventos.stream()
@@ -45,7 +44,7 @@ public class EventosService {
         return contagemPorMes;
     }
 
->>>>>>> 51a3312
+
     @Transactional
     public Eventos criar(Eventos e) {
         return eventosRepository.save(e);

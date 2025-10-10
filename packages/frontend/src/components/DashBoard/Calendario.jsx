@@ -151,7 +151,7 @@ export default function Calendario({
 
       <div className="cal-grid">
         {WEEK_LETTERS.map((l, i) => (
-          <div key={`wk-${i}`} className="cal-week">
+          <div key={`${l}-${i}`} className="cal-week">
             {l}
           </div>
         ))}

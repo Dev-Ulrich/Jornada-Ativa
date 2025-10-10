@@ -2,6 +2,38 @@ import { useEffect, useMemo, useState } from "react";
 import api from "@services/api";
 import "./ProximosEventos.css";
 
+// Helpers de data
+// Problema: strings no formato "YYYY-MM-DD" são interpretadas como UTC pelo Date,
+// o que pode resultar em "um dia a menos" em fusos como America/Sao_Paulo (UTC-3).
+// Solução: detectar formato de data-only e criar Date no fuso local (new Date(y, m-1, d)).
+const isDateOnly = (v) =>
+  typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v.trim());
+const parseDateLocal = (ymd) => {
+  const [y, m, d] = ymd.split("-").map(Number);
+  return new Date(y, (m || 1) - 1, d || 1);
+};
+const parseDateSmart = (value) => {
+  if (!value) return null;
+  if (value instanceof Date) return value;
+  if (typeof value === "number") return new Date(value);
+  if (typeof value === "string") {
+    const s = value.trim();
+    if (!s) return null;
+    if (isDateOnly(s)) return parseDateLocal(s);
+    const t = Date.parse(s);
+    if (!Number.isNaN(t)) return new Date(t);
+  }
+  return null;
+};
+const toTimestamp = (value) => {
+  const dt = parseDateSmart(value);
+  return dt ? dt.getTime() : Number.POSITIVE_INFINITY; // datas inválidas vão ao fim
+};
+const formatPtBR = (value) => {
+  const dt = parseDateSmart(value);
+  return dt ? dt.toLocaleDateString("pt-BR") : "--/--/----";
+};
+
 /**
  * Próximos Eventos
  * - Colunas: Status | Data | Nome (sem ações)
@@ -16,7 +48,7 @@ import "./ProximosEventos.css";
 export default function ProximosEventos({
   eventos,
   endpoint = "/eventos/proximos",
-  limite = 5,               // ✅ agora 5 por padrão
+  limite = 5, // ✅ agora 5 por padrão
   titulo = "Próximos eventos",
 }) {
   const [rows, setRows] = useState([]);
@@ -29,21 +61,18 @@ export default function ProximosEventos({
       id: e.id || e.idEvento || e.id_evento || `${e.nome}-${e.data}`,
       nome: e.nome || e.titulo || e.name || "-",
       data: e.data || e.dataEvento || e.date || null,
-      status: (e.status ?? e.ativo ?? e.active) ? "Ativo" : "Inativo",
+      status: e.status ?? e.ativo ?? e.active ? "Ativo" : "Inativo",
     }));
 
-  // 🔹 util: converte para timestamp (para ordenar); datas inválidas vão pro final
-  const toTs = (d) => {
-    if (!d) return Number.POSITIVE_INFINITY;
-    const t = new Date(d).getTime();
-    return Number.isNaN(t) ? Number.POSITIVE_INFINITY : t;
-  };
+  // 🔹 util: converte para timestamp (para ordenar) respeitando data-only no fuso local
+  const toTs = (d) => toTimestamp(d);
 
   // carrega da API se o prop "eventos" não vier
   useEffect(() => {
     if (Array.isArray(eventos)) {
-      const norm = normalize(eventos)
-        .sort((a, b) => toTs(a.data) - toTs(b.data));  // ✅ ordena asc
+      const norm = normalize(eventos).sort(
+        (a, b) => toTs(a.data) - toTs(b.data)
+      ); // ✅ ordena asc (local)
       setRows(norm);
       setLoading(false);
       setError("");
@@ -54,8 +83,9 @@ export default function ProximosEventos({
         setLoading(true);
         setError("");
         const { data } = await api.get(endpoint);
-        const norm = normalize(data)
-          .sort((a, b) => toTs(a.data) - toTs(b.data)); // ✅ ordena asc
+        const norm = normalize(data).sort(
+          (a, b) => toTs(a.data) - toTs(b.data)
+        ); // ✅ ordena asc (local)
         setRows(norm);
       } catch (e) {
         console.error(e);
@@ -104,17 +134,15 @@ export default function ProximosEventos({
                     <span
                       className={
                         "chip " +
-                        (ev.status === "Ativo" ? "chip-active" : "chip-inactive")
+                        (ev.status === "Ativo"
+                          ? "chip-active"
+                          : "chip-inactive")
                       }
                     >
                       {ev.status}
                     </span>
                   </td>
-                  <td>
-                    {ev.data
-                      ? new Date(ev.data).toLocaleDateString("pt-BR")
-                      : "--/--/----"}
-                  </td>
+                  <td>{formatPtBR(ev.data)}</td>
                   <td className="prox-nome">{ev.nome}</td>
                 </tr>
               ))}

@@ -1,14 +1,44 @@
-import React, { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import api from "@services/api";
 import "../Evento/EventoForm.css"; // reaproveitando estilos
 
-export default function NovoTreino() {
+export default function EditarTreino() {
   const navigate = useNavigate();
+  const { id } = useParams();
+
   const [form, setForm] = useState({ nome: "", descricao: "" });
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        setLoading(true);
+        setError("");
+        const { data } = await api.get(`/treinos/${id}`);
+        if (!alive) return;
+        setForm({
+          nome: data?.nome ?? "",
+          descricao: data?.descricao ?? "",
+        });
+      } catch (err) {
+        const msg =
+          err?.response?.data?.message ||
+          err?.message ||
+          "Erro ao carregar treino";
+        setError(msg);
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [id]);
 
   const canSubmit = useMemo(
     () => form.nome.trim().length > 2 && form.descricao.trim().length > 3,
@@ -34,23 +64,53 @@ export default function NovoTreino() {
         nome: form.nome.trim(),
         descricao: form.descricao.trim(),
       };
-      await api.post("/treinos", payload);
-      setSuccess("Treino criado com sucesso!");
+      await api.put(`/treinos/${id}`, payload);
+      setSuccess("Treino atualizado com sucesso!");
       setTimeout(() => navigate("/admin/treinos"), 800);
     } catch (err) {
       const msg =
-        err?.response?.data?.message || err?.message || "Erro ao criar treino";
+        err?.response?.data?.message ||
+        err?.message ||
+        "Erro ao salvar alterações";
       setError(msg);
     } finally {
       setSubmitting(false);
     }
   };
 
+  if (loading) {
+    return (
+      <div className="ev-form-page">
+        <div
+          className="ev-container"
+          style={{ maxWidth: 720, margin: "0 auto" }}
+        >
+          <div className="ev-topbar" style={{ gap: 12, marginBottom: 16 }}>
+            <div className="ev-card" style={{ height: 36, width: 160 }} />
+            <div
+              className="ev-card"
+              style={{ height: 36, width: 180, marginLeft: "auto" }}
+            />
+          </div>
+          <div
+            className="ev-card"
+            style={{
+              height: 180,
+              borderRadius: 18,
+              background: "#1f1f1f",
+              border: "1px solid #2c2c2c",
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="ev-form-page">
       {/* Limita a largura e centraliza tudo */}
       <div className="ev-container" style={{ maxWidth: 720, margin: "0 auto" }}>
-        {/* Topo centrado; botão de voltar no canto direito */}
+        {/* Título central e botão voltar à direita */}
         <div
           className="ev-topbar"
           style={{
@@ -60,8 +120,11 @@ export default function NovoTreino() {
             marginBottom: 16,
           }}
         >
-          <h1 className="ev-title" style={{ margin: "0 auto", textAlign: "center" }}>
-            Novo Treino
+          <h1
+            className="ev-title"
+            style={{ margin: "0 auto", textAlign: "center" }}
+          >
+            Editar Treino
           </h1>
           <button
             type="button"
@@ -73,7 +136,13 @@ export default function NovoTreino() {
           </button>
         </div>
 
-        {/* Card central com sombra */}
+        {error && (
+          <div className="ev-alert-error" style={{ marginBottom: 16 }}>
+            {error}
+          </div>
+        )}
+
+        {/* Card central */}
         <div
           style={{
             background: "#1f1f1f",
@@ -95,7 +164,6 @@ export default function NovoTreino() {
                 name="nome"
                 value={form.nome}
                 onChange={handleChange}
-                placeholder="Ex.: Treino A - Resistência"
               />
             </div>
 
@@ -106,11 +174,9 @@ export default function NovoTreino() {
                 name="descricao"
                 value={form.descricao}
                 onChange={handleChange}
-                placeholder="Detalhes do treino..."
               />
             </div>
 
-            {error && <div className="ev-alert-error">{error}</div>}
             {success && <div className="ev-alert-ok">{success}</div>}
 
             {/* Botões centralizados */}
@@ -123,7 +189,7 @@ export default function NovoTreino() {
                 disabled={!canSubmit || submitting}
                 className="ev-btn ev-btn-primary"
               >
-                {submitting ? "Salvando..." : "Salvar Treino"}
+                {submitting ? "Salvando..." : "Salvar Alterações"}
               </button>
               <button
                 type="button"

@@ -59,8 +59,6 @@ public class EventosController {
         return ResponseEntity.ok(lista.stream().map(this::toResponse).toList());
     }
 
-<<<<<<< HEAD
-=======
     @GetMapping("/metricas/por-mes")
     public ResponseEntity<Map<Integer, Long>> eventosPorMes(
             @RequestParam int ano) {
@@ -68,7 +66,7 @@ public class EventosController {
         return ResponseEntity.ok(metricas);
     }
 
->>>>>>> 51a3312
+
     // 🔹 Total geral
     @GetMapping("/count")
     public ResponseEntity<Long> contarEventos() {

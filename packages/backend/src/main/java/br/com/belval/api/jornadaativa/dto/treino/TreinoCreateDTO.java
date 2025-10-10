@@ -12,6 +12,8 @@ import lombok.*;
 @Builder
 public class TreinoCreateDTO {
 
+
+
     @NotBlank @Size(max = 255) private String nome;
     @Size(max = 255) private String descricao; // opcional
 }

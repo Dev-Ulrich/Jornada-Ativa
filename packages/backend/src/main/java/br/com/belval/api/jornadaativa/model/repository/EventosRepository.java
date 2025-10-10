@@ -25,10 +25,9 @@ public interface EventosRepository extends JpaRepository<Eventos, Long> {
 
     //Status evento
     long countByStatus(StatusEvento status);
-<<<<<<< HEAD
-=======
+
 
     @Query("SELECT e FROM Eventos e WHERE YEAR(e.dataEvento) = :ano")
     List<Eventos> findByAno(@Param("ano") int ano);
->>>>>>> 51a3312
+
 }

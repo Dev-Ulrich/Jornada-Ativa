@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -63,6 +64,7 @@ public class TreinosController {
         Treinos t = new Treinos();
         t.setNome(dto.getNome());
         t.setDescricao(dto.getDescricao());
+        t.setCreatedAt(LocalDateTime.now());
         return t;
     }
 

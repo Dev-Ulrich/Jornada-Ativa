@@ -16,9 +16,8 @@ public interface UsuarioRepository extends JpaRepository<Usuarios, Long> {
 
     boolean existsByEmail(String email);
 
-<<<<<<< HEAD
-=======
+
     long countByCreatedAtBetween(LocalDateTime inicio, LocalDateTime fim);
 
->>>>>>> 51a3312
+
 }

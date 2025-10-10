@@ -1,86 +1,92 @@
-.section-treino {
-  padding: 20px;
-}
-
-.titulo-treinos {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.table-responsive {
-  overflow-x: auto;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.table th,
-.table td {
-  padding: 12px 15px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-}
-
-.table th {
-  background-color: #f5f5f5;
-  font-weight: bold;
-}
-
-.table tbody tr:hover {
-  background-color: #f9f9f9;
-}
-
-.text-center {
-  text-align: center;
-}
-
-.btn-sm {
-  padding: 5px 10px;
-  font-size: 0.8rem;
-}
-
-.btn-primary {
-  background-color: #007bff;
-  color: white;
-  border: none;
-}
-
-.btn-primary:hover {
-  background-color: #0056b3;
-}
-
-.btn-danger {
-  background-color: #dc3545;
-  color: white;
-  border: none;
-}
-
-.btn-danger:hover {
-  background-color: #bd2130;
-}
-
-.pagination {
+/* Cabeçalho */
+.tr-header {
   display: flex;
-  list-style: none;
-  padding: 0;
-  justify-content: center;
-  margin-top: 20px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.tr-title { font-size: 28px; font-weight: 700; }
+.tr-header-actions { display: flex; gap: 10px; }
+
+/* Inputs/Buttons */
+.tr-input {
+  background: var(--bg-base);
+  color: var(--text-base);
+  border: 1px solid var(--color-base);
+  border-radius: 8px;
+  padding: 10px 12px;
+  min-width: 280px;
+}
+.tr-btn { border: none; padding: 10px 14px; border-radius: 10px; cursor: pointer; }
+.tr-btn-primary { background: #ff8633; color: #fff; }
+
+/* Tabela */
+.tr-table-wrap {
+  background: var(--bg-base);
+  border: 1px solid var(--color-base);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.tr-table { width: 100%; border-collapse: collapse; }
+.tr-table thead th {
+  background: #ff8633; color: #fff; text-align: left; padding: 14px 12px; font-weight: 700;
+}
+.tr-table tbody td { padding: 12px; border-top: 1px solid rgba(255,255,255,.06); }
+.tr-strong { font-weight: 600; }
+.tr-muted { opacity: .8; }
+
+.tr-empty, .tr-error { text-align: center; padding: 24px; }
+
+/* Avatar */
+.tr-avatar { display: inline-flex; align-items: center; justify-content: center; }
+.tr-avatar-img {
+  width: 36px; height: 36px; border-radius: 10px; object-fit: cover;
+  border: 1px solid var(--color-base);
+}
+.tr-avatar-fallback {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--indicador-base-funcionario);
+  color: var(--text-base); font-weight: 700;
+  border: 1px solid var(--color-base);
 }
 
-.page-item {
-  margin: 0 5px;
+/* “Nível” como pill simples */
+.tr-pill {
+  display: inline-block; padding: 4px 8px; border-radius: 999px; font-size: 12px;
+  background: rgba(255,134,51,.15); border:1px solid #ff8633; color:#ffb07a;
 }
 
-.page-link {
-  color: #ff6f00;
-  text-decoration: none;
-  padding: 5px 10px;
-  border: 1px solid var(--text-base);
+/* Ações */
+.tr-actions { display: flex; gap: 8px; }
+.tr-icon-btn {
+  background: var(--bg-base);
+  border: 1px solid var(--color-base);
+  border-radius: 8px;
+  padding: 6px 8px;
   cursor: pointer;
 }
+.tr-icon-btn.tr-danger { color: #ef4444; border-color: #ef4444; }
 
-.page-link:hover {
-  background-color: #f0f0f0;
+/* Rodapé / paginação */
+.tr-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 12px;
+}
+.tr-pagination { display: flex; align-items: center; gap: 8px; }
+.tr-page-btn {
+  background: var(--bg-base);
+  border: 1px solid var(--color-base);
+  color: var(--text-base);
+  border-radius: 8px;
+  width: 32px; height: 32px;
+}
+.tr-page-indicator { opacity: .8; }
+.tr-select {
+  background: var(--bg-base);
+  color: var(--text-base);
+  border: 1px solid var(--color-base);
+  border-radius: 8px;
+  padding: 8px 10px;
 }

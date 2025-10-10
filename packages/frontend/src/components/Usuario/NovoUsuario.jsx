@@ -1,275 +1,172 @@
-import React, { useState, useRef, useEffect } from "react";
-import api from "../../services/api";
-import { Link } from "react-router-dom";
-import { FaArrowLeft, FaPowerOff } from "react-icons/fa";
-import "./NovoUsuario.css";
+import React, { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "@services/api";
+import "../Evento/EventoForm.css";
 
+const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v || "");
+const isValidOptionalUrl = (v) => { if (!v) return true; try { new URL(v); return true; } catch { return false; } };
+const toRoleName = (v) => (String(v).toLowerCase() === "admin" ? "ROLE_ADMIN" : "ROLE_USER");
 
+export default function NovoUsuario() {
+  const navigate = useNavigate();
+  const [form, setForm] = useState({
+    nome: "", email: "", senha: "",
+    genero: "", dataNascimento: "",
+    nivel: "", altura: "", peso: "",
+    role: "user",      // user|admin (frontend)
+    ftPerfil: "",      // opcional
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-const formatarData = (valor) => {
-  valor = valor.replace(/\D/g, "");
-  if (valor.length > 2) valor = valor.slice(0,2) + "/" + valor.slice(2);
-  if (valor.length > 5) valor = valor.slice(0,5) + "/" + valor.slice(5,9);
-  return valor.slice(0,10);
-};
+  const canSubmit = useMemo(() => (
+    form.nome.trim() &&
+    isEmail(form.email) &&
+    form.senha.trim().length >= 6 &&
+    form.genero.trim() &&
+    /^\d{4}-\d{2}-\d{2}$/.test(form.dataNascimento) &&
+    form.nivel.trim() &&
+    String(form.altura).trim() !== "" &&
+    String(form.peso).trim() !== "" &&
+    (form.role === "user" || form.role === "admin") &&
+    isValidOptionalUrl(form.ftPerfil)
+  ), [form]);
 
-const NovoUsuario = () => {
-  const [nome, setNome] = useState("");
-  const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
-  const [genero, setGenero] = useState("");
-  const [dataNascimento, setDataNascimento] = useState("");
-  const [nivel, setNivel] = useState("");
-  const [altura, setAltura] = useState("");
-  const [peso, setPeso] = useState("");
-  const [image, setImage] = useState(null);
-  const [preview, setPreview] = useState(null);
-  const fileInputRef = useRef(null);
-
-  const token = localStorage.getItem("token");
-
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setImage(file);
-      setPreview(URL.createObjectURL(file));
-    }
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((f) => ({ ...f, [name]: value }));
+    setError(""); setSuccess("");
   };
 
-  const enviarUsuario = async (event) => {
-    event.preventDefault();
-    // Converte para yyyy-mm-dd para o backend
-    let dataFormatada = "";
-    if (dataNascimento.length === 10) {
-      const [dia, mes, ano] = dataNascimento.split("/");
-      dataFormatada = `${ano}-${mes}-${dia}`;
-    }
-    const formData = new FormData();
-    formData.append("nome", nome);
-    formData.append("email", email);
-    formData.append("senha", senha);
-    formData.append("genero", genero);
-    formData.append("dataNascimento", dataFormatada);
-    formData.append("nivel", nivel);
-    formData.append("altura", altura);
-    formData.append("peso", peso);
-    if (image) formData.append("files", image);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!canSubmit || submitting) return;
+    setSubmitting(true); setError(""); setSuccess("");
 
     try {
-      const response = await api.post("/api/usuario", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const nomeUsuario =
-        response.data?.data?.nome || response.data?.nome || "Usuário";
-      alert(nomeUsuario + " cadastrado com sucesso");
-      setNome("");
-      setEmail("");
-      setSenha("");
-      setGenero("");
-      setDataNascimento("");
-      setNivel("");
-      setAltura("");
-      setPeso("");
-      setImage(null);
-      setPreview(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    } catch (error) {
-      console.error("Não foi possível salvar o usuário ", error);
+      const payload = {
+        nome: form.nome.trim(),
+        email: form.email.trim(),
+        senha: form.senha, // backend hasheia
+        genero: form.genero.trim(),
+        dataNascimento: form.dataNascimento,      // yyyy-MM-dd
+        nivel: form.nivel.trim(),
+        altura: Number(form.altura),
+        peso: Number(form.peso),
+        role: toRoleName(form.role),              // ROLE_USER | ROLE_ADMIN
+        ftPerfil: form.ftPerfil || null,
+      };
+      await api.post("/usuarios", payload);
+      setSuccess("Usuário criado com sucesso!");
+      setTimeout(() => navigate("/admin/usuarios"), 800);
+    } catch (err) {
+      const msg = err?.response?.data?.message || err?.message || "Erro ao criar usuário";
+      setError(msg);
+    } finally {
+      setSubmitting(false);
     }
-  };
-
-  // Dark Mode
-  const [darkMode, setDarkMode] = useState(() => {
-    const storedDarkMode = localStorage.getItem("dark-mode");
-    return storedDarkMode === "active";
-  });
-
-  useEffect(() => {
-    if (darkMode) {
-      document.body.classList.add("dark-mode");
-      localStorage.setItem("dark-mode", "active");
-    } else {
-      document.body.classList.remove("dark-mode");
-      localStorage.setItem("dark-mode", "inactive");
-    }
-  }, [darkMode]);
-
-  const toggleDarkMode = () => {
-    setDarkMode((prevDarkMode) => !prevDarkMode);
   };
 
   return (
-    <div>
-      <header>
-        <div className="trilho-usuario" id="trilho" onClick={toggleDarkMode}>
-          <div className="indicador-usuario">
-            <i>
-              <FaPowerOff />
-            </i>
-          </div>
-        </div>
-      </header>
-
-      <div className="novo-usuario-container">
-        <Link to="/admin/dashboard" className="novo-usuario-voltar">
-          <FaArrowLeft className="novo-usuario-voltar-icone" />
-          Voltar
-        </Link>
-        <h2 className="novo-usuario-titulo">Novo Usuário</h2>
-        <form onSubmit={enviarUsuario}>
-          <div className="novo-usuario-campo">
-            <label htmlFor="nome" className="novo-usuario-label">
-              Nome:
-            </label>
-            <input
-              type="text"
-              id="nome"
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-              required
-              className="novo-usuario-input"
-            />
-          </div>
-          <div className="novo-usuario-campo">
-            <label htmlFor="email" className="novo-usuario-label">
-              Email:
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="novo-usuario-input"
-            />
-          </div>
-          <div className="novo-usuario-campo">
-            <label htmlFor="senha" className="novo-usuario-label">
-              Senha:
-            </label>
-            <input
-              type="password"
-              id="senha"
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
-              required
-              className="novo-usuario-input"
-            />
-          </div>
-          <div className="novo-usuario-campo">
-            <label htmlFor="genero" className="novo-usuario-label">
-              Gênero:
-            </label>
-            <select
-              id="genero"
-              value={genero}
-              onChange={(e) => setGenero(e.target.value)}
-              required
-              className="novo-usuario-input"
-            >
-              <option value="">Selecione</option>
-              <option value="Masculino">Masculino</option>
-              <option value="Feminino">Feminino</option>
-              <option value="Prefiro não dizer">Prefiro não dizer</option>
-            </select>
-          </div>
-          <div className="novo-usuario-campo">
-            <label htmlFor="dataNascimento" className="novo-usuario-label">
-              Data de Nascimento:
-            </label>
-            <input
-              type="text"
-              id="dataNascimento"
-              value={dataNascimento}
-              onChange={(e) => setDataNascimento(formatarData(e.target.value))}
-              required
-              className="novo-usuario-input"
-              placeholder="dd/mm/aaaa"
-              maxLength={10}
-            />
-          </div>
-          <div className="novo-usuario-campo">
-            <label htmlFor="nivel" className="novo-usuario-label">
-              Nível:
-            </label>
-            <select
-              id="nivel"
-              value={nivel}
-              onChange={(e) => setNivel(e.target.value)}
-              required
-              className="novo-usuario-input"
-            >
-              <option value="">Selecione</option>
-              <option value="Iniciante">Iniciante</option>
-              <option value="Intermediário">Intermediário</option>
-              <option value="Avançado">Avançado</option>
-            </select>
-          </div>
-          <div className="novo-usuario-campo">
-            <label htmlFor="altura" className="novo-usuario-label">
-              Altura (m):
-            </label>
-            <input
-              type="number"
-              id="altura"
-              value={altura}
-              onChange={(e) => setAltura(e.target.value)}
-              min="0"
-              step="0.01"
-              required
-              className="novo-usuario-input"
-              placeholder="Ex: 1.75"
-            />
-          </div>
-          <div className="novo-usuario-campo">
-            <label htmlFor="peso" className="novo-usuario-label">
-              Peso (kg):
-            </label>
-            <input
-              type="number"
-              id="peso"
-              value={peso}
-              onChange={(e) => setPeso(e.target.value)}
-              min="0"
-              step="0.1"
-              required
-              className="novo-usuario-input"
-              placeholder="Ex: 70.5"
-            />
-          </div>
-          <div className="novo-usuario-campo">
-            <label htmlFor="image" className="novo-usuario-label">
-              Foto Perfil:
-            </label>
-            <input
-              type="file"
-              id="image"
-              name="files"
-              accept="image/*"
-              onChange={handleImageChange}
-              ref={fileInputRef}
-              className="novo-usuario-input"
-            />
-            {preview && (
-              <div className="novo-usuario-preview">
-                <p className="novo-usuario-preview-texto">Imagem Original:</p>
-                <img
-                  src={preview}
-                  alt="Original"
-                  className="novo-usuario-preview-imagem"
-                />
-              </div>
-            )}
-          </div>
-          <button type="submit" className="novo-usuario-botao">
-            Cadastrar Usuário
+    <div className="ev-form-page">
+      <div className="ev-container">
+        <div className="ev-topbar">
+          <h1 className="ev-title">Novo Usuário</h1>
+          <button type="button" onClick={() => navigate("/admin/usuarios")} className="ev-back">
+            ← Voltar para Tabela
           </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="ev-grid">
+          {/* Coluna esquerda: preview da foto */}
+          <div>
+            <div className="ev-card">
+              <p className="ev-label" style={{ marginBottom: 8 }}>Pré-visualização</p>
+              <div className="ev-preview">
+                {form.ftPerfil ? (
+                  <img src={form.ftPerfil} alt={form.nome || "Foto"} onError={(e) => { e.currentTarget.style.display = "none"; }} />
+                ) : (<div className="ev-label" style={{ color: "#a3a3a3" }}>Foto</div>)}
+              </div>
+              <p className="ev-note">URL opcional para foto (CDN/Imgur).</p>
+            </div>
+          </div>
+
+          {/* Coluna direita: formulário */}
+          <div className="ev-grid" style={{ gridTemplateColumns: "1fr" }}>
+            <div className="ev-field">
+              <label className="ev-label">Nome</label>
+              <input className="ev-input" name="nome" value={form.nome} onChange={handleChange} />
+            </div>
+
+            <div className="ev-grid" style={{ gridTemplateColumns: "1fr 1fr" }}>
+              <div className="ev-field">
+                <label className="ev-label">E-mail</label>
+                <input className="ev-input" name="email" value={form.email} onChange={handleChange} />
+                {!isEmail(form.email) && <p className="ev-alert-error">E-mail inválido</p>}
+              </div>
+              <div className="ev-field">
+                <label className="ev-label">Senha</label>
+                <input type="password" className="ev-input" name="senha" value={form.senha} onChange={handleChange} placeholder="Mínimo 6 caracteres" />
+              </div>
+            </div>
+
+            <div className="ev-grid" style={{ gridTemplateColumns: "1fr 1fr" }}>
+              <div className="ev-field">
+                <label className="ev-label">Gênero</label>
+                <input className="ev-input" name="genero" value={form.genero} onChange={handleChange} placeholder="Masculino/Feminino/Outro" />
+              </div>
+              <div className="ev-field">
+                <label className="ev-label">Data de Nascimento</label>
+                <input type="date" className="ev-input" name="dataNascimento" value={form.dataNascimento} onChange={handleChange} />
+              </div>
+            </div>
+
+            <div className="ev-grid" style={{ gridTemplateColumns: "1fr 1fr" }}>
+              <div className="ev-field">
+                <label className="ev-label">Nível</label>
+                <input className="ev-input" name="nivel" value={form.nivel} onChange={handleChange} placeholder="Iniciante/Intermediário/Avançado" />
+              </div>
+              <div className="ev-field">
+                <label className="ev-label">Role</label>
+                <select className="ev-select" name="role" value={form.role} onChange={handleChange}>
+                  <option value="user">user</option>
+                  <option value="admin">admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="ev-grid" style={{ gridTemplateColumns: "1fr 1fr" }}>
+              <div className="ev-field">
+                <label className="ev-label">Altura (cm)</label>
+                <input className="ev-input" name="altura" value={form.altura} onChange={handleChange} />
+              </div>
+              <div className="ev-field">
+                <label className="ev-label">Peso (kg)</label>
+                <input className="ev-input" name="peso" value={form.peso} onChange={handleChange} />
+              </div>
+            </div>
+
+            <div className="ev-field">
+              <label className="ev-label">Foto (URL pública, opcional)</label>
+              <input className="ev-input" name="ftPerfil" value={form.ftPerfil} onChange={handleChange} placeholder="https://.../foto.jpg" />
+              {!isValidOptionalUrl(form.ftPerfil) && <p className="ev-alert-error">URL inválida</p>}
+            </div>
+
+            {error && <div className="ev-alert-error">{error}</div>}
+            {success && <div className="ev-alert-ok">{success}</div>}
+
+            <div className="ev-actions">
+              <button type="submit" disabled={!canSubmit || submitting} className="ev-btn ev-btn-primary">
+                {submitting ? "Salvando..." : "Salvar Usuário"}
+              </button>
+              <button type="button" onClick={() => navigate("/admin/usuarios")} className="ev-btn ev-btn-ghost">
+                Cancelar
+              </button>
+            </div>
+          </div>
         </form>
       </div>
     </div>
   );
-};
-
-export default NovoUsuario;
+}

@@ -1,0 +1,114 @@
+/* ====== MODO COMPACTO PARA FORMULÁRIOS CURTOS ====== */
+.ev-form-compact .ev-container { max-width: 720px; }           /* afunila a largura */
+.ev-form-compact .ev-topbar { justify-content: flex-end; }     /* botão voltar à direita */
+.ev-form-compact .ev-title { display: none; }                  /* esconde título grande do topo */
+
+/* caixa única para o formulário */
+.ev-form-card {
+  background: #1f1f1f;
+  border: 1px solid #2c2c2c;
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+}
+
+/* cabeçalho do card */
+.ev-form-card .ev-card-title {
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 16px;
+}
+
+/* grid enxuto */
+.ev-form-compact .ev-grid { grid-template-columns: 1fr !important; gap: 18px; }
+
+/* inputs um pouco mais altos */
+.ev-form-compact .ev-input,
+.ev-form-compact .ev-textarea,
+.ev-form-compact .ev-select {
+  padding: 14px 16px;
+}
+
+/* ações agrupadas à esquerda */
+.ev-form-compact .ev-actions { padding-top: 4px; }
+
+/* feedbacks com espaçamento menor */
+.ev-form-compact .ev-alert-error,
+.ev-form-compact .ev-alert-ok { margin-top: -4px; }
+
+
+
+/* ==== Layout base ==== */
+.ev-form-page {
+  min-height: 100vh;
+  background: #1c1c1c;
+  color: #fff;
+  padding: 24px 16px;
+}
+.ev-container { max-width: 1024px; margin: 0 auto; }
+
+.ev-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 24px;
+}
+.ev-title { font-size: 28px; font-weight: 800; }
+
+/* ==== Card preview ==== */
+.ev-card {
+  background: #2a2a2a; border-radius: 16px; padding: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.2);
+}
+.ev-card .ev-note { font-size: 12px; color: #c1c1c1; margin-top: 8px; }
+
+.ev-preview {
+  aspect-ratio: 1/1; width: 100%; border-radius: 12px; overflow: hidden;
+  border: 1px solid #3a3a3a; display: flex; align-items: center; justify-content: center;
+}
+.ev-preview img { width: 100%; height: 100%; object-fit: cover; }
+
+/* ==== Grid do formulário ==== */
+.ev-grid { display: grid; gap: 24px; }
+@media (min-width: 768px) { .ev-grid { grid-template-columns: 1fr 2fr; } }
+
+.ev-field { display: grid; gap: 8px; }
+.ev-label { font-size: 14px; color: #dcdcdc; }
+
+.ev-input, .ev-textarea, .ev-select {
+  background: #2a2a2a; border: 1px solid transparent; color: #fff;
+  border-radius: 12px; padding: 12px 16px; outline: none;
+}
+.ev-input:focus, .ev-textarea:focus, .ev-select:focus { border-color: #ff8633; }
+.ev-textarea { min-height: 112px; resize: vertical; }
+
+/* ==== Mensagens ==== */
+.ev-alert-error {
+  background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3);
+  color: #fca5a5; border-radius: 12px; padding: 12px 16px; font-size: 14px;
+}
+.ev-alert-ok {
+  background: rgba(16,185,129,.1); border: 1px solid rgba(16,185,129,.3);
+  color: #86efac; border-radius: 12px; padding: 12px 16px; font-size: 14px;
+}
+
+/* ==== Botões ==== */
+.ev-actions { display: flex; gap: 12px; padding-top: 8px; }
+.ev-btn {
+  border-radius: 14px; padding: 12px 20px; font-weight: 600; box-shadow: 0 2px 10px rgba(0,0,0,.2);
+  transition: background .2s ease, color .2s ease, opacity .2s ease;
+  border: 1px solid transparent; cursor: pointer;
+}
+.ev-btn[disabled] { background: #3a3a3a; color: #9ca3af; cursor: not-allowed; }
+
+.ev-btn-primary { background: #ff884d; color: #000; }
+.ev-btn-primary:hover { background: #ff8633; }
+
+.ev-btn-ghost { background: #2a2a2a; color: #fff; border-color: #3a3a3a; }
+.ev-btn-ghost:hover { background: #ff8633; color: #000; }
+
+/* ==== Link Voltar ==== */
+.ev-back {
+  background: #2a2a2a; color: #fff; border: 1px solid #3a3a3a;
+  border-radius: 14px; padding: 8px 20px; font-weight: 600;
+  transition: background .2s ease, color .2s ease;
+}
+.ev-back:hover { background: #ff8633; color: #000; }

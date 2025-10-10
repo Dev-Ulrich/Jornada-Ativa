@@ -1,0 +1,130 @@
+/* src/components/Common/TableShell.css */
+/* Usa suas variáveis globais */
+.ts-card {
+  background: var(--bg-base);
+  color: var(--text-base);
+  border: 1px solid var(--color-base);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.18);
+}
+
+.ts-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ts-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.ts-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.ts-body {
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid var(--color-base);
+}
+
+.ts-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.ts-table thead th {
+  background: #ff8633;
+  color: #111;
+  padding: 12px 14px;
+  font-weight: 700;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.ts-table tbody td {
+  padding: 12px 14px;
+  border-top: 1px solid rgba(0,0,0,.08);
+}
+
+.dark-mode .ts-table tbody td {
+  border-top: 1px solid rgba(255,255,255,.06);
+}
+
+.ts-table tbody tr:hover {
+  background: rgba(0,0,0,.04);
+}
+.dark-mode .ts-table tbody tr:hover {
+  background: rgba(255,255,255,.04);
+}
+
+/* Estados */
+.ts-state {
+  padding: 20px;
+  text-align: center;
+  color: var(--text-base);
+  opacity: .85;
+}
+.ts-error {
+  color: #ffb4a6;
+}
+
+/* Skeleton loading */
+.ts-skeleton-row td { height: 42px; }
+.ts-skeleton {
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    rgba(200,200,200,.16) 0%,
+    rgba(200,200,200,.28) 40%,
+    rgba(200,200,200,.16) 80%
+  );
+  animation: ts-shimmer 1.2s infinite linear;
+}
+@keyframes ts-shimmer {
+  0% { filter: brightness(1); }
+  50% { filter: brightness(1.25); }
+  100% { filter: brightness(1); }
+}
+
+/* Footer / Paginação */
+.ts-footer {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+}
+.ts-pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ts-page-btn {
+  border: 1px solid var(--color-base);
+  background: var(--bg-base);
+  color: var(--text-base);
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.ts-page-btn:disabled { opacity: .5; cursor: not-allowed; }
+.ts-page-label { font-size: 12px; opacity: .8; }
+
+/* Badges utilitários */
+.ts-badge {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  border: 1px solid var(--color-base);
+}
+.ts-badge--ok { background: rgba(16,185,129,.15); color: #34d399; border-color: rgba(16,185,129,.35); }
+.ts-badge--muted { background: rgba(255,255,255,.06); color: var(--text-base); }

@@ -164,6 +164,29 @@ body.dark-mode .indicador-dashboard {
   gap: 28px;
 }
 
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr; /* gráfico maior, calendário/quadros na direita */
+  grid-auto-rows: minmax(200px, auto);
+  gap: 16px;
+}
+
+@media (min-width: 992px) {
+  .dashboard-grid .span-2 {
+    grid-column: 1 / 2; /* mantém no col 1 */
+  }
+}
+
+@media (max-width: 991px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dashboard-grid .grid-item > * {
+  height: 100%;
+}
+
 .dashboard-row-2col {
   display: grid;
   gap: 16px;
