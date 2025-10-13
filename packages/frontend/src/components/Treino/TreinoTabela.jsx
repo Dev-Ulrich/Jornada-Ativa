@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import api from "@services/api";
 import Sidebar from "@components/DashBoard/Sidebar";
 import { Search, Trash2 } from "lucide-react";
-import "../Evento/EventoForm.css"; // reaproveitando estilos
-import "./TreinoTabela.css"; // opcional para ajustes específicos
+import "../Evento/EventoForm.css";
+import "./TreinoTabela.css";
 
 const fmtYMDptBR = (v) => {
   if (!v) return "-";
@@ -17,9 +17,18 @@ const fmtYMDptBR = (v) => {
   }
 };
 
+// função auxiliar de normalização de nível
+const fmtNivel = (v) => {
+  if (!v) return "-";
+  const n = String(v).toLowerCase();
+  if (n === "iniciante") return "Iniciante";
+  if (n === "intermediario") return "Intermediário";
+  if (n === "avancado") return "Avançado";
+  return "-";
+};
+
 function AcoesTreino({ id, onDeleted }) {
   const navigate = useNavigate();
-
   const editar = () => navigate(`/admin/treinos/editar/${id}`);
   const remover = async () => {
     if (!confirm("Deseja excluir este treino?")) return;
@@ -62,17 +71,19 @@ export default function TreinoTabela() {
     localStorage.setItem("dark-mode", darkMode ? "active" : "inactive");
   }, [darkMode]);
 
-  const loadTreinos = async () => {
+  const loadTreinos = async (termo = "") => {
     try {
       setLoading(true);
       setErro("");
-      const { data } = await api.get("/treinos");
+      const url = termo ? `/treinos?nome=${encodeURIComponent(termo)}` : "/treinos";
+      const { data } = await api.get(url);
       const arr = Array.isArray(data) ? data : data?.content || [];
       const rows = arr.map((t) => ({
         id: t.id ?? t.idTreino ?? t.id_treino,
-        nome: t.nome ?? t.titulo ?? "-",
+        nome: t.nome ?? "-",
         descricao: t.descricao ?? "",
-        createdAt: t.createdAt ?? t.criadoEm ?? t.dataCriacao ?? null,
+        createdAt: t.createdAt ?? t.dataCriacao ?? t.created_at ?? null,
+        nivel: t.nivel ?? t.level ?? "",
       }));
       setLista(rows);
     } catch (err) {
@@ -88,20 +99,18 @@ export default function TreinoTabela() {
     loadTreinos();
   }, []);
 
-  const filtrados = useMemo(() => {
-    const q = busca.trim().toLowerCase();
-    if (!q) return lista;
-    return lista.filter(
-      (t) =>
-        t.nome?.toLowerCase().includes(q) ||
-        t.descricao?.toLowerCase().includes(q)
-    );
-  }, [lista, busca]);
+  // toda vez que o usuário digitar, dispara busca no backend
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      loadTreinos(busca.trim());
+    }, 400); // debounce
+    return () => clearTimeout(delay);
+  }, [busca]);
 
-  const total = filtrados.length;
+  const total = lista.length;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const safePage = Math.min(page, totalPages);
-  const pageRows = filtrados.slice(
+  const pageRows = lista.slice(
     (safePage - 1) * pageSize,
     (safePage - 1) * pageSize + pageSize
   );
@@ -123,7 +132,7 @@ export default function TreinoTabela() {
             <input
               type="text"
               className="ev-input"
-              placeholder="Buscar por nome "
+              placeholder="Buscar por nome ou nível..."
               value={busca}
               onChange={(e) => {
                 setBusca(e.target.value);
@@ -147,31 +156,35 @@ export default function TreinoTabela() {
                 <th>Nome</th>
                 <th>Descrição</th>
                 <th>Criado em</th>
+                <th>Nível</th>
                 <th>Ações</th>
               </tr>
             </thead>
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={5} className="ev-empty">
+                  <td colSpan={6} className="ev-empty">
                     Carregando…
                   </td>
                 </tr>
               )}
+
               {erro && !loading && (
                 <tr>
-                  <td colSpan={5} className="ev-error">
+                  <td colSpan={6} className="ev-error">
                     {erro}
                   </td>
                 </tr>
               )}
+
               {!loading && !erro && pageRows.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="ev-empty">
+                  <td colSpan={6} className="ev-empty">
                     Nenhum treino encontrado.
                   </td>
                 </tr>
               )}
+
               {!loading &&
                 !erro &&
                 pageRows.map((t) => (
@@ -180,8 +193,9 @@ export default function TreinoTabela() {
                     <td className="ev-strong">{t.nome}</td>
                     <td className="ev-muted">{t.descricao || "-"}</td>
                     <td>{fmtYMDptBR(t.createdAt)}</td>
+                    <td>{fmtNivel(t.nivel)}</td>
                     <td>
-                      <AcoesTreino id={t.id} onDeleted={loadTreinos} />
+                      <AcoesTreino id={t.id} onDeleted={() => loadTreinos(busca)} />
                     </td>
                   </tr>
                 ))}

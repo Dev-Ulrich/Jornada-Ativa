@@ -134,9 +134,8 @@ export default function ProximosEventos({
                     <span
                       className={
                         "chip " +
-                        (ev.status === "Ativo"
-                          ? "chip-active"
-                          : "chip-inactive")
+                        (ev.status === "Ativo",
+                        "Inativo" ? "chip-active" : "chip-inactive")
                       }
                     >
                       {ev.status}

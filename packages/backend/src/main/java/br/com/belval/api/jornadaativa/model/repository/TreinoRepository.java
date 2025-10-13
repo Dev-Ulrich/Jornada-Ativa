@@ -11,4 +11,6 @@ import java.util.List;
 public interface TreinoRepository extends JpaRepository<Treinos, Long> {
 
     List<Treinos> findByNomeContainingIgnoreCase(String nome);
+
+    List<Treinos> findByNivelContainingIgnoreCase(String nivel);
 }

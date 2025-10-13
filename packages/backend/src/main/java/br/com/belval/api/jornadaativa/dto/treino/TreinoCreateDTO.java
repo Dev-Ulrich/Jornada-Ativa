@@ -15,5 +15,6 @@ public class TreinoCreateDTO {
 
 
     @NotBlank @Size(max = 255) private String nome;
-    @Size(max = 255) private String descricao; // opcional
+    @Size(max = 255) private String descricao;
+    @Size(max = 50) private String nivel;
 }

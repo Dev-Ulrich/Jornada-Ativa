@@ -13,10 +13,22 @@ const isValidOptionalUrl = (v) => {
     return false;
   }
 };
-const toRoleName = (v) =>
-  String(v).toLowerCase().includes("admin") ? "ROLE_ADMIN" : "ROLE_USER";
-const fromRoleName = (r) =>
-  String(r).toUpperCase().includes("ADMIN") ? "admin" : "user";
+
+// Mantém ROLE_* no back
+const toRoleName = (v) => {
+  if (!v) return ""; // não envia nada se não foi escolhido (canSubmit evita submit)
+  return String(v).toLowerCase().includes("admin") ? "ROLE_ADMIN" : "ROLE_USER";
+};
+
+// Corrigido: se vier vazio/undefined/array vazio, retorna ""
+const fromRoleName = (r) => {
+  if (!r) return "";
+  const s = Array.isArray(r) ? r.join(",") : String(r);
+  const up = s.toUpperCase();
+  if (up.includes("ADMIN")) return "admin";
+  if (up.includes("USER")) return "user";
+  return "";
+};
 
 const toYMD = (input) => {
   if (!input) return "";
@@ -40,10 +52,10 @@ export default function EditarUsuario() {
     email: "",
     genero: "",
     dataNascimento: "",
-    nivel: "",
+    nivel: "", // <- começa vazio para mostrar placeholder
     altura: "",
     peso: "",
-    role: "user",
+    role: "", // <- começa vazio para mostrar "Selecione um cargo"
     ftPerfil: "",
     senha: "", // opcional na edição; só envia se preenchida
   });
@@ -66,12 +78,12 @@ export default function EditarUsuario() {
           email: data?.email ?? "",
           genero: data?.genero ?? "",
           dataNascimento: toYMD(data?.dataNascimento),
-          nivel: data?.nivel ?? "",
+          nivel: (data?.nivel ?? "").toString().toLowerCase(), // mantém "" se vier null/undefined
           altura: data?.altura ?? "",
           peso: data?.peso ?? "",
-          role: fromRoleName(data?.role ?? data?.roles),
+          role: fromRoleName(data?.role ?? data?.roles), // "" se não houver
           ftPerfil: data?.ftPerfil ?? data?.foto ?? "",
-          senha: "", // não preenche
+          senha: "",
         }));
       } catch (err) {
         const msg =
@@ -88,19 +100,24 @@ export default function EditarUsuario() {
     };
   }, [id]);
 
-  const canSubmit = useMemo(
-    () =>
+  const canSubmit = useMemo(() => {
+    const roleOk = form.role === "user" || form.role === "admin";
+    const nivelOk = ["iniciante", "intermediario", "avancado"].includes(
+      (form.nivel || "").toLowerCase()
+    );
+
+    return (
       form.nome.trim() &&
       isEmail(form.email) &&
       form.genero.trim() &&
       /^\d{4}-\d{2}-\d{2}$/.test(form.dataNascimento) &&
-      form.nivel.trim() &&
+      nivelOk &&
       String(form.altura).trim() !== "" &&
       String(form.peso).trim() !== "" &&
-      (form.role === "user" || form.role === "admin") &&
-      isValidOptionalUrl(form.ftPerfil),
-    [form]
-  );
+      roleOk &&
+      isValidOptionalUrl(form.ftPerfil)
+    );
+  }, [form]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -125,9 +142,9 @@ export default function EditarUsuario() {
         nivel: form.nivel.trim(),
         altura: Number(form.altura),
         peso: Number(form.peso),
-        role: toRoleName(form.role),
+        role: toRoleName(form.role), // ROLE_ADMIN | ROLE_USER
         ftPerfil: form.ftPerfil || null,
-        ...(form.senha ? { senha: form.senha } : {}), // só envia se o usuário alterar
+        ...(form.senha ? { senha: form.senha } : {}),
       };
       await api.put(`/usuarios/${id}`, payload);
       setSuccess("Usuário atualizado com sucesso!");
@@ -160,7 +177,9 @@ export default function EditarUsuario() {
     <div className="ev-form-page">
       <div className="ev-container">
         <div className="ev-topbar">
-          <h1 className="ev-title">Editar Usuário #{id}</h1>
+          {form?.nome
+            ? `Editar Usuario ( ${form.nome} )`
+            : `Editar Usuario #${id}`}
           <button
             type="button"
             onClick={() => navigate("/admin/usuarios")}
@@ -241,11 +260,12 @@ export default function EditarUsuario() {
 
             <div className="ev-grid" style={{ gridTemplateColumns: "1fr 1fr" }}>
               <div className="ev-field">
-                <label className="ev-label">Gênero</label>
+                <label className="ev-label">Data de Nascimento</label>
                 <input
+                  type="date"
                   className="ev-input"
-                  name="genero"
-                  value={form.genero}
+                  name="dataNascimento"
+                  value={form.dataNascimento}
                   onChange={handleChange}
                 />
               </div>
@@ -261,24 +281,40 @@ export default function EditarUsuario() {
               </div>
             </div>
 
+            {/* Nível + Role com placeholders que somem */}
             <div className="ev-grid" style={{ gridTemplateColumns: "1fr 1fr" }}>
               <div className="ev-field">
                 <label className="ev-label">Nível</label>
-                <input
-                  className="ev-input"
+                <select
+                  className="ev-select"
                   name="nivel"
-                  value={form.nivel}
+                  value={form.nivel ?? ""}
                   onChange={handleChange}
-                />
+                >
+                  {!form.nivel && (
+                    <option value="" disabled>
+                      Selecione o nível
+                    </option>
+                  )}
+                  <option value="iniciante">Iniciante</option>
+                  <option value="intermediario">Intermediário</option>
+                  <option value="avancado">Avançado</option>
+                </select>
               </div>
+
               <div className="ev-field">
                 <label className="ev-label">Role</label>
                 <select
                   className="ev-select"
                   name="role"
-                  value={form.role}
+                  value={form.role ?? ""}
                   onChange={handleChange}
                 >
+                  {!form.role && (
+                    <option value="" disabled>
+                      Selecione um cargo
+                    </option>
+                  )}
                   <option value="user">user</option>
                   <option value="admin">admin</option>
                 </select>

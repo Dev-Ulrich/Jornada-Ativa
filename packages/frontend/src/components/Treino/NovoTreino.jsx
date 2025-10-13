@@ -5,13 +5,16 @@ import "../Evento/EventoForm.css"; // reaproveitando estilos
 
 export default function NovoTreino() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ nome: "", descricao: "" });
+  const [form, setForm] = useState({ nome: "", descricao: "", nivel: "" });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
   const canSubmit = useMemo(
-    () => form.nome.trim().length > 2 && form.descricao.trim().length > 3,
+    () =>
+      form.nome.trim().length > 2 &&
+      form.descricao.trim().length > 3 &&
+      form.nivel.trim(),
     [form]
   );
 
@@ -33,6 +36,7 @@ export default function NovoTreino() {
       const payload = {
         nome: form.nome.trim(),
         descricao: form.descricao.trim(),
+        nivel: form.nivel.trim(),
       };
       await api.post("/treinos", payload);
       setSuccess("Treino criado com sucesso!");
@@ -60,7 +64,10 @@ export default function NovoTreino() {
             marginBottom: 16,
           }}
         >
-          <h1 className="ev-title" style={{ margin: "0 auto", textAlign: "center" }}>
+          <h1
+            className="ev-title"
+            style={{ margin: "0 auto", textAlign: "center" }}
+          >
             Novo Treino
           </h1>
           <button
@@ -108,6 +115,21 @@ export default function NovoTreino() {
                 onChange={handleChange}
                 placeholder="Detalhes do treino..."
               />
+            </div>
+
+            <div className="ev-field">
+              <label className="ev-label">Nível</label>
+              <select
+                className="ev-select"
+                name="nivel"
+                value={form.nivel}
+                onChange={handleChange}
+              >
+                {!form.nivel && <option value="">Selecione o nível</option>}
+                <option value="iniciante">Iniciante</option>
+                <option value="intermediario">Intermediário</option>
+                <option value="avancado">Avançado</option>
+              </select>
             </div>
 
             {error && <div className="ev-alert-error">{error}</div>}

@@ -64,6 +64,7 @@ public class TreinosController {
         Treinos t = new Treinos();
         t.setNome(dto.getNome());
         t.setDescricao(dto.getDescricao());
+        t.setNivel(dto.getNivel());
         t.setCreatedAt(LocalDateTime.now());
         return t;
     }
@@ -73,6 +74,7 @@ public class TreinosController {
         Treinos t = new Treinos();
         t.setNome(dto.getNome());
         t.setDescricao(dto.getDescricao());
+        t.setNivel(dto.getNivel());
         return t;
     }
 
@@ -83,6 +85,7 @@ public class TreinosController {
         dto.setNome(t.getNome());
         dto.setDescricao(t.getDescricao());
         dto.setCreatedAt(t.getCreatedAt());
+        dto.setNivel(t.getNivel());
         return dto;
     }
 }

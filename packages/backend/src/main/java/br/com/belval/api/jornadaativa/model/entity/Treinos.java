@@ -30,6 +30,9 @@ public class Treinos {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "nivel", length = 50, nullable = false)
+    private String nivel;
+
 
 }
 

@@ -142,7 +142,7 @@ export default function EditarEventos() {
     <div className="ev-form-page">
       <div className="ev-container">
         <div className="ev-topbar">
-          <h1 className="ev-title">Editar Evento #{id}</h1>
+          {form?.nome ? `Editar Evento ( ${form.nome} )` : `Editar Evento #${id}`}
           <button
             type="button"
             onClick={() => navigate("/admin/eventos")}
