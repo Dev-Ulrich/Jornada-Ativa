@@ -1,6 +1,5 @@
 package br.com.belval.api.jornadaativa.auth;
 
-
 import br.com.belval.api.jornadaativa.auth.dto.LoginRequest;
 import br.com.belval.api.jornadaativa.auth.dto.RegisterRequest;
 import br.com.belval.api.jornadaativa.auth.dto.TokenResponse;
@@ -9,8 +8,10 @@ import br.com.belval.api.jornadaativa.model.entity.Usuarios;
 import br.com.belval.api.jornadaativa.model.repository.RoleRepository;
 import br.com.belval.api.jornadaativa.model.repository.UsuarioRepository;
 import br.com.belval.api.jornadaativa.security.jwt.JwtService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.Authentication;
@@ -20,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/auth")
@@ -45,44 +48,62 @@ public class AuthController {
         this.encoder = encoder;
     }
 
+    /**
+     * Retorna informações do usuário autenticado (útil p/ front verificar role).
+     */
     @GetMapping("/me")
     public ResponseEntity<?> me(Authentication auth) {
-        return ResponseEntity.ok(auth.getName()); // email do user logado
-    }
+        if (auth == null) return ResponseEntity.status(401).build();
+        var email = auth.getName();
+        var uOpt = usuarios.findByEmail(email);
+        var roles = auth.getAuthorities().stream().map(a -> a.getAuthority()).toList();
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody @jakarta.validation.Valid LoginRequest req) {
-        // 1) existe usuário com esse e-mail?
-        var uOpt = usuarios.findByEmail(req.email());
-        if (uOpt.isEmpty()) {
-            return ResponseEntity.status(401).body("E-mail não encontrado"); // diagnostico claro
-        }
-
-        var u = uOpt.get();
-
-        // 2) a senha enviada bate com o hash (BCrypt) salvo?
-        if (!encoder.matches(req.password(), u.getSenhaHash())) {
-            return ResponseEntity.status(401).body("Senha incorreta"); // diagnostico claro
-        }
-
-        // 3) se bateu, então deixa o AuthenticationManager seguir o fluxo normal
-        var auth = authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(req.email(), req.password())
-        );
-        var token = jwt.generateToken((UserDetails) auth.getPrincipal());
-        return ResponseEntity.ok(new TokenResponse(token));
+        return ResponseEntity.ok(Map.of(
+                "email", email,
+                "nome", uOpt.map(Usuarios::getNome).orElse(null),
+                "ftPerfil", uOpt.map(Usuarios::getFtPerfil).orElse(null),
+                "roles", roles
+        ));
     }
 
 
     /**
-     * Registro simples – preenche mínimos obrigatórios do seu schema.
-     * Se você já tiver um fluxo próprio de cadastro, pode remover este endpoint.
+     * Login com email/senha. Retorna { token: "..." }.
+     * Resposta 401 para credenciais inválidas.
+     */
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody @Valid LoginRequest req) {
+        // checagem rápida para evitar autenticação desnecessária
+        var uOpt = usuarios.findByEmail(req.email());
+        if (uOpt.isEmpty()) {
+            return ResponseEntity.status(401).body(Map.of("message", "Credenciais inválidas"));
+        }
+
+        var u = uOpt.get();
+        if (!encoder.matches(req.password(), u.getSenhaHash())) {
+            return ResponseEntity.status(401).body(Map.of("message", "Credenciais inválidas"));
+        }
+
+        try {
+            var auth = authManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(req.email(), req.password())
+            );
+            var token = jwt.generateToken((UserDetails) auth.getPrincipal());
+            return ResponseEntity.ok(new TokenResponse(token));
+        } catch (BadCredentialsException ex) {
+            return ResponseEntity.status(401).body(Map.of("message", "Credenciais inválidas"));
+        }
+    }
+
+    /**
+     * Registro simples de usuário. Define ROLE_USER como padrão
+     * (se quiser permitir ROLE_ADMIN somente para admins, mova este endpoint para /admin/usuarios).
      */
     @PostMapping("/register")
     @Transactional
-    public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
+    public ResponseEntity<?> register(@RequestBody @Valid RegisterRequest req) {
         if (usuarios.findByEmail(req.email()).isPresent()) {
-            return ResponseEntity.status(409).body("E-mail já cadastrado");
+            return ResponseEntity.status(409).body(Map.of("message", "E-mail já cadastrado"));
         }
 
         var u = new Usuarios();
@@ -90,18 +111,16 @@ public class AuthController {
         u.setEmail(req.email());
         u.setSenhaHash(encoder.encode(req.password()));
         u.setGenero(req.genero() != null ? req.genero() : "N/D");
-        u.setDataNascimento(req.dataNascimento() != null ? req.dataNascimento() : LocalDate.of(2000,1,1));
-        u.setFtPerfil(null);
+        u.setDataNascimento(req.dataNascimento() != null ? req.dataNascimento() : LocalDate.of(2000, 1, 1));
+        u.setFtPerfil(req.ftPerfil() != null && !req.ftPerfil().isBlank() ? req.ftPerfil().trim() : null);
         u.setNivel(req.nivel() != null ? req.nivel() : "INICIANTE");
         u.setAltura(req.altura() != null ? req.altura() : null);
         u.setPeso(req.peso() != null ? req.peso() : null);
 
+
         // Role padrão (enum)
         var roleName = req.role() != null ? req.role() : RoleName.ROLE_USER;
-        var role = roles.findByName(roleName);
-        roles.findByName(roleName)
-                .ifPresent(u.getRoles()::add);
-
+        roles.findByName(roleName).ifPresent(u.getRoles()::add);
 
         usuarios.save(u);
         return ResponseEntity.status(201).build();

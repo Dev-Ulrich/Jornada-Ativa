@@ -37,8 +37,12 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login", "/auth/register").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/eventos/**").permitAll()
+                        .requestMatchers("/auth/login", "/actuator/health", "/health").permitAll()
+                        // Dashboard (rotas apenas de admin)
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        // Rotas do app (user e admin)
+                        .requestMatchers("/api/**").hasAnyRole("ADMIN","USER")
+                        // todo o resto autenticado
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authProvider)

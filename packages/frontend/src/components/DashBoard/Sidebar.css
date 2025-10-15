@@ -145,3 +145,45 @@ box-shadow: 4px 0 16px rgba(0,0,0,.06);
   border: 1px solid var(--color-base);
   user-select: none;
 }
+
+#logout_section {
+  margin-top: auto;            /* empurra para o fim */
+  padding-top: 10px;
+  border-top: 1px solid var(--color-base);
+}
+
+.logout-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;     /* central quando colapsado */
+  gap: 8px;
+  padding: 14px;
+  background: transparent;
+  color: var(--text-base);
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease, transform .05s ease;
+  text-align: left;
+}
+
+.logout-btn svg { width: 20px; height: 20px; }
+
+.logout-btn:hover {
+  background: var(--hover-base);
+  outline: 1px solid var(--color-base);
+}
+
+.logout-btn:active { transform: scale(0.99); }
+
+#sidebar.open-sidebar .logout-btn {
+  justify-content: flex-start;
+  gap: 14px;
+}
+
+#sidebar.open-sidebar .logout-btn .item-description {
+  width: 150px;
+  height: auto;
+  opacity: 1;
+}

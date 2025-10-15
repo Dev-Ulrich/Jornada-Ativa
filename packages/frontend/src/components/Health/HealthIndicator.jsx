@@ -1,13 +1,20 @@
 import { useEffect, useState } from "react";
 
 export default function HealthIndicator() {
-  const [status, setStatus] = useState("checking")
-  
+  const [status, setStatus] = useState("checking");
   const baseURL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
   async function checkHealth() {
     try {
-      const res = await fetch(`${baseURL}/health`);
+      // pega o token do localStorage
+      const token = localStorage.getItem("ja_token");
+
+      const res = await fetch(`${baseURL}/health`, {
+        headers: token
+          ? { Authorization: `Bearer ${token}` }
+          : undefined, // sem header se ainda não logou
+      });
+
       setStatus(res.ok ? "online" : "offline");
     } catch {
       setStatus("offline");
@@ -21,10 +28,21 @@ export default function HealthIndicator() {
   }, []);
 
   const color =
-    status === "online" ? "#3adb3a" : status === "offline" ? "#db3a3a" : "#ffb300";
+    status === "online"
+      ? "#3adb3a"
+      : status === "offline"
+      ? "#db3a3a"
+      : "#ffb300";
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 4px" }}>
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        padding: "10px 4px",
+      }}
+    >
       <span
         style={{
           width: 10,
@@ -34,7 +52,13 @@ export default function HealthIndicator() {
           boxShadow: `0 0 10px ${color}`,
         }}
       />
-      <small style={{ color }}>{status === "checking" ? "Verificando..." : status === "online" ? "Online" : "Offline"}</small>
+      <small style={{ color }}>
+        {status === "checking"
+          ? "Verificando..."
+          : status === "online"
+          ? "Online"
+          : "Offline"}
+      </small>
     </div>
   );
 }

@@ -76,7 +76,7 @@ export default function NovoUsuario() {
         role: toRoleName(form.role), // ROLE_USER | ROLE_ADMIN
         ftPerfil: form.ftPerfil || null,
       };
-      await api.post("/usuarios", payload);
+      await api.post("/auth/register", payload);
       setSuccess("Usuário criado com sucesso!");
       setTimeout(() => navigate("/admin/usuarios"), 800);
     } catch (err) {

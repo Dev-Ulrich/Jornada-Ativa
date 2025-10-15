@@ -1,49 +1,62 @@
-//No terminal, dentro do seu projeto react, executa
-//npm install -g json-server
-//npm install axios
-
-//comandos de inicializacao
-//npx json-server --watch db.json --port 3001
-//npm run dev
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
+import api from "@services/api";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Função chamada ao submeter o formulario
-  const handleLogin = async (e) => {
+  async function handleSubmit(e) {
     e.preventDefault();
+    setMessage("");
+    setLoading(true);
 
     try {
-      const response = await fetch(
-        `http://localhost:3001/usuario?email=${email}&senha=${senha}`
-      );
-      const data = await response.json();
+      // ✅ chama sua API Spring
+      const { data } = await api.post("/auth/login", {
+        email,
+        password: senha,
+      });
 
-      if (data.length > 0) {
-        setMessage("Login realizado com sucesso!");
-        localStorage.setItem("usuarioLogado", JSON.stringify(data[0]));
-        // Redireciona para a Home
-        navigate("/admin/dashboard");
-      } else {
-        setMessage("Email ou senha inválidos.");
-      }
-    } catch (error) {
-      setMessage("Erro ao conectar com o servidor.");
+      // ✅ trata chaves comuns de token
+      const token = data?.token || data?.access_token || data?.jwt;
+      if (!token) throw new Error("A API não retornou o token");
+
+      localStorage.setItem("ja_token", token);
+
+      const { data: me } = await api.get("/auth/me");
+      localStorage.setItem(
+        "usuarioLogado",
+        JSON.stringify({
+          nome: me.nome,
+          email: me.email,
+          foto: me.ftPerfil, // <- fica disponível no bloco acima
+        })
+      );
+
+      navigate("/admin/dashboard", { replace: true });
+    } catch (err) {
+      const apiMsg =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        err?.message ||
+        "Falha no login";
+      setMessage(apiMsg);
+    } finally {
+      setLoading(false);
     }
-  };
+  }
 
   return (
     <div className="body">
       <main className="container">
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleSubmit}>
           <h1>Login J.A</h1>
+
           <div className="input-box">
             <input
               type="text"
@@ -53,6 +66,7 @@ const Login = () => {
             />
             <i className="bx bxs-user"></i>
           </div>
+
           <div className="input-box">
             <input
               type="password"
@@ -69,11 +83,11 @@ const Login = () => {
               Lembrar Senha
             </label>
           </div>
-          {/*Exibe mensagem de erro, se houver*/}
+
           {message && <p>{message}</p>}
 
-          <button type="submit" className="login">
-            Login
+          <button type="submit" className="login" disabled={loading}>
+            {loading ? "Entrando..." : "Login"}
           </button>
         </form>
       </main>

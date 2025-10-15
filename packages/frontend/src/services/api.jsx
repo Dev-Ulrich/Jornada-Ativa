@@ -1,3 +1,4 @@
+// src/services/api.jsx
 import axios from "axios";
 
 const api = axios.create({
@@ -6,32 +7,27 @@ const api = axios.create({
   timeout: 20000,
 });
 
-// --- prioridade 1: JWT salvo no localStorage ---
-const usuarioLogadoRaw = localStorage.getItem("usuarioLogado");
-try {
-  const usuarioLogado = usuarioLogadoRaw ? JSON.parse(usuarioLogadoRaw) : null;
-  const jwt = usuarioLogado?.token || usuarioLogado?.accessToken; // ajuste se o seu campo tiver outro nome
-  if (jwt) {
-    api.defaults.headers.common["Authorization"] = `Bearer ${jwt}`;
+// Interceptor de REQUEST: injeta o Bearer em toda chamada
+api.interceptors.request.use((config) => {
+  // usamos a mesma chave que o Login.jsx grava
+  const token = localStorage.getItem("ja_token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  } else {
+    // garante que não fica lixo antigo
+    delete config.headers.Authorization;
   }
-} catch { /* ignore */ }
+  return config;
+});
 
-// --- prioridade 2 (dev): HTTP Basic via .env (apenas para testes) ---
-if (!api.defaults.headers.common["Authorization"]) {
-  const email = import.meta.env.VITE_DEV_BASIC_EMAIL;
-  const pass  = import.meta.env.VITE_DEV_BASIC_PASSWORD;
-  if (email && pass) {
-    const token = btoa(`${email}:${pass}`);
-    api.defaults.headers.common["Authorization"] = `Basic ${token}`;
-  }
-}
-
-// interceptador (opcional): se 401, você pode redirecionar para login
+// Interceptor de RESPONSE (opcional): trata 401
 api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err?.response?.status === 401) {
-      console.warn("Não autorizado (401). Verifique o Authorization.");
+      // aqui você pode redirecionar pro /login se quiser
+      // window.location.assign("/login");
+      console.warn("401 não autorizado — verifique o token.");
     }
     return Promise.reject(err);
   }

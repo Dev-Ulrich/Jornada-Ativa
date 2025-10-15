@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtService {
@@ -22,6 +23,9 @@ public class JwtService {
 
     @Value("${application.security.jwt.expiration}")
     private long accessExpirationMs;
+
+    @Value("${application.security.jwt.refresh-token.expiration}")
+    private long refreshExpirationMs;
 
     @PostConstruct
     void validateProps() {
@@ -38,14 +42,19 @@ public class JwtService {
     }
 
     public String generateToken(UserDetails user) {
-
         var now = new Date();
-        var exp = new Date(now.getTime() + accessExpirationMs);
+        var exp = new Date(now.getTime() + /* seu expiration ms aqui */ 86400000);
+
+        var roles = user.getAuthorities().stream()
+                .map(a -> a.getAuthority()) // "ROLE_ADMIN", "ROLE_USER"
+                .collect(Collectors.toList());
+
         return Jwts.builder()
                 .setSubject(user.getUsername())
+                .claim("roles", roles)   // <<<<< ADICIONA AS ROLES NO PAYLOAD
                 .setIssuedAt(now)
                 .setExpiration(exp)
-                .signWith(key(), SignatureAlgorithm.HS256)
+                .signWith(Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)), SignatureAlgorithm.HS256)
                 .compact();
     }
 
