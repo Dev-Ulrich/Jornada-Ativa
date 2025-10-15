@@ -177,9 +177,9 @@ export default function NovoUsuario() {
                   placeholder="Masculino/Feminino/Outro"
                 >
                   {!form.genero && <option value="">Selecione o genero</option>}
-                  <option value="iniciante">Masculino</option>
-                  <option value="intermediario">Feminino</option>
-                  <option value="avancado">Outro</option>
+                  <option value="Masculino">Masculino</option>
+                  <option value="Feminino">Feminino</option>
+                  <option value="Outro">Outro</option>
                 </select>
               </div>
               <div className="ev-field">
@@ -205,9 +205,9 @@ export default function NovoUsuario() {
                   onChange={handleChange}
                 >
                   {!form.nivel && <option value="">Selecione o nível</option>}
-                  <option value="iniciante">Iniciante</option>
-                  <option value="intermediario">Intermediário</option>
-                  <option value="avancado">Avançado</option>
+                  <option value="Iniciante">Iniciante</option>
+                  <option value="Intermediario">Intermediário</option>
+                  <option value="Avancado">Avançado</option>
                 </select>
               </div>
 
