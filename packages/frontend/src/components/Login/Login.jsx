@@ -16,25 +16,26 @@ const Login = () => {
     setLoading(true);
 
     try {
-      // ✅ chama sua API Spring
+      // 🔑 A API espera { email, senha } (não "password")
       const { data } = await api.post("/auth/login", {
-        email,
-        password: senha,
+        email: email.trim(),
+        senha: senha, // <- CORRETO
       });
 
-      // ✅ trata chaves comuns de token
       const token = data?.token || data?.access_token || data?.jwt;
       if (!token) throw new Error("A API não retornou o token");
 
+      // Salva na mesma chave que o interceptor usa
       localStorage.setItem("ja_token", token);
 
+      // Já busca o perfil com o Bearer do interceptor
       const { data: me } = await api.get("/auth/me");
       localStorage.setItem(
         "usuarioLogado",
         JSON.stringify({
           nome: me.nome,
           email: me.email,
-          foto: me.ftPerfil, // <- fica disponível no bloco acima
+          foto: me.ftPerfil ?? null,
         })
       );
 
@@ -51,6 +52,8 @@ const Login = () => {
     }
   }
 
+  const canSubmit = email.trim() && senha;
+
   return (
     <div className="body">
       <main className="container">
@@ -59,10 +62,11 @@ const Login = () => {
 
           <div className="input-box">
             <input
-              type="text"
+              type="email"
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              autoComplete="username"
             />
             <i className="bx bxs-user"></i>
           </div>
@@ -73,6 +77,7 @@ const Login = () => {
               placeholder="Senha"
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
+              autoComplete="current-password"
             />
             <i className="bx bxs-lock-alt"></i>
           </div>
@@ -86,7 +91,11 @@ const Login = () => {
 
           {message && <p>{message}</p>}
 
-          <button type="submit" className="login" disabled={loading}>
+          <button
+            type="submit"
+            className="login"
+            disabled={loading || !canSubmit}
+          >
             {loading ? "Entrando..." : "Login"}
           </button>
         </form>
