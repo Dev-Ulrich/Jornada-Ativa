@@ -19,16 +19,20 @@ const Login = () => {
       // sua API espera { email, senha }
       const { data } = await api.post("/auth/login", {
         email: email.trim(),
-        senha: senha,
+        senha,
       });
 
       const token = data?.token || data?.access_token || data?.jwt;
       if (!token) throw new Error("A API não retornou o token.");
 
+      // salva e FORÇA o header global do axios (além do interceptor)
       localStorage.setItem("ja_token", token);
+      api.defaults.headers.common.Authorization = `Bearer ${token}`;
 
-      // com o interceptor, já vai com Authorization: Bearer <token>
-      const { data: me } = await api.get("/auth/me");
+      // chama /auth/me passando o header explicitamente também (à prova de falhas)
+      const { data: me } = await api.get("/auth/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       localStorage.setItem(
         "usuarioLogado",
@@ -41,6 +45,13 @@ const Login = () => {
 
       navigate("/admin/dashboard", { replace: true });
     } catch (err) {
+      // logs úteis p/ você ver no DevTools > Console e Network
+      console.error("LOGIN/ME erro:", {
+        status: err?.response?.status,
+        data: err?.response?.data,
+        headers: err?.response?.headers,
+      });
+
       const apiMsg =
         err?.response?.data?.message ||
         err?.response?.data?.error ||
@@ -52,7 +63,7 @@ const Login = () => {
     }
   }
 
-  const canSubmit = email.trim().length > 0 && senha.length > 0;
+  const canSubmit = email.trim() && senha;
 
   return (
     <div className="body">
@@ -84,16 +95,9 @@ const Login = () => {
             <i className="bx bxs-lock-alt"></i>
           </div>
 
-          <div className="remember-forgot">
-            <label>
-              <input type="checkbox" />
-              Lembrar Senha
-            </label>
-          </div>
-
           {message && <p style={{ color: "#ff6b6b" }}>{message}</p>}
 
-          <button type="submit" className="login" disabled={loading || !canSubmit}>
+          <button className="login" type="submit" disabled={loading || !canSubmit}>
             {loading ? "Entrando..." : "Login"}
           </button>
         </form>

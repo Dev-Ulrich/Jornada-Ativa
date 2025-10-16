@@ -6,7 +6,7 @@ const api = axios.create({
   timeout: 20000,
 });
 
-// injeta Bearer em toda request
+// Request: injeta Bearer se existir
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("ja_token");
   if (token) config.headers.Authorization = `Bearer ${token}`;
@@ -14,15 +14,14 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// trata 401/403 globalmente (limpa token quebrado)
+// Response: trata 401/403 (token inválido/expirado)
 api.interceptors.response.use(
   (res) => res,
   (err) => {
     const status = err?.response?.status;
     if (status === 401 || status === 403) {
+      console.warn("Auth falhou (", status, ") — limpando token.");
       localStorage.removeItem("ja_token");
-      // opcional: redirecionar pro login
-      // window.location.assign("/login");
     }
     return Promise.reject(err);
   }
