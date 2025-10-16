@@ -16,26 +16,26 @@ const Login = () => {
     setLoading(true);
 
     try {
-      // 🔑 A API espera { email, senha } (não "password")
+      // sua API espera { email, senha }
       const { data } = await api.post("/auth/login", {
         email: email.trim(),
-        senha: senha, // <- CORRETO
+        senha: senha,
       });
 
       const token = data?.token || data?.access_token || data?.jwt;
-      if (!token) throw new Error("A API não retornou o token");
+      if (!token) throw new Error("A API não retornou o token.");
 
-      // Salva na mesma chave que o interceptor usa
       localStorage.setItem("ja_token", token);
 
-      // Já busca o perfil com o Bearer do interceptor
+      // com o interceptor, já vai com Authorization: Bearer <token>
       const { data: me } = await api.get("/auth/me");
+
       localStorage.setItem(
         "usuarioLogado",
         JSON.stringify({
-          nome: me.nome,
-          email: me.email,
-          foto: me.ftPerfil ?? null,
+          nome: me?.nome ?? "",
+          email: me?.email ?? "",
+          foto: me?.ftPerfil ?? null,
         })
       );
 
@@ -52,12 +52,12 @@ const Login = () => {
     }
   }
 
-  const canSubmit = email.trim() && senha;
+  const canSubmit = email.trim().length > 0 && senha.length > 0;
 
   return (
     <div className="body">
       <main className="container">
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} noValidate>
           <h1>Login J.A</h1>
 
           <div className="input-box">
@@ -67,6 +67,7 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="username"
+              required
             />
             <i className="bx bxs-user"></i>
           </div>
@@ -78,6 +79,7 @@ const Login = () => {
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
               autoComplete="current-password"
+              required
             />
             <i className="bx bxs-lock-alt"></i>
           </div>
@@ -89,13 +91,9 @@ const Login = () => {
             </label>
           </div>
 
-          {message && <p>{message}</p>}
+          {message && <p style={{ color: "#ff6b6b" }}>{message}</p>}
 
-          <button
-            type="submit"
-            className="login"
-            disabled={loading || !canSubmit}
-          >
+          <button type="submit" className="login" disabled={loading || !canSubmit}>
             {loading ? "Entrando..." : "Login"}
           </button>
         </form>

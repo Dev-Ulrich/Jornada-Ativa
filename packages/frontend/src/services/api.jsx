@@ -1,33 +1,28 @@
-// src/services/api.jsx
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8080",
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8080",
   headers: { "Content-Type": "application/json" },
   timeout: 20000,
 });
 
-// Interceptor de REQUEST: injeta o Bearer em toda chamada
+// injeta Bearer em toda request
 api.interceptors.request.use((config) => {
-  // usamos a mesma chave que o Login.jsx grava
   const token = localStorage.getItem("ja_token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  } else {
-    // garante que não fica lixo antigo
-    delete config.headers.Authorization;
-  }
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  else delete config.headers.Authorization;
   return config;
 });
 
-// Interceptor de RESPONSE (opcional): trata 401
+// trata 401/403 globalmente (limpa token quebrado)
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err?.response?.status === 401) {
-      // aqui você pode redirecionar pro /login se quiser
+    const status = err?.response?.status;
+    if (status === 401 || status === 403) {
+      localStorage.removeItem("ja_token");
+      // opcional: redirecionar pro login
       // window.location.assign("/login");
-      console.warn("401 não autorizado — verifique o token.");
     }
     return Promise.reject(err);
   }
