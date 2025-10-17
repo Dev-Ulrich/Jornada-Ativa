@@ -1,36 +1,45 @@
 import { useEffect, useState } from "react";
 
 export default function HealthIndicator() {
-  const [status, setStatus] = useState("checking");
-  const baseURL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8080").replace(/\/$/, "");
+  const [status, setStatus] = useState<"checking"|"online"|"offline">("checking");
+
+  const envBase = import.meta.env.VITE_API_BASE_URL?.toString().trim();
+  const baseURL = (envBase || "").replace(/\/+$/, ""); // remove barra final
+  // fallback só se você REALMENTE tiver API local rodando:
+  const api = baseURL || "http://localhost:8080";
 
   async function checkHealth() {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 5000); // 5s
+
     try {
-      const res = await fetch(`${baseURL}/health`, {
-        headers: { Accept: "application/json" }, // sem Authorization aqui
+      const res = await fetch(`${api}/health`, {
+        headers: { Accept: "application/json" },
+        signal: ctrl.signal,
+        // mode: "cors",  // (o padrão já é 'cors' no navegador)
+        // credentials: "omit",
       });
 
       if (!res.ok) return setStatus("offline");
 
-      // tenta ler json, se falhar considera ok mesmo assim
       try {
         const data = await res.json();
-        if (data?.status && String(data.status).toUpperCase() !== "UP") {
-          return setStatus("offline");
-        }
+        if (String(data?.status).toUpperCase() !== "UP") return setStatus("offline");
       } catch {
-        /* ignore: pode ser texto simples */
+        /* ok se não for json */
       }
 
       setStatus("online");
     } catch {
       setStatus("offline");
+    } finally {
+      clearTimeout(t);
     }
   }
 
   useEffect(() => {
     checkHealth();
-    const id = setInterval(checkHealth, 10000); // 10s é suficiente
+    const id = setInterval(checkHealth, 10000);
     return () => clearInterval(id);
   }, []);
 
