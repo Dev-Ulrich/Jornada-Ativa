@@ -1,5 +1,17 @@
 import { useEffect, useState } from "react";
 
+
+const raw = import.meta.env.VITE_API_BASE_URL?.toString().trim();
+const isProd = import.meta.env.PROD;
+
+const baseURL =
+  (raw && raw.replace(/\/+$/, "")) ||
+  (isProd ? "" : "http://localhost:8080"); // em prod, não cai no localhost
+
+if (!baseURL) {
+  console.warn("VITE_API_BASE_URL ausente — configure a env.");
+}
+
 export default function HealthIndicator() {
   const [status, setStatus] = useState("checking");
 
