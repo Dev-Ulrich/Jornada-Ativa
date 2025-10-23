@@ -1,10 +1,10 @@
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Text } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function Cadastro() {
+export default function PerfilTab() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#000", alignItems: "center", justifyContent: "center" }}>
-      <Text style={{ color: "#fff", fontSize: 18 }}>Tela de Cadastro</Text>
+      <Text style={{ color: "#fff" }}>Minha conta</Text>
     </SafeAreaView>
   );
 }
