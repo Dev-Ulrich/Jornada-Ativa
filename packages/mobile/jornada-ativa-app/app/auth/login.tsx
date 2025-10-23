@@ -21,8 +21,6 @@ export default function Login() {
 
   const canSubmit = /\S+@\S+\.\S+/.test(email.trim()) && senha.trim().length >= 6;
 
-  const TOKEN_KEY = "ja_token";
-
    async function handleLogin() {
   if (!canSubmit || loading) return;
 

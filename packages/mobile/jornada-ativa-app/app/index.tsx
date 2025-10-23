@@ -19,6 +19,7 @@ export default function LoadingGate() {
 
     async function boot() {
       try {
+        await clearToken();
         const token = await getToken();              // <- seguro
         await new Promise(r => setTimeout(r, 600));  // estética
 
