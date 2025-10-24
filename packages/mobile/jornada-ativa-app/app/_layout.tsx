@@ -7,6 +7,7 @@ export default function RootLayout() {
       {/* Registra as rotas principais */}
       <Stack.Screen name="index" />
       <Stack.Screen name="auth/login" />
+      <Stack.Screen name="auth/escolherNivel" />
       <Stack.Screen name="tabs" options={{ headerShown: false }} />
     </Stack>
   );

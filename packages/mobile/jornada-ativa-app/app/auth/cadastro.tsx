@@ -1,32 +1,42 @@
+// app/auth/cadastro.tsx
+import React, { useState } from "react";
+import {
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import * as ImagePicker from "expo-image-picker";
-import React, { useState } from "react";
-import { Alert, Image, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { registerRequest, saveToken, type RegisterPayload } from "../../lib/api";
+import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { styles } from "../../src/auth/cadastro.styles";
+import type { RegisterPayload } from "../../lib/api";
+import { router } from "expo-router";
 
 
+// ---------- Tipos ----------
+type Genero = "" | RegisterPayload["genero"];
 
-type Genero = "" | RegisterPayload["genero"]; 
+type RootStackParamList = {
+  EscolherNivel: {
+    draft: Omit<RegisterPayload, "nivel"> & { foto?: string | null };
+  };
+  // outras rotas…
+};
 
-export default function Cadastro() {
+// ---------- Utils ----------
+function isEmailOk(v: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+}
 
-  const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
-  const [nome, setNome] = useState("");
-  const [nascimento, setNascimento] = useState("");
-  const [genero, setGenero] = useState<Genero>("");
-  const [altura, setAltura] = useState("");
-  const [peso, setPeso] = useState("");
-  const [fotoPerfil, setFotoPerfil] = useState<string | null>(null);
-  const showPlaceholder = genero === "";
-
-  function isEmailOk(v: string) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
-  }
-
-  function formatDateDDMMYYYY(v: string) {
-  const d = v.replace(/\D/g, "").slice(0, 8); // no máx 8 dígitos
+// máscara dd/mm/aaaa
+function formatDateDDMMYYYY(v: string) {
+  const d = v.replace(/\D/g, "").slice(0, 8);
   if (d.length <= 2) return d;
   if (d.length <= 4) return `${d.slice(0, 2)}/${d.slice(2)}`;
   return `${d.slice(0, 2)}/${d.slice(2, 4)}/${d.slice(4)}`;
@@ -34,11 +44,10 @@ export default function Cadastro() {
 
 function toISOFromDDMMYYYY(s: string) {
   const [dd, mm, yyyy] = s.split("/");
-  // validação básica: garantir 2/2/4 dígitos
   if (!dd || !mm || !yyyy || dd.length !== 2 || mm.length !== 2 || yyyy.length !== 4) {
     throw new Error("Data inválida");
   }
-  return `${yyyy}-${mm}-${dd}`; // ISO -> yyyy-MM-dd
+  return `${yyyy}-${mm}-${dd}`; // yyyy-MM-dd
 }
 
 function isValidDateDDMMYYYY(s: string) {
@@ -51,13 +60,30 @@ function isValidDateDDMMYYYY(s: string) {
   const daysInMonth = new Date(yyyy, mm, 0).getDate();
   if (dd < 1 || dd > daysInMonth) return false;
   const date = new Date(yyyy, mm - 1, dd);
-  if (date.getTime() > Date.now()) return false; // não permite futuro (opcional)
+  if (date.getTime() > Date.now()) return false; // opcional: não permite futuro
   return true;
 }
 
-   async function handleSelecionarFoto() {
+// ---------- Componente ----------
+export default function Cadastro() {
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [nome, setNome] = useState("");
+  const [nascimento, setNascimento] = useState("");
+  const [genero, setGenero] = useState<Genero>("");
+  const [altura, setAltura] = useState("");
+  const [peso, setPeso] = useState("");
+  const [fotoPerfil, setFotoPerfil] = useState<string | null>(null);
+
+  const showPlaceholder = genero === "";
+
+  async function handleSelecionarFoto() {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (perm.status !== "granted") return Alert.alert("Permissão necessária", "Autorize o acesso às suas fotos.");
+    if (perm.status !== "granted") {
+      return Alert.alert("Permissão necessária", "Autorize o acesso às suas fotos.");
+    }
     const res = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 0.85,
@@ -66,41 +92,42 @@ function isValidDateDDMMYYYY(s: string) {
     if (!res.canceled) setFotoPerfil(res.assets[0].uri);
   }
 
-   async function handleCadastrar () {
+  async function handleAvancarNivel() {
+    // validações
     if (!isEmailOk(email)) return Alert.alert("Atenção", "Informe um e-mail válido.");
     if (senha.length < 6) return Alert.alert("Atenção", "A senha deve ter no mínimo 6 caracteres.");
     if (!nome.trim()) return Alert.alert("Atenção", "Informe o nome.");
     if (!isValidDateDDMMYYYY(nascimento)) {
-  return Alert.alert("Atenção", "Informe uma data válida no formato dd/mm/aaaa.");
-}
+      return Alert.alert("Atenção", "Informe uma data válida no formato dd/mm/aaaa.");
+    }
     if (!genero) return Alert.alert("Atenção", "Selecione o gênero.");
     if (!altura.trim()) return Alert.alert("Atenção", "Informe a altura (ex.: 1.78).");
     if (!peso.trim()) return Alert.alert("Atenção", "Informe o peso (ex.: 68).");
 
-    const payload: RegisterPayload = {
-  email,
-  senha,
-  nome,
-  dataNascimento: toISOFromDDMMYYYY(nascimento), // <<<<<<<<<<<<<<
-  genero: genero as RegisterPayload["genero"],
-  altura: parseFloat(altura.replace(",", ".")),
-  peso: parseFloat(peso.replace(",", ".")),
-  role: "ROLE_USER",
-  foto: fotoPerfil ?? null,
-};
+    // monta o draft (no formato que o back espera depois)
+    const draft: Omit<RegisterPayload, "nivel"> & { foto?: string | null } = {
+      email,
+      senha,
+      nome,
+      dataNascimento: toISOFromDDMMYYYY(nascimento),
+      genero: genero as RegisterPayload["genero"],
+      altura: parseFloat(altura.replace(",", ".")),
+      peso: parseFloat(peso.replace(",", ".")),
+      role: "ROLE_USER",
+      foto: fotoPerfil ?? null,
+    };
 
-    try {
-      const { token } = await registerRequest(payload); // POST /auth/register
-      if (token) await saveToken(token);
-      Alert.alert("Sucesso", "Cadastro realizado!");
-      // navegação futura aqui…
-    } catch (e: any) {
-      Alert.alert("Erro no cadastro", e?.message ?? "Tente novamente.");
-    }
+    router.push({
+  pathname: "/auth/escolherNivel",
+  params: { draft: encodeURIComponent(JSON.stringify(draft)) },
+});
   }
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior={Platform.select({ android: undefined })}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.select({ ios: "padding", android: undefined })}
+    >
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         {/* Email */}
         <Text style={styles.label}>Email</Text>
@@ -137,22 +164,22 @@ function isValidDateDDMMYYYY(s: string) {
 
         {/* Data de Nascimento */}
         <Text style={styles.label}>Data de Nascimento</Text>
-<TextInput
-  style={styles.input}
-  placeholder="dd/mm/aaaa"
-  placeholderTextColor="#8f8f8f"
-  keyboardType="number-pad"
-  maxLength={10}                               // 10 = dd/mm/aaaa
-  value={nascimento}
-  onChangeText={(t) => setNascimento(formatDateDDMMYYYY(t))}
-  onBlur={() => {
-    if (nascimento && !isValidDateDDMMYYYY(nascimento)) {
-      Alert.alert("Data inválida", "Use o formato dd/mm/aaaa com uma data válida.");
-    }
-  }}
-/>
+        <TextInput
+          style={styles.input}
+          placeholder="dd/mm/aaaa"
+          placeholderTextColor="#8f8f8f"
+          keyboardType="number-pad"
+          maxLength={10}
+          value={nascimento}
+          onChangeText={(t) => setNascimento(formatDateDDMMYYYY(t))}
+          onBlur={() => {
+            if (nascimento && !isValidDateDDMMYYYY(nascimento)) {
+              Alert.alert("Data inválida", "Use o formato dd/mm/aaaa com uma data válida.");
+            }
+          }}
+        />
 
-        {/* Gênero (Dropdown com label como na imagem 2) */}
+        {/* Gênero */}
         <Text style={styles.label}>Gênero</Text>
         <View style={styles.pickerWrapper}>
           <Picker
@@ -163,10 +190,12 @@ function isValidDateDDMMYYYY(s: string) {
             prompt="Selecione o gênero"
             mode="dropdown"
           >
-            {showPlaceholder && <Picker.Item label="Selecione o gênero" value="" color="#8f8f8f" />}
-            <Picker.Item label="Masculino" value="MASCULINO" />
-            <Picker.Item label="Feminino" value="FEMININO" />
-            <Picker.Item label="Outro" value="OUTRO" />
+            {showPlaceholder && (
+              <Picker.Item label="Selecione o gênero" value="" color="#8f8f8f" />
+            )}
+            <Picker.Item label="Masculino" value="Masculino" />
+            <Picker.Item label="Feminino" value="Feminino" />
+            <Picker.Item label="Outro" value="Outro" />
           </Picker>
         </View>
 
@@ -195,14 +224,18 @@ function isValidDateDDMMYYYY(s: string) {
         {/* Foto de Perfil (opcional) */}
         <Text style={styles.label}>Foto Perfil</Text>
         <TouchableOpacity style={styles.fileBox} onPress={handleSelecionarFoto} activeOpacity={0.8}>
-          {fotoPerfil ? <Image source={{ uri: fotoPerfil }} style={styles.preview} /> : <Text style={styles.fileBoxText}>Selecionar foto</Text>}
+          {fotoPerfil ? (
+            <Image source={{ uri: fotoPerfil }} style={styles.preview} />
+          ) : (
+            <Text style={styles.fileBoxText}>Selecionar foto</Text>
+          )}
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button} onPress={handleCadastrar} activeOpacity={0.9}>
-          <Text style={styles.buttonText}>CADASTRAR-SE</Text>
+        {/* Avançar para escolher nível */}
+        <TouchableOpacity style={styles.button} onPress={handleAvancarNivel} activeOpacity={0.9}>
+          <Text style={styles.buttonText}>Escolher nível</Text>
         </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
-
