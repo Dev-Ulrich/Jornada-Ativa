@@ -1,4 +1,8 @@
 // app/auth/cadastro.tsx
+import { Picker } from "@react-native-picker/picker";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import * as ImagePicker from "expo-image-picker";
+import { router } from "expo-router";
 import React, { useState } from "react";
 import {
   Alert,
@@ -11,12 +15,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Picker } from "@react-native-picker/picker";
-import * as ImagePicker from "expo-image-picker";
-import { useNavigation, NavigationProp } from "@react-navigation/native";
-import { styles } from "../../src/auth/cadastro.styles";
 import type { RegisterPayload } from "../../lib/api";
-import { router } from "expo-router";
+import { styles } from "../../src/auth/cadastro.styles";
 
 
 // ---------- Tipos ----------
@@ -117,11 +117,11 @@ export default function Cadastro() {
       foto: fotoPerfil ?? null,
     };
 
-    router.push({
-  pathname: "/auth/escolherNivel",
+    // cast rápido para evitar erro de tipagem
+router.push({
+  pathname: "/auth/escolherNivel" as unknown as any,
   params: { draft: encodeURIComponent(JSON.stringify(draft)) },
-});
-  }
+})};
 
   return (
     <KeyboardAvoidingView
@@ -238,4 +238,4 @@ export default function Cadastro() {
       </ScrollView>
     </KeyboardAvoidingView>
   );
-}
+  }

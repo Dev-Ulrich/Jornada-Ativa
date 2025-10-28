@@ -34,4 +34,5 @@ export const styles = StyleSheet.create({
   buttonText: { color: "#fff", fontWeight: "800", letterSpacing: 1 },
   signupText: { color: "#eaeaea", marginTop: 24, fontWeight: "700", textAlign: "center" },
   link: { color: JA_ORANGE, fontWeight: "700" },
+  
 });

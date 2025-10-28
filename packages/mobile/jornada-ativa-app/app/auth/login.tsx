@@ -34,7 +34,7 @@ export default function Login() {
     const { token } = await loginRequest(email.trim(), senha.trim());
 
     await saveToken(token); // expo-secure-store
-    router.replace("/tabs"); // cai nas abas
+    router.replace("/tabs/home"); // cai nas abas
 
   } catch (e: any) {
     // mensagens mais amigáveis

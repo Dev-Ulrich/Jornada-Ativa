@@ -9,6 +9,7 @@ const logo = require("../assets/images/ja-logo.png");
 
 
 
+
 export default function LoadingGate() {
   useEffect(() => {
 
@@ -19,11 +20,12 @@ export default function LoadingGate() {
 
     async function boot() {
       try {
+        await clearToken();
         const token = await getToken();             
         await new Promise(r => setTimeout(r, 600));  // estética
 
         didNavigate = true;
-        router.replace(token ? "/tabs" : "/auth/login");
+        router.replace(token ? "/tabs/home" : "/auth/login");
       } catch {
         didNavigate = true;
         router.replace("/auth/login");

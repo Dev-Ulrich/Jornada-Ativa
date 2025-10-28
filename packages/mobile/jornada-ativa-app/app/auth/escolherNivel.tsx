@@ -1,8 +1,8 @@
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useMemo, useState } from "react";
 import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { useLocalSearchParams, router } from "expo-router";
-import { styles } from "../../src/auth/escolherNivel.styles";
 import { registerRequest, saveToken, type RegisterPayload } from "../../lib/api";
+import { styles } from "../../src/auth/escolherNivel.styles";
 
 // 🔒 draft com todos os campos OBRIGATÓRIOS (mesmo tipo do back, só sem 'nivel')
 type RequiredDraft = Omit<RegisterPayload, "nivel"> & { foto?: string | null };
@@ -91,7 +91,7 @@ export default function EscolherNivel() {
       const { token } = await registerRequest(payload);
       if (token) await saveToken(token);
       Alert.alert("Sucesso", "Cadastro concluído!");
-      router.replace("/tabs");
+      router.replace("/auth/login");
     } catch (e: any) {
       Alert.alert("Erro no cadastro", e?.message ?? "Tente novamente.");
     }

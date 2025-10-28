@@ -2,15 +2,13 @@ import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StyleSheet, Text, View } from "react-native";
 
-export default function PerfilScreen() {
+export default function BuscarScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
       <StatusBar style="light" />
       <View style={styles.container}>
-        <Text style={styles.title}>Perfil</Text>
-        <Text style={styles.subtitle}>
-          Configure seus dados pessoais e prefer\u00eancias por aqui.
-        </Text>
+        <Text style={styles.title}>Buscar</Text>
+        <Text style={styles.subtitle}>Aqui voc\u00ea poder\u00e1 pesquisar por treinos e eventos.</Text>
       </View>
     </SafeAreaView>
   );
