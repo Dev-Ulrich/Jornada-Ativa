@@ -1,14 +1,15 @@
 import { Feather } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useMemo, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    Pressable,
-    ScrollView,
-    Text,
-    View,
+  ActivityIndicator,
+  Alert,
+  Image,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as api from "../../lib/api";
@@ -41,6 +42,7 @@ export default function HomeScreen() {
   const [treinos, setTreinos] = useState<Treino[]>([]);
   const [ultimos, setUltimos] = useState<{ id: string; titulo: string; when: string }[]>([]);
 
+  const router = useRouter();
   const apiAny = api as any;
 
   // helper para chamar API (usa api.apiFetch quando disponível)
@@ -256,9 +258,9 @@ export default function HomeScreen() {
             <Text style={styles.smallMuted}>{user.nivel ? `Nível: ${user.nivel}` : ""}</Text>
           </View>
 
-          <Pressable style={styles.iconButton} onPress={() => {}}>
-            <Feather name="bell" size={18} color="#ffffff" />
-          </Pressable>
+          <Pressable style={styles.iconButton} onPress={() => router.push("/calendario")}>
+            <Feather name="calendar" size={18} color="#ffffff" />
+         </Pressable>
         </View>
 
         <View style={styles.greetingSection}>

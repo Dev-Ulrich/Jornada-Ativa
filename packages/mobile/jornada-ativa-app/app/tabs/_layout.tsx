@@ -1,5 +1,5 @@
+import { Feather, FontAwesome5 } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
-import { Feather } from "@expo/vector-icons";
 
 export default function TabsLayout() {
   return (
@@ -37,10 +37,10 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="progresso"
+        name="correr"
         options={{
-          title: "Progresso",
-          tabBarIcon: ({ color, size }) => <Feather name="bar-chart-2" size={size} color={color} />,
+          title: "Correr",
+          tabBarIcon: ({ color, size }) => <FontAwesome5 name="running" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
