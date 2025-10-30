@@ -37,6 +37,18 @@ export default function NovoTreino() {
         nome: form.nome.trim(),
         descricao: form.descricao.trim(),
         nivel: form.nivel.trim(),
+        distanciaMinKm: form.distanciaMinKm
+          ? Number(form.distanciaMinKm)
+          : null,
+        distanciaMaxKm: form.distanciaMaxKm
+          ? Number(form.distanciaMaxKm)
+          : null,
+        duracaoAlvoMin: form.duracaoAlvoMin
+          ? Number(form.duracaoAlvoMin)
+          : null,
+        paceAlvoMinpkm: form.paceAlvoMinpkm
+          ? Number(form.paceAlvoMinpkm)
+          : null,
       };
       await api.post("/treinos", payload);
       setSuccess("Treino criado com sucesso!");
@@ -130,6 +142,57 @@ export default function NovoTreino() {
                 <option value="intermediario">Intermediário</option>
                 <option value="avancado">Avançado</option>
               </select>
+            </div>
+            <div className="ev-field">
+              <label className="ev-label">Distância mínima (km)</label>
+              <input
+                type="number"
+                step="0.01"
+                name="distanciaMinKm"
+                value={form.distanciaMinKm || ""}
+                onChange={handleChange}
+                className="ev-input"
+                placeholder="Ex.: 2.5"
+              />
+            </div>
+
+            <div className="ev-field">
+              <label className="ev-label">Distância máxima (km)</label>
+              <input
+                type="number"
+                step="0.01"
+                name="distanciaMaxKm"
+                value={form.distanciaMaxKm || ""}
+                onChange={handleChange}
+                className="ev-input"
+                placeholder="Ex.: 5.0"
+              />
+            </div>
+
+            <div className="ev-field">
+              <label className="ev-label">Duração alvo (minutos)</label>
+              <input
+                type="number"
+                step="0.01"
+                name="duracaoAlvoMin"
+                value={form.duracaoAlvoMin || ""}
+                onChange={handleChange}
+                className="ev-input"
+                placeholder="Ex.: 30"
+              />
+            </div>
+
+            <div className="ev-field">
+              <label className="ev-label">Pace alvo (min/km)</label>
+              <input
+                type="number"
+                step="0.01"
+                name="paceAlvoMinpkm"
+                value={form.paceAlvoMinpkm || ""}
+                onChange={handleChange}
+                className="ev-input"
+                placeholder="Ex.: 6.00"
+              />
             </div>
 
             {error && <div className="ev-alert-error">{error}</div>}

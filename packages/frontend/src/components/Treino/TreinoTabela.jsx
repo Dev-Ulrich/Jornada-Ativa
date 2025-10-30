@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "@services/api";
 import Sidebar from "@components/DashBoard/Sidebar";
-import { Search, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import "../Evento/EventoForm.css";
 import "./TreinoTabela.css";
 
@@ -75,7 +75,9 @@ export default function TreinoTabela() {
     try {
       setLoading(true);
       setErro("");
-      const url = termo ? `/treinos?nome=${encodeURIComponent(termo)}` : "/treinos";
+      const url = termo
+        ? `/treinos?nome=${encodeURIComponent(termo)}`
+        : "/treinos";
       const { data } = await api.get(url);
       const arr = Array.isArray(data) ? data : data?.content || [];
       const rows = arr.map((t) => ({
@@ -84,6 +86,10 @@ export default function TreinoTabela() {
         descricao: t.descricao ?? "",
         createdAt: t.createdAt ?? t.dataCriacao ?? t.created_at ?? null,
         nivel: t.nivel ?? t.level ?? "",
+        distanciaMinKm: t.distanciaMinKm ?? t.distancia_min_km ?? null,
+        distanciaMaxKm: t.distanciaMaxKm ?? t.distancia_max_km ?? null,
+        duracaoAlvoMin: t.duracaoAlvoMin ?? t.duracao_alvo_min ?? null,
+        paceAlvoMinpkm: t.paceAlvoMinpkm ?? t.pace_alvo_minpkm ?? null,
       }));
       setLista(rows);
     } catch (err) {
@@ -99,11 +105,9 @@ export default function TreinoTabela() {
     loadTreinos();
   }, []);
 
-  // toda vez que o usuário digitar, dispara busca no backend
+  // busca com debounce
   useEffect(() => {
-    const delay = setTimeout(() => {
-      loadTreinos(busca.trim());
-    }, 400); // debounce
+    const delay = setTimeout(() => loadTreinos(busca.trim()), 400);
     return () => clearTimeout(delay);
   }, [busca]);
 
@@ -156,6 +160,9 @@ export default function TreinoTabela() {
                 <th>Nome</th>
                 <th>Descrição</th>
                 <th>Criado em</th>
+                <th>Distância (km)</th>
+                <th>Duração (min)</th>
+                <th>Pace (min/km)</th>
                 <th>Nível</th>
                 <th>Ações</th>
               </tr>
@@ -163,7 +170,7 @@ export default function TreinoTabela() {
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={6} className="ev-empty">
+                  <td colSpan={9} className="ev-empty">
                     Carregando…
                   </td>
                 </tr>
@@ -171,7 +178,7 @@ export default function TreinoTabela() {
 
               {erro && !loading && (
                 <tr>
-                  <td colSpan={6} className="ev-error">
+                  <td colSpan={9} className="ev-error">
                     {erro}
                   </td>
                 </tr>
@@ -179,7 +186,7 @@ export default function TreinoTabela() {
 
               {!loading && !erro && pageRows.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="ev-empty">
+                  <td colSpan={9} className="ev-empty">
                     Nenhum treino encontrado.
                   </td>
                 </tr>
@@ -193,9 +200,19 @@ export default function TreinoTabela() {
                     <td className="ev-strong">{t.nome}</td>
                     <td className="ev-muted">{t.descricao || "-"}</td>
                     <td>{fmtYMDptBR(t.createdAt)}</td>
+                    <td>
+                      {t.distanciaMinKm && t.distanciaMaxKm
+                        ? `${t.distanciaMinKm}–${t.distanciaMaxKm}`
+                        : "-"}
+                    </td>
+                    <td>{t.duracaoAlvoMin ?? "-"}</td>
+                    <td>{t.paceAlvoMinpkm ?? "-"}</td>
                     <td>{fmtNivel(t.nivel)}</td>
                     <td>
-                      <AcoesTreino id={t.id} onDeleted={() => loadTreinos(busca)} />
+                      <AcoesTreino
+                        id={t.id}
+                        onDeleted={() => loadTreinos(busca)}
+                      />
                     </td>
                   </tr>
                 ))}
