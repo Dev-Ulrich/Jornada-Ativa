@@ -1,3 +1,4 @@
+// app/tabs/home.tsx
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -23,7 +24,9 @@ const API_BASE =
 type Nivel = "Iniciante" | "Intermediario" | "Avancado";
 
 type UserProfile = {
+  id?: number | string;
   nome: string;
+  email?: string;
   foto?: string;
   nivel?: Nivel;
 };
@@ -31,21 +34,28 @@ type UserProfile = {
 type Treino = {
   id: string;
   titulo: string;
-  duracao?: string;
-  nivel: Nivel;
   descricao?: string;
+  nivel: Nivel;
 };
+
+type UltimoTreino = {
+  id: string;
+  titulo: string; // ex: "5,20 km • 32:10"
+  when: string;   // "Hoje" | "Ontem" | "dd/MM"
+};
+
+const MAX_RECOM = 3; // <= limite de treinos recomendados visíveis
 
 export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
+  const [loadingData, setLoadingData] = useState(false);
   const [user, setUser] = useState<UserProfile>({ nome: "Usuário" });
   const [treinos, setTreinos] = useState<Treino[]>([]);
-  const [ultimos, setUltimos] = useState<{ id: string; titulo: string; when: string }[]>([]);
-
+  const [ultimos, setUltimos] = useState<UltimoTreino[]>([]);
   const router = useRouter();
   const apiAny = api as any;
 
-  // helper para chamar API (usa api.apiFetch quando disponível)
+  // ---------------- utils ----------------
   async function callApi(path: string, token?: string) {
     if (typeof apiAny.apiFetch === "function") {
       return await apiAny.apiFetch(path);
@@ -55,174 +65,227 @@ export default function HomeScreen() {
     const headers: Record<string, string> = { Accept: "application/json" };
     if (token) headers.Authorization = `Bearer ${token}`;
     const res = await fetch(url, { headers });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    if (!res.ok) throw new Error(`HTTP ${res.status} - ${url}`);
+    const txt = await res.text();
+    try {
+      return JSON.parse(txt || "{}");
+    } catch {
+      return txt;
+    }
   }
 
-  // decodifica payload JWT (se possível). Se não der, retorna null.
   function safeDecodeJwt(token?: string | null) {
     try {
       if (!token) return null;
-      const parts = token.split(".");
-      if (parts.length < 2) return null;
-      const b64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-      if (typeof atob === "function") {
-        const jsonStr = decodeURIComponent(
-          Array.prototype
-            .map.call(atob(b64), (c: string) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-            .join("")
-        );
-        return JSON.parse(jsonStr);
-      }
-      // fallback: try atob via Buffer (node-like envs)
-      try {
-        // @ts-ignore
-        const buf = typeof Buffer !== "undefined" ? Buffer.from(b64, "base64").toString("utf8") : null;
-        return buf ? JSON.parse(buf) : null;
-      } catch {
-        return null;
-      }
+      const [_, payload] = token.split(".");
+      if (!payload) return null;
+      const b64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+      // @ts-ignore
+      const json = (typeof atob === "function"
+        ? atob(b64)
+        : Buffer.from(b64, "base64").toString("utf8")) as string;
+      return JSON.parse(json);
     } catch {
       return null;
     }
   }
 
-  useEffect(() => {
-    let mounted = true;
+  const norm = (s: string) =>
+    s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
-    async function load() {
-      setLoading(true);
-      try {
-        const tokenRaw = await getToken();
-        const token: string | undefined = tokenRaw ? String(tokenRaw) : undefined;
+  const toClientNivel = (s?: string): Nivel | undefined => {
+    if (!s) return undefined;
+    const v = norm(s);
+    if (v.includes("inic")) return "Iniciante";
+    if (v.includes("inter")) return "Intermediario";
+    if (v.includes("avanc")) return "Avancado";
+    return undefined;
+  };
 
-        // tenta decodificar token para obter email ou id
-        const payload = safeDecodeJwt(token);
-        let emailFromToken = payload?.email ?? payload?.user?.email;
-        const idFromToken = payload?.sub ?? payload?.id ?? payload?.user?.id;
+  const toApiNivel = (n?: Nivel) => {
+    if (!n) return undefined;
+    if (n === "Iniciante") return "INICIANTE";
+    if (n === "Intermediario") return "INTERMEDIARIO";
+    return "AVANCADO";
+  };
 
-        // se o "idFromToken" for um email (contém @), use como email
-        if (!emailFromToken && typeof idFromToken === "string" && idFromToken.includes("@")) {
-          emailFromToken = idFromToken;
-        }
+  const km = (v?: number) =>
+    typeof v === "number" ? `${v.toFixed(2)} km` : "— km";
 
-        let perfilResp: any = null;
+  const tempoFmt = (v?: number) => {
+    // assume DECIMAL em minutos (ex.: 32.50 → 32m30s)
+    if (typeof v !== "number") return "—";
+    const totalSeg = Math.round(v * 60);
+    const mm = Math.floor(totalSeg / 60);
+    const ss = totalSeg % 60;
+    return `${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}`;
+  };
 
-        // tenta /usuarios/email/{email}
-        if (emailFromToken) {
-          try {
-            perfilResp = await callApi(`/usuarios/email/${encodeURIComponent(emailFromToken)}`, token);
-          } catch {
-            perfilResp = null;
-          }
-        }
+  function fmtDay(d: Date) {
+    const today = new Date();
+    const d0 = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    const t0 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const diff = Math.round((t0.getTime() - d0.getTime()) / 86400000);
+    if (diff === 0) return "Hoje";
+    if (diff === 1) return "Ontem";
+    return `${String(d.getDate()).padStart(2, "0")}/${String(
+      d.getMonth() + 1
+    ).padStart(2, "0")}`;
+  }
 
-        // tenta /usuarios/{id}
-        if (!perfilResp && idFromToken) {
-          try {
-            perfilResp = await callApi(`/usuarios/${idFromToken}`, token);
-          } catch {
-            perfilResp = null;
-          }
-        }
-
-        // tenta endpoints alternativos
-        if (!perfilResp) {
-          for (const p of ["/usuarios/me", "/me", "/auth/me", "/users/me"]) {
-            try {
-              perfilResp = await callApi(p, token);
-              if (perfilResp) break;
-            } catch {
-              perfilResp = null;
-            }
-          }
-        }
-
-        // DEBUG: mostra o que pegamos (pequeno resumo)
-        console.log("DEBUG perfilResp:", profileRespSafe(perfilResp), "emailFromToken:", emailFromToken, "idFromToken:", idFromToken);
-
-        if (mounted && perfilResp) {
-          // normaliza: backend pode retornar { usuario: {...} } ou o próprio objeto
-          const u = perfilResp.usuario ?? perfilResp.user ?? perfilResp.data ?? perfilResp ?? {};
-
-          // seguir mapeamento do frontend web que você mostrou
-          const mapped = {
-            id: u.id ?? u.idUsuario ?? u.id_user,
-            nome: u.nome ?? "-",
-            email: u.email ?? "-",
-            genero: u.genero ?? "-",
-            dataNascimento: u.dataNascimento ?? null,
-            nivel: u.nivel ?? u.level ?? undefined,
-            altura: u.altura ?? null,
-            peso: u.peso ?? null,
-            role: u.role ?? u.roles ?? "ROLE_USER",
-            foto: u.ftPerfil ?? u.foto ?? u.fotoPerfil ?? u.imagem ?? perfilResp.foto ?? "",
-            createdAt: u.createdAt ?? u.criadoEm ?? null,
-          };
-
-          // converte nivel para os rótulos do client (se existir)
-          let nivelUser: Nivel | undefined = undefined;
-          if (typeof mapped.nivel === "string") {
-            const n = mapped.nivel.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-            if (n.includes("inic")) nivelUser = "Iniciante";
-            else if (n.includes("inter")) nivelUser = "Intermediario";
-            else if (n.includes("avan")) nivelUser = "Avancado";
-          }
-
-          // foto absoluta / relativa
-          let fotoUrl: string | undefined = undefined;
-          if (mapped.foto && typeof mapped.foto === "string" && mapped.foto.trim() !== "") {
-            const trimmed = mapped.foto.trim();
-            fotoUrl = /^https?:\/\//i.test(trimmed) ? trimmed : `${API_BASE}${trimmed.startsWith("/") ? "" : "/"}${trimmed}`;
-          }
-
-          console.log("DEBUG mapped user:", { nome: mapped.nome, nivel: nivelUser, fotoUrl });
-
-          setUser({
-            nome: String(mapped.nome ?? "Usuário"),
-            foto: fotoUrl,
-            nivel: nivelUser,
-          });
-        }
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    }
-
-    load();
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  // pequena função para evitar log de objetos grandes
   function profileRespSafe(x: any) {
     try {
       if (!x) return null;
       const u = x.usuario ?? x.user ?? x.data ?? x;
-      return { id: u.id ?? u.idUsuario, nome: u.nome, nivel: u.nivel ?? u.level, foto: u.foto ?? u.ftPerfil ?? u.imagem };
+      return {
+        id: u.id ?? u.id_usuario ?? u.idUsuario,
+        nome: u.nome,
+        email: u.email,
+        nivel: u.nivel,
+        foto: u.ft_perfil ?? u.foto ?? u.imagem ?? u.ftPerfil,
+      };
     } catch {
       return null;
     }
   }
 
-  const normalize = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  // -------------- load perfil + dados --------------
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      setLoading(true);
+      try {
+        const raw = await getToken();
+        const token = raw ? String(raw) : undefined;
 
+        // tenta descobrir usuário
+        const payload = safeDecodeJwt(token);
+        let emailFromToken = payload?.email ?? payload?.user?.email;
+        const idFromToken = payload?.sub ?? payload?.id ?? payload?.user?.id;
+        if (!emailFromToken && typeof idFromToken === "string" && idFromToken.includes("@")) {
+          emailFromToken = idFromToken;
+        }
+
+        let perfil: any = null;
+        if (emailFromToken) {
+          try { perfil = await callApi(`/usuarios/email/${encodeURIComponent(emailFromToken)}`, token); } catch {}
+        }
+        if (!perfil && idFromToken) {
+          try { perfil = await callApi(`/usuarios/${idFromToken}`, token); } catch {}
+        }
+        if (!perfil) {
+          for (const p of ["/usuarios/me", "/me", "/auth/me", "/users/me"]) {
+            try { perfil = await callApi(p, token); if (perfil) break; } catch {}
+          }
+        }
+
+        const safe = profileRespSafe(perfil);
+        if (mounted && safe) {
+          const fotoAbs =
+            safe.foto && typeof safe.foto === "string" && !/^https?:\/\//i.test(safe.foto)
+              ? `${API_BASE}${safe.foto.startsWith("/") ? "" : "/"}${safe.foto}`
+              : safe.foto;
+
+          const u: UserProfile = {
+            id: safe.id,
+            nome: safe.nome ?? "Usuário",
+            email: safe.email,
+            foto: fotoAbs,
+            nivel: toClientNivel(safe.nivel),
+          };
+          setUser(u);
+
+          setLoadingData(true);
+          await Promise.all([loadTreinosRecomendados(u, token), loadUltimos(u, token)]);
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
+          setLoadingData(false);
+        }
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
+
+  // -------------- treinos recomendados (catálogo) --------------
+  async function loadTreinosRecomendados(u: UserProfile, token?: string) {
+    if (!u.nivel) { setTreinos([]); return; }
+    const lvl = encodeURIComponent(String(toApiNivel(u.nivel)));
+
+    const candidates = [
+      `/treino?nivel=${lvl}`,                 // tabela "treino" (singular)
+      `/treinos?nivel=${lvl}`,                // fallback plural
+      `/treinos/recomendados?nivel=${lvl}`,   // fallback específico
+    ];
+    let data: any = null;
+    for (const p of candidates) {
+      try { data = await callApi(p, token); if (data) break; } catch {}
+    }
+
+    const arr = Array.isArray(data?.content) ? data.content : (Array.isArray(data) ? data : []);
+    const mapped: Treino[] = arr.map((t: any) => ({
+      id: String(t.id ?? t.id_treino ?? t.idTreino ?? Math.random()),
+      titulo: String(t.nome ?? t.titulo ?? "Treino"),
+      descricao: t.descricao ?? undefined,
+      nivel: toClientNivel(t.nivel) ?? u.nivel!,
+    }));
+    setTreinos(mapped);
+  }
+
+  // -------------- últimos treinos do usuário (histórico) --------------
+  async function loadUltimos(u: UserProfile, token?: string) {
+    if (!u.id) { setUltimos([]); return; }
+    let data: any = null;
+    try {
+      data = await callApi(`/historico-treinos/usuario/${u.id}/all`, token);
+    } catch {
+      try {
+        data = await callApi(`/historico-treinos/usuario/${u.id}?page=0&size=5&sort=data,desc`, token);
+      } catch {}
+    }
+
+    const arr = Array.isArray(data?.content) ? data.content : (Array.isArray(data) ? data : []);
+    arr.sort((a: any, b: any) =>
+      new Date(b.data ?? b.createdAt).getTime() - new Date(a.data ?? a.createdAt).getTime()
+    );
+    const top = arr.slice(0, 5);
+
+    const mapped: UltimoTreino[] = top.map((h: any) => {
+      const dist = typeof h.distancia === "number" ? h.distancia : Number(h.distancia ?? 0);
+      const tempo = typeof h.tempo === "number" ? h.tempo : Number(h.tempo ?? 0);
+      const d = h.data ? new Date(h.data) : (h.createdAt ? new Date(h.createdAt) : new Date());
+      const title = `${km(dist)} • ${tempoFmt(tempo)}`;
+      return {
+        id: String(h.id ?? h.id_historico_treino ?? Math.random()),
+        titulo: title,
+        when: fmtDay(d),
+      };
+    });
+
+    setUltimos(mapped);
+  }
+
+  // -------------- derivados --------------
   const treinosRecomendados = useMemo(() => {
     const nivelUser = user?.nivel ?? "";
     if (!nivelUser) return [];
-    return treinos.filter((t) => normalize(t.nivel) === normalize(nivelUser));
+    return treinos.filter((t) => norm(t.nivel) === norm(nivelUser));
   }, [treinos, user]);
 
-  function iniciarTreino(t: Treino) {
-    Alert.alert("Iniciar treino", `${t.titulo}\nDuração: ${t.duracao ?? "—"}`, [
-      { text: "Cancelar", style: "cancel" },
-      { text: "Iniciar", onPress: () => Alert.alert("Treino iniciado", `Boa sorte em: ${t.titulo}`) },
-    ]);
-  }
+  // LIMITADOR + “Ver todos”
+  const treinosVisiveis = useMemo<Treino[]>(
+    () => (treinosRecomendados ?? []).slice(0, MAX_RECOM),
+    [treinosRecomendados]
+  );
 
-  function adicionarTreino() {
-    Alert.alert("Adicionar treino", "Ir para tela de adicionar treino (implementar).");
+  function iniciarTreino(t: Treino) {
+    // Pode navegar para /tabs/correr com treinoId
+    // router.push({ pathname: "/tabs/correr", params: { treinoId: t.id } });
+    Alert.alert("Iniciar treino", t.titulo, [
+      { text: "Cancelar", style: "cancel" },
+      { text: "Iniciar", onPress: () => router.push("/tabs/correr") },
+    ]);
   }
 
   if (loading) {
@@ -237,6 +300,7 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
       <StatusBar style="light" />
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        {/* HEADER */}
         <View style={styles.headerRow}>
           <View style={styles.brand}>
             {user.foto ? (
@@ -260,9 +324,10 @@ export default function HomeScreen() {
 
           <Pressable style={styles.iconButton} onPress={() => router.push("/calendario")}>
             <Feather name="calendar" size={18} color="#ffffff" />
-         </Pressable>
+          </Pressable>
         </View>
 
+        {/* SAUDAÇÃO */}
         <View style={styles.greetingSection}>
           <Text style={styles.greetingTitle}>
             Olá, {user.nome.split(" ")[0]} <Text style={styles.wave}>👋</Text>
@@ -270,28 +335,49 @@ export default function HomeScreen() {
           <Text style={styles.greetingSubtitle}>Pronto para mais um treino?</Text>
         </View>
 
+        {/* TREINOS RECOMENDADOS */}
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Treinos recomendados</Text>
-          {treinosRecomendados.length === 0 ? (
+          {loadingData ? (
+            <ActivityIndicator style={{ marginTop: 8 }} />
+          ) : treinosRecomendados.length === 0 ? (
             <Text style={styles.cardMeta}>Nenhum treino disponível para seu nível.</Text>
           ) : (
-            treinosRecomendados.map((t) => (
-              <View key={t.id} style={styles.cardRow}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.cardTitle}>{t.titulo}</Text>
-                  {t.descricao ? <Text style={styles.cardMeta}>{t.descricao}</Text> : null}
+            <>
+              {treinosVisiveis.map((t) => (
+                <View key={t.id} style={styles.cardRow}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.cardTitle}>{t.titulo}</Text>
+                    {t.descricao ? <Text style={styles.cardMeta}>{t.descricao}</Text> : null}
+                  </View>
+                  <Pressable onPress={() => iniciarTreino(t)} style={styles.startButton}>
+                    <Text style={styles.startButtonText}>Iniciar</Text>
+                  </Pressable>
                 </View>
-                <Pressable onPress={() => iniciarTreino(t)} style={styles.startButton}>
-                  <Text style={styles.startButtonText}>Iniciar</Text>
+              ))}
+
+              {treinosRecomendados.length > MAX_RECOM && (
+                <Pressable onPress={() => router.push("/tabs/correr")}>
+                  <Text
+                    style={[
+                      styles.cardMeta,
+                      { textAlign: "right", marginTop: 6, color: "#ff7a1a" },
+                    ]}
+                  >
+                    Ver todos →
+                  </Text>
                 </Pressable>
-              </View>
-            ))
+              )}
+            </>
           )}
         </View>
 
+        {/* ÚLTIMOS TREINOS */}
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Últimos treinos</Text>
-          {ultimos.length === 0 ? (
+          {loadingData ? (
+            <ActivityIndicator style={{ marginTop: 8 }} />
+          ) : ultimos.length === 0 ? (
             <Text style={styles.cardMeta}>Nenhum treino registrado ainda.</Text>
           ) : (
             ultimos.map((a) => (
@@ -308,9 +394,7 @@ export default function HomeScreen() {
           )}
         </View>
 
-        <Pressable style={styles.ctaButton} onPress={adicionarTreino}>
-          <Text style={styles.ctaButtonText}>+ Adicionar treino</Text>
-        </Pressable>
+        {/* (Sem botão "+ Adicionar treino") */}
       </ScrollView>
     </SafeAreaView>
   );
