@@ -284,7 +284,7 @@ export default function Buscar() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.screenTitle}>Buscar</Text>
+      <Text style={styles.screenTitle}></Text>
 
       <View style={styles.tabs}>
         <Pressable onPress={() => setAba("treinos")} style={[styles.tab, aba === "treinos" && styles.tabActive]}>

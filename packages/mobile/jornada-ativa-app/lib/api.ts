@@ -81,9 +81,9 @@ export async function getToken(): Promise<string | null> {
   return SecureStore.getItemAsync(TOKEN_KEY);
 }
 
-export async function clearToken() {
+/*export async function clearToken() {
   await SecureStore.deleteItemAsync(TOKEN_KEY);
-}
+}*/
 
 // ----------------- Fetch com bearer -----------------
 export async function apiFetch<T = any>(path: string, init: RequestInit = {}): Promise<T> {

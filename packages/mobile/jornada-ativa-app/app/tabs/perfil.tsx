@@ -1,10 +1,12 @@
 // app/tabs/perfil.tsx
-import React, { useEffect, useState } from "react";
+import { useRouter } from "expo-router";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
   Image,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -32,13 +34,26 @@ type Usuario = {
   peso: number;
 };
 
-// -------- helpers --------
+type Historico = {
+  id?: number;
+  id_historico_treino?: number;
+  data: string;              // "YYYY-MM-DD"
+  distancia: number;         // km
+  tempo: number;             // minutos (decimal)
+  pace: number;              // min/km (decimal)
+  v_media?: number;          // km/h
+  kcal?: number;             // kcal
+  id_treino?: number | null;
+  treinoNome?: string | null;
+  nivel?: string | null;
+};
+
+/* ----------------- helpers ----------------- */
 const norm = (s: string) =>
   String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
 const toClientNivel = (s?: string): Nivel | undefined => {
   const v = norm(s || "");
-  if (!v) return undefined;
   if (v.includes("inic")) return "Iniciante";
   if (v.includes("inter")) return "Intermediário";
   if (v.includes("avanc")) return "Avançado";
@@ -52,6 +67,8 @@ const mapGenero = (g: any): Genero | string => {
   if (v === "o" || v.startsWith("out")) return "Outro";
   return typeof g === "string" ? g : "Masculino";
 };
+
+
 
 // decodifica JWT sem libs externas
 function safeDecodeJwt(token?: string | null): any | null {
@@ -87,14 +104,83 @@ function toISO(d: any): string | undefined {
   return undefined;
 }
 
+/** Parse YYYY-MM-DD como data local (evita dizer “Ontem” por causa de UTC) */
+function parseApiDate(value: any): Date {
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const [y, m, d] = value.split("-").map(Number);
+    return new Date(y, m - 1, d); // meia-noite local
+  }
+  return new Date(value);
+}
+
+function fmtDayLabel(iso: string) {
+  const d = parseApiDate(iso);
+  const today = new Date();
+  const d0 = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const t0 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const diff = Math.round((t0.getTime() - d0.getTime()) / 86400000);
+  if (diff === 0) return "Hoje";
+  if (diff === 1) return "Ontem";
+  return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
+}
+
+function tempoFmt(min: number) {
+  const total = Math.round(min * 60);
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  const hh = h > 0 ? `${String(h).padStart(2, "0")}:` : "";
+  return `${hh}${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
+function paceFmt(p: number) {
+  if (!isFinite(p) || p <= 0) return "—";
+  const m = Math.floor(p);
+  const s = Math.round((p - m) * 60);
+  return `${m}:${String(s).padStart(2, "0")} min/km`;
+}
+
+/* ------------------------------------------- */
+
 export default function Perfil() {
-  type TabKey = "history" | "settings";
-  const [tab, setTab] = useState<TabKey>("history");
+   type TabKey = "history" | "settings";
+   const [tab, setTab] = useState<TabKey>("history");
+ 
+   const [loading, setLoading] = useState(true);
+   const [saving, setSaving] = useState(false);
+ 
+   const [user, setUser] = useState<Usuario | null>(null);
+  const router = useRouter();
 
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+ // mover handleDeleteUser para aqui — agora consegue usar `user` e `router`
+  const handleDeleteUser = () => {
+    if (!user) return;
+    Alert.alert(
+      "Tem certeza?",
+      "Tem certeza que deseja deletar seu usuário? Essa ação é irreversível.",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Deletar",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await api.delete(`/usuarios/${user.id}`);
+              Alert.alert("Conta deletada", "Seu usuário foi removido com sucesso.");
+              // navegar para login (ou outra tela). Opcional: remover token se desejar
+             router.replace("/auth/login");
+            } catch (e) {
+              console.error("Erro ao deletar usuário:", e);
+              Alert.alert("Erro", "Não foi possível deletar o usuário.");
+           }
+         },
+        },
+     ]
+    );  };
 
-  const [user, setUser] = useState<Usuario | null>(null);
+  // === ESTADO NOVO: histórico + modal detalhes ===
+  const [historico, setHistorico] = useState<Historico[]>([]);
+  const [details, setDetails] = useState<Historico | null>(null);
 
   const [form, setForm] = useState({
     nome: "",
@@ -108,7 +194,7 @@ export default function Perfil() {
     peso: "70.00",
   });
 
-  // --------- LOAD: prioriza /usuarios/email/{email} ---------
+  // --------- LOAD USER + HISTÓRICO ----------
   useEffect(() => {
     (async () => {
       try {
@@ -122,14 +208,13 @@ export default function Perfil() {
           claims?.email ?? claims?.user?.email ?? undefined;
         const idFromToken =
           claims?.sub ?? claims?.id ?? claims?.user?.id ?? undefined;
-        // alguns backends colocam o email no sub:
         if (!emailFromToken && typeof idFromToken === "string" && idFromToken.includes("@")) {
           emailFromToken = idFromToken;
         }
 
         let u: any = null;
 
-        // 1) preferir por email (igual sua Home faz)
+        // 1) por email
         if (emailFromToken) {
           try {
             u = await apiFetch<Usuario>(`/usuarios/email/${encodeURIComponent(emailFromToken)}`, {
@@ -140,7 +225,7 @@ export default function Perfil() {
           }
         }
 
-        // 2) fallback: descobrir id via /auth/me e buscar por id
+        // 2) fallback por id (via /auth/me ou claim)
         if (!u) {
           let who: any = null;
           try {
@@ -148,10 +233,8 @@ export default function Perfil() {
           } catch {
             who = null;
           }
-          const uid: number | undefined = Number(
-            who?.id ?? who?.id_usuario ?? idFromToken
-          );
-          if (!u && uid && !Number.isNaN(uid)) {
+          const uid: number | undefined = Number(who?.id ?? who?.id_usuario ?? idFromToken);
+          if (uid && !Number.isNaN(uid)) {
             u = await apiFetch<Usuario>(`/usuarios/${uid}`, { method: "GET" });
           }
         }
@@ -182,9 +265,37 @@ export default function Perfil() {
           altura: String(usuario.altura ?? "1.70"),
           peso: String(usuario.peso ?? "70.00"),
         });
+
+        // === carrega histórico pelo endpoint correto ===
+        let lista: any[] = [];
+        try {
+          lista = await apiFetch(`/historico-treinos/usuario/${usuario.id}/all`, { method: "GET" });
+        } catch {
+          // fallback paginado
+          const page = await apiFetch(`/historico-treinos/usuario/${usuario.id}?page=0&size=50&sort=data,desc`);
+          lista = page?.content ?? [];
+        }
+
+        const mapped: Historico[] = (Array.isArray(lista) ? lista : []).map((h: any) => ({
+          id: h.id ?? h.id_historico_treino,
+          id_historico_treino: h.id_historico_treino ?? h.id,
+          data: h.data ?? h.createdAt ?? h.created_at,
+          distancia: Number(h.distancia ?? 0),
+          tempo: Number(h.tempo ?? 0),
+          pace: Number(h.pace ?? 0),
+          v_media: h.v_media != null ? Number(h.v_media) : undefined,
+          kcal: h.kcal != null ? Number(h.kcal) : undefined,
+          id_treino: h.treinoId ?? h.id_treino ?? null,
+          treinoNome: h.treino?.nome ?? h.nome ?? null,
+          nivel: h.nivel ?? h.treino?.nivel ?? null,
+        }));
+
+        // ordena e limita aos 5 mais recentes
+        mapped.sort((a, b) => parseApiDate(b.data).getTime() - parseApiDate(a.data).getTime());
+        setHistorico(mapped.slice(0, 5));
       } catch (e) {
-        console.error("Erro ao carregar perfil:", e);
-        Alert.alert("Erro", "Não foi possível carregar seu perfil.");
+        console.error("Erro ao carregar perfil/histórico:", e);
+        Alert.alert("Aviso", "Não foi possível carregar seu histórico agora.");
       } finally {
         setLoading(false);
       }
@@ -205,6 +316,7 @@ export default function Perfil() {
 
   const onSave = async () => {
     try {
+      setSaving(true);
       if (!user) return;
       if (!form.nome.trim()) return Alert.alert("Atenção", "Informe seu nome.");
       if (!/^\S+@\S+\.\S+$/.test(form.email.trim()))
@@ -222,13 +334,12 @@ export default function Perfil() {
         form.nivel === "Intermediário" ? "INTERMEDIARIO" :
         "AVANCADO";
 
-      // ajuste de nomes conforme seu backend
       const payload: any = {
         nome: form.nome.trim(),
         email: form.email.trim(),
         genero: form.genero,
-        dataNascimento: iso,           // <- sua API usa dataNascimento (camelCase)
-        ftPerfil: form.ft_perfil || null, // <- sua API usa ftPerfil
+        dataNascimento: iso,
+        ftPerfil: form.ft_perfil || null,
         nivel: nivelApi,
         altura: Number(alturaNum.toFixed(2)),
         peso: Number(pesoNum.toFixed(2)),
@@ -236,7 +347,6 @@ export default function Perfil() {
       if (form.senha) payload.senha = form.senha;
 
       const updated = await api.put(`/usuarios/${user.id}`, payload);
-
       const novo: Usuario = {
         id: updated.id ?? user.id,
         nome: updated.nome ?? user.nome,
@@ -254,6 +364,8 @@ export default function Perfil() {
     } catch (e) {
       console.error("Erro ao salvar perfil:", e);
       Alert.alert("Erro", "Não foi possível salvar. Tente novamente.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -263,7 +375,7 @@ export default function Perfil() {
         <ActivityIndicator style={{ marginTop: 24 }} />
       </SafeAreaView>
     );
-  }
+    }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -289,7 +401,7 @@ export default function Perfil() {
           </View>
 
           {/* Tabs */}
-          <View className="tabs" style={styles.tabs}>
+          <View style={styles.tabs}>
             <Pressable onPress={() => setTab("history")} style={[styles.tab, tab === "history" && styles.tabActive]}>
               <Text style={[styles.tabText, tab === "history" && styles.tabTextActive]}>Histórico</Text>
             </Pressable>
@@ -298,21 +410,63 @@ export default function Perfil() {
             </Pressable>
           </View>
 
+          {/* --------- HISTÓRICO --------- */}
           {tab === "history" && (
             <View style={styles.card}>
-              <Text style={styles.sectionTitle}>Histórico</Text>
-              {[
-                { id: "1", t: "Z2 Leve • 4 km • 00:26:18" },
-                { id: "2", t: "Tempo Run • 6.2 km • 00:34:21" },
-                { id: "3", t: "Longão • 9.5 km • 00:55:07" },
-              ].map((item) => (
-                <View key={item.id} style={styles.cardRow}>
-                  <Text style={styles.cardTitle}>{item.t}</Text>
-                </View>
-              ))}
+              <Text style={styles.sectionTitle}>Histórico de Treino</Text>
+
+              {/* KPIs compactos */}
+              <Kpis historico={historico} />
+
+              {/* Lista dos 5 últimos */}
+              <View style={{ marginTop: 12 }}>
+                {historico.length === 0 ? (
+                  <Text style={styles.cardMeta}>Nenhum treino registrado ainda.</Text>
+                ) : (
+                  historico.map((h) => {
+                    const id = h.id ?? h.id_historico_treino!;
+                    return (
+                      <View key={id} style={styles.cardRow}>
+                        <View style={{ flex: 1 }}>
+                          <Text style={[styles.cardTitle, { fontWeight: "700" }]}>
+                            {fmtDayLabel(h.data)}
+                          </Text>
+                          {!!h.treinoNome && (
+                            <Text style={{ color: "#aaa", fontSize: 12 }}>{h.treinoNome}</Text>
+                          )}
+                        </View>
+
+                        <View style={{ flex: 1.2 }}>
+                          <Text style={styles.cardTitle}>
+                            <Text style={{ fontWeight: "700" }}>{h.distancia.toFixed(2)} km</Text>
+                            {"  •  "}
+                            <Text style={{ fontWeight: "700" }}>{tempoFmt(h.tempo)}</Text>
+                          </Text>
+                          <Text style={{ color: "#ccc", fontSize: 12 }}>
+                            Pace {paceFmt(h.pace)}
+                          </Text>
+                        </View>
+
+                        <Pressable
+                          onPress={() => setDetails(h)}
+                          style={{
+                            paddingHorizontal: 14,
+                            paddingVertical: 8,
+                            borderRadius: 10,
+                            backgroundColor: "#ff7a1a",
+                          }}
+                        >
+                          <Text style={{ color: "#121212", fontWeight: "700" }}>Detalhes</Text>
+                        </Pressable>
+                      </View>
+                    );
+                  })
+                )}
+              </View>
             </View>
           )}
 
+          {/* --------- CONFIGURAÇÕES --------- */}
           {tab === "settings" && (
             <View style={styles.card}>
               <Text style={styles.sectionTitle}>Editar perfil</Text>
@@ -434,11 +588,113 @@ export default function Perfil() {
                   <Text style={styles.saveBtnText}>{saving ? "Salvando..." : "Salvar"}</Text>
                 </Pressable>
                 <Text style={styles.helper}>Obs.: deixar a senha vazia mantém a senha atual.</Text>
+                <Pressable
+  onPress={handleDeleteUser}
+  style={{
+    marginTop: 20,
+    backgroundColor: "#a62828",
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: "center",
+  }}
+>
+  <Text style={{ color: "#fff", fontWeight: "700" }}>Deletar conta</Text>
+</Pressable>
               </View>
             </View>
           )}
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Modal Detalhes */}
+      <Modal visible={!!details} transparent animationType="fade" onRequestClose={() => setDetails(null)}>
+        <View style={{
+          flex: 1,
+          backgroundColor: "rgba(0,0,0,0.5)",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 16,
+        }}>
+          <View style={{
+            width: "100%",
+            borderRadius: 16,
+            padding: 16,
+            backgroundColor: "#1c1c1c",
+          }}>
+            <Text style={{ color: "#fff", fontSize: 18, fontWeight: "700" }}>Detalhes da corrida</Text>
+            {details && (
+              <View style={{ marginTop: 12, gap: 8 }}>
+                <Row label="Data" value={fmtDayLabel(details.data)} />
+                {!!details.treinoNome && <Row label="Treino" value={String(details.treinoNome)} />}
+                {!!details.nivel && <Row label="Nível" value={String(details.nivel)} />}
+                <Row label="Distância" value={`${details.distancia.toFixed(2)} km`} />
+                <Row label="Tempo" value={tempoFmt(details.tempo)} />
+                <Row label="Pace" value={paceFmt(details.pace)} />
+                {!!details.v_media && <Row label="Vel. média" value={`${details.v_media?.toFixed(2)} km/h`} />}
+                {!!details.kcal && <Row label="Kcal" value={String(details.kcal)} />}
+              </View>
+            )}
+
+            <View style={{ flexDirection: "row", gap: 10, marginTop: 16 }}>
+              <Pressable
+                onPress={() => setDetails(null)}
+                style={{ flex: 1, paddingVertical: 12, borderRadius: 12, backgroundColor: "#2a2a2a", alignItems: "center" }}
+              >
+                <Text style={{ color: "#fff" }}>Fechar</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
+  );
+}
+
+/* --------- componentes auxiliares --------- */
+function Kpis({ historico }: { historico: Historico[] }) {
+  const k = useMemo(() => {
+    const total = historico.length;
+    const dist = historico.reduce((acc, h) => acc + (h.distancia || 0), 0);
+    const bestPace = historico
+      .map((h) => h.pace)
+      .filter((p) => isFinite(p) && p > 0)
+      .reduce((min, p) => (p < min ? p : min), Number.POSITIVE_INFINITY);
+    const kcal = historico
+      .map((h) => h.kcal ?? Math.round(70 * 8 * (h.tempo / 60)))
+      .reduce((a, b) => a + b, 0);
+
+    return {
+      total,
+      dist: Number(dist.toFixed(2)),
+      bestPace: isFinite(bestPace) ? bestPace : 0,
+      kcal,
+    };
+  }, [historico]);
+
+  return (
+    <View style={{ flexDirection: "row", gap: 8, marginTop: 10 }}>
+      <Kpi label="Total" value={String(k.total)} />
+      <Kpi label="Distância" value={`${k.dist} km`} />
+      <Kpi label="Melhor pace" value={paceFmt(k.bestPace)} />
+      <Kpi label="Kcal" value={String(k.kcal)} />
+    </View>
+  );
+}
+
+function Kpi({ label, value }: { label: string; value: string }) {
+  return (
+    <View style={{ flex: 1, padding: 12, borderRadius: 12, backgroundColor: "#2a2a2a" }}>
+      <Text style={{ color: "#ccc", fontSize: 12 }}>{label}</Text>
+      <Text style={{ color: "#fff", fontSize: 18, fontWeight: "700" }}>{value}</Text>
+    </View>
+  );
+}
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+      <Text style={{ color: "#ccc" }}>{label}</Text>
+      <Text style={{ color: "#fff", fontWeight: "600" }}>{value}</Text>
+    </View>
   );
 }

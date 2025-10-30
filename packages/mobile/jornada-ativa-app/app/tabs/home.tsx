@@ -5,12 +5,11 @@ import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Image,
   Pressable,
   ScrollView,
   Text,
-  View,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as api from "../../lib/api";
@@ -121,17 +120,24 @@ export default function HomeScreen() {
     return `${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}`;
   };
 
-  function fmtDay(d: Date) {
-    const today = new Date();
-    const d0 = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-    const t0 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const diff = Math.round((t0.getTime() - d0.getTime()) / 86400000);
-    if (diff === 0) return "Hoje";
-    if (diff === 1) return "Ontem";
-    return `${String(d.getDate()).padStart(2, "0")}/${String(
-      d.getMonth() + 1
-    ).padStart(2, "0")}`;
+  function parseApiDate(value: any): Date {
+  // Se vier 'YYYY-MM-DD', parseia como data LOCAL (sem UTC)
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const [y, m, d] = value.split("-").map(Number);
+    return new Date(y, m - 1, d); // meia-noite local
   }
+  return new Date(value);
+}
+
+  function fmtDay(d: Date) {
+  const today = new Date();
+  const d0 = new Date(d.getFullYear(), d.getMonth(), d.getDate());             // 00:00 local
+  const t0 = new Date(today.getFullYear(), today.getMonth(), today.getDate()); // 00:00 local
+  const diff = Math.round((t0.getTime() - d0.getTime()) / 86400000);
+  if (diff === 0) return "Hoje";
+  if (diff === 1) return "Ontem";
+  return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
 
   function profileRespSafe(x: any) {
     try {
@@ -235,36 +241,51 @@ export default function HomeScreen() {
 
   // -------------- últimos treinos do usuário (histórico) --------------
   async function loadUltimos(u: UserProfile, token?: string) {
-    if (!u.id) { setUltimos([]); return; }
-    let data: any = null;
+  if (!u.id) { setUltimos([]); return; }
+
+  let data: any = null;
+  try {
+    // lista completa (seu endpoint /all)
+    data = await callApi(`/historico-treinos/usuario/${u.id}/all`, token);
+  } catch {
+    // fallback: página 0 ordenada por data desc (seu endpoint paginado)
     try {
-      data = await callApi(`/historico-treinos/usuario/${u.id}/all`, token);
-    } catch {
-      try {
-        data = await callApi(`/historico-treinos/usuario/${u.id}?page=0&size=5&sort=data,desc`, token);
-      } catch {}
-    }
-
-    const arr = Array.isArray(data?.content) ? data.content : (Array.isArray(data) ? data : []);
-    arr.sort((a: any, b: any) =>
-      new Date(b.data ?? b.createdAt).getTime() - new Date(a.data ?? a.createdAt).getTime()
-    );
-    const top = arr.slice(0, 5);
-
-    const mapped: UltimoTreino[] = top.map((h: any) => {
-      const dist = typeof h.distancia === "number" ? h.distancia : Number(h.distancia ?? 0);
-      const tempo = typeof h.tempo === "number" ? h.tempo : Number(h.tempo ?? 0);
-      const d = h.data ? new Date(h.data) : (h.createdAt ? new Date(h.createdAt) : new Date());
-      const title = `${km(dist)} • ${tempoFmt(tempo)}`;
-      return {
-        id: String(h.id ?? h.id_historico_treino ?? Math.random()),
-        titulo: title,
-        when: fmtDay(d),
-      };
-    });
-
-    setUltimos(mapped);
+      data = await callApi(
+        `/historico-treinos/usuario/${u.id}?page=0&size=5&sort=data,desc`,
+        token
+      );
+    } catch {}
   }
+
+  const arr = Array.isArray(data?.content) ? data.content
+            : (Array.isArray(data) ? data : []);
+
+  // ordena por data usando parse LOCAL (evita “Ontem” indevido)
+  arr.sort((a: any, b: any) => {
+    const da = parseApiDate(a.data ?? a.createdAt);
+    const db = parseApiDate(b.data ?? b.createdAt);
+    return db.getTime() - da.getTime(); // desc
+  });
+
+  // pega só os 5 mais recentes
+  const top = arr.slice(0, 5);
+
+  const mapped: UltimoTreino[] = top.map((h: any) => {
+    const dist = typeof h.distancia === "number" ? h.distancia : Number(h.distancia ?? 0);
+    const tempo = typeof h.tempo === "number" ? h.tempo : Number(h.tempo ?? 0);
+    const d = h.data ? parseApiDate(h.data)
+                     : (h.createdAt ? parseApiDate(h.createdAt) : new Date());
+    const title = `${km(dist)} • ${tempoFmt(tempo)}`;
+    return {
+      id: String(h.id ?? h.id_historico_treino ?? Math.random()),
+      titulo: title,
+      when: fmtDay(d),
+    };
+  });
+
+  setUltimos(mapped);
+}
+
 
   // -------------- derivados --------------
   const treinosRecomendados = useMemo(() => {
@@ -280,13 +301,12 @@ export default function HomeScreen() {
   );
 
   function iniciarTreino(t: Treino) {
-    // Pode navegar para /tabs/correr com treinoId
-    // router.push({ pathname: "/tabs/correr", params: { treinoId: t.id } });
-    Alert.alert("Iniciar treino", t.titulo, [
-      { text: "Cancelar", style: "cancel" },
-      { text: "Iniciar", onPress: () => router.push("/tabs/correr") },
-    ]);
-  }
+  // navega para a tela de correr com o id do treino
+  router.push({
+    pathname: "/tabs/correr",
+    params: { treinoId: t.id, titulo: t.titulo },
+  });
+}
 
   if (loading) {
     return (

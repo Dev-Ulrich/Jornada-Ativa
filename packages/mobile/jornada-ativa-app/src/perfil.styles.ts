@@ -1,21 +1,22 @@
-// src/perfil.styles.ts
 import { StyleSheet } from "react-native";
+// ...existing code...
+import { colors, spacing, common } from "./theme";
 
 export const styles = StyleSheet.create({
   // base
   container: {
     flex: 1,
-    backgroundColor: "#121212",
+    backgroundColor: colors.background, // was "#121212"
   },
 
   // header
   header: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#1c1c1c",
+    backgroundColor: colors.surface, // was "#1c1c1c"
     borderRadius: 14,
-    margin: 16,
-    padding: 14,
+    margin: spacing.md,
+    padding: spacing.md,
     gap: 14,
   },
   avatar: {
@@ -23,36 +24,29 @@ export const styles = StyleSheet.create({
     height: 80,
     borderRadius: 50,
     borderWidth: 1.5,
-    borderColor: "#ff7a1a",
+    borderColor: colors.accent, // was "#ff7a1a"
   },
-  // <- usado no perfil.tsx
   nome: {
-    color: "#fff",
+    color: colors.text, // was "#fff"
     fontSize: 18,
     fontWeight: "700",
     marginBottom: 4,
   },
   sub: {
-    color: "#ccc",
+    color: colors.muted, // was "#ccc"
     fontSize: 13,
     marginBottom: 8,
   },
 
   // badges no header
-  // <- usado no perfil.tsx
   tagsRow: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 6,
   },
-  // <- usado no perfil.tsx
   tag: {
-    backgroundColor: "#2a2a2a",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 20,
+    ...common.tag, // was "#2a2a2a"
   },
-  // <- usado no perfil.tsx
   tagText: {
     color: "#d0d0d0",
     fontSize: 12.5,
@@ -70,25 +64,25 @@ export const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 10,
-    backgroundColor: "#2a2a2a",
+    backgroundColor: colors.cardAlt, // was "#2a2a2a"
   },
   tabActive: {
-    backgroundColor: "#ff7a1a20",
-    borderColor: "#ff7a1a",
+    backgroundColor: colors.accentTint, // was "#ff7a1a20"
+    borderColor: colors.accent,
     borderWidth: 1,
   },
   tabText: {
-    color: "#ccc",
+    color: colors.muted, // was "#ccc"
     fontSize: 13.5,
   },
   tabTextActive: {
-    color: "#ff7a1a",
+    color: colors.accent,
     fontWeight: "600",
   },
 
   // seção/card
   sectionTitle: {
-    color: "#fff",
+    color: colors.text, // was "#fff"
     fontSize: 17,
     fontWeight: "600",
     marginHorizontal: 16,
@@ -96,27 +90,22 @@ export const styles = StyleSheet.create({
     marginBottom: 6,
   },
   card: {
-    backgroundColor: "#1b1b1b",
-    borderRadius: 12,
-    marginHorizontal: 16,
-    padding: 12,
-    marginBottom: 24,
+    ...common.card, // was "#1b1b1b" + layout
   },
-  // <- usado no perfil.tsx
   cardRow: {
-    backgroundColor: "#2a2a2a",
+    backgroundColor: colors.cardAlt, // was "#2a2a2a"
     borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 12,
     marginBottom: 8,
   },
   cardTitle: {
-    color: "#fff",
+    color: colors.text, // was "#fff"
     fontSize: 14.5,
     fontWeight: "500",
   },
   cardMeta: {
-    color: "#aaa",
+    color: colors.meta, // was "#aaa"
     fontSize: 13,
     textAlign: "center",
     paddingVertical: 6,
@@ -124,19 +113,13 @@ export const styles = StyleSheet.create({
 
   // formulário (Configurações)
   label: {
-    color: "#ccc",
+    color: colors.muted, // was "#ccc"
     fontSize: 13,
     marginBottom: 4,
     marginHorizontal: 4,
   },
   input: {
-    backgroundColor: "#222", // cinza mais claro que o fundo
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    color: "#fff",
-    borderWidth: 1,
-    borderColor: "#2f2f2f",
+    ...common.input, // used unified input style (was background "#222", border "#2f2f2f")
   },
 
   pillsRow: {
@@ -145,32 +128,29 @@ export const styles = StyleSheet.create({
     marginTop: 4,
   },
   pill: {
-    backgroundColor: "#2a2a2a",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 50,
+    ...common.pill, // was "#2a2a2a"
   },
   pillText: {
-    color: "#ccc",
+    color: colors.muted, // was "#ccc"
     fontSize: 13,
   },
   pillActive: {
-    backgroundColor: "#ff7a1a",
+    backgroundColor: colors.accent,
   },
   pillTextActive: {
-    color: "#fff",
+    color: colors.text,
   },
 
   // botão salvar
   saveBtn: {
     marginTop: 14,
-    backgroundColor: "#ff7a1a",
+    backgroundColor: colors.accent,
     borderRadius: 12,
     paddingVertical: 12,
     alignItems: "center",
   },
   saveBtnText: {
-    color: "#fff",
+    color: colors.text,
     fontWeight: "600",
     fontSize: 15,
   },

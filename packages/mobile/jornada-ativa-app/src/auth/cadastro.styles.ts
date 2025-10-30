@@ -1,65 +1,79 @@
-import { StyleSheet } from "react-native";
-
-const COLORS = {
-  bg: "#0f0f0f",
-  card: "#141414",
-  text: "#eaeaea",
-  brand: "#ff8633",
-};
+import { StyleSheet, Platform } from "react-native";
+import { colors, common, spacing } from "../theme";
 
 export const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.bg },
-  scroll: { padding: 16 },
+  container: { flex: 1, backgroundColor: colors.background },
+  scroll: { padding: spacing.md },
 
-  label: { color: COLORS.text, marginBottom: 6, marginTop: 14, fontSize: 13 },
+  label: { color: colors.text, marginBottom: 6, marginTop: 14, fontSize: 13 },
 
   input: {
-    backgroundColor: COLORS.card,
-    borderColor: COLORS.brand,
+    ...common.input,
+    borderColor: colors.accent,
     borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
     minHeight: 44,
-    color: COLORS.text,
   },
 
-  // <<< Ajustado para não cortar no Android >>>
+  // wrapper keeps same visual as inputs and gives room for the icon
   pickerWrapper: {
-    backgroundColor: COLORS.card,
-    borderColor: COLORS.brand,
-    borderWidth: 1,
-    borderRadius: 8,
+    ...common.input,
+    height: 48,
     minHeight: 48,
     justifyContent: "center",
-    paddingHorizontal: 4, // dá espaço pro ícone do dropdown
+    paddingHorizontal: 12,
+    paddingRight: 44, // espaço para o ícone do dropdown
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.accent,
+    backgroundColor: colors.inputBg,
+    alignItems: "center",
   },
+
+  // Ajustes para evitar corte do texto no Android e iOS
   picker: {
-    color: COLORS.text,
+    color: colors.text,
+    height: 48,
     minHeight: 48,
     width: "100%",
+    fontSize: 15,
+    lineHeight: 48,
+    textAlignVertical: "center",
+    includeFontPadding: true, // evitar corte em algumas fontes/Android
+    paddingLeft: 14, // evita cortar início do texto
+    paddingRight: 8,
+    overflow: "hidden",
+    ...Platform.select({
+      android: {
+        // garantir que o texto fique alinhado verticalmente em Android nativo
+        paddingVertical: 0,
+      },
+      ios: {
+        // iOS tende a adicionar padding por padrão, reduzir um pouco
+        paddingVertical: 6,
+      },
+    }),
   },
 
   fileBox: {
-    backgroundColor: COLORS.card,
-    borderColor: COLORS.brand,
+    backgroundColor: colors.card,
+    borderColor: colors.accent,
     borderWidth: 1,
     borderRadius: 8,
-    height: 48,
+    height: 44,
     alignItems: "center",
     justifyContent: "center",
   },
-  fileBoxText: { color: COLORS.text, fontSize: 13 },
+  fileBoxText: { color: colors.text, fontSize: 13 },
 
-  preview: { width: "100%", height: 160, borderRadius: 8 },
+  preview: { width: "100%", height: 140, borderRadius: 8 },
 
   button: {
-    backgroundColor: COLORS.brand,
+    backgroundColor: colors.accent,
     borderRadius: 8,
     height: 48,
     alignItems: "center",
     justifyContent: "center",
     marginTop: 18,
   },
-  buttonText: { color: "#0f0f0f", fontWeight: "700", letterSpacing: 0.6 },
+  buttonText: { color: colors.card, fontWeight: "700", letterSpacing: 0.6 },
 });

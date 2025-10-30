@@ -1,17 +1,19 @@
+// ...existing code...
 import { StyleSheet } from "react-native";
+
+import { colors, spacing, common } from "./theme";
 
 export const styles = StyleSheet.create({
   safeArea: {
-    flex: 1,
-    backgroundColor: "#050505",
+    ...common.safeArea,
   },
   scrollContent: {
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing.md,
     paddingBottom: 40,
   },
   centered: {
     flex: 1,
-    backgroundColor: "#050505",
+    backgroundColor: colors.background,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -26,9 +28,9 @@ export const styles = StyleSheet.create({
     borderRadius: 28,
     overflow: "hidden",
     marginRight: 12,
-    backgroundColor: "#1a1a1a",
+    backgroundColor: colors.cardAlt,
     borderWidth: 1,
-    borderColor: "#232323",
+    borderColor: colors.border,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -43,34 +45,33 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
   },
   brandInitials: {
-    color: "#ffffff",
+    color: colors.text,
     fontSize: 16,
     fontWeight: "700",
   },
   brandLevelBadge: {
     position: "absolute",
-   bottom: -6,
-   alignSelf: "center",
-    backgroundColor: "#ff7a1a",
+    bottom: -6,
+    alignSelf: "center",
+    backgroundColor: colors.accent,
     paddingHorizontal: 8,
     paddingVertical: 2,
-   borderRadius: 12,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: colors.cardAlt,
   },
   brandLevelText: {
-    color: "#1a1a1a",
+    color: colors.card, // contraste com o laranja
     fontSize: 10,
     fontWeight: "700",
   },
   brandName: {
-    color: "#ffffff",
+    color: colors.text,
     fontSize: 18,
     fontWeight: "600",
-    // removed flex:1 here to allow the smallMuted line to render
   },
   smallMuted: {
-    color: "#9a9a9a",
+    color: colors.muted,
     fontSize: 13,
     marginTop: 4,
   },
@@ -80,15 +81,15 @@ export const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#101010",
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: colors.border,
   },
   greetingSection: {
     marginTop: 18,
   },
   greetingTitle: {
-    color: "#ffffff",
+    color: colors.text,
     fontSize: 26,
     fontWeight: "700",
   },
@@ -96,17 +97,17 @@ export const styles = StyleSheet.create({
     fontSize: 24,
   },
   greetingSubtitle: {
-    color: "#9a9a9a",
+    color: colors.muted,
     fontSize: 15,
     marginTop: 6,
   },
   card: {
-    backgroundColor: "#121212",
+    ...common.card,
+    borderWidth: 1,
+    borderColor: colors.border,
     borderRadius: 16,
     padding: 14,
     marginTop: 18,
-    borderWidth: 1,
-    borderColor: "#1f1f1f",
   },
   cardRow: {
     flexDirection: "row",
@@ -114,30 +115,30 @@ export const styles = StyleSheet.create({
     marginBottom: 10,
   },
   cardTitle: {
-    color: "#ffffff",
+    color: colors.text,
     fontSize: 16,
     fontWeight: "600",
   },
   cardMeta: {
-    color: "#8a8a8a",
+    color: colors.muted,
     fontSize: 13,
     marginTop: 4,
   },
   sectionTitle: {
-    color: "#ffffff",
+    color: colors.text,
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 12,
   },
   startButton: {
-    backgroundColor: "#ff7a1a",
+    backgroundColor: colors.accent,
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 12,
     marginLeft: 12,
   },
   startButtonText: {
-    color: "#1a1a1a",
+    color: colors.card,
     fontWeight: "700",
   },
   activityRow: {
@@ -149,37 +150,38 @@ export const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: "#181818",
+    backgroundColor: colors.cardAlt,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 12,
   },
   activityText: {
-    color: "#f0f0f0",
+    color: colors.text,
     fontSize: 14,
     fontWeight: "500",
   },
   activityDay: {
-    color: "#7a7a7a",
+    color: colors.muted,
     fontSize: 12,
     marginTop: 4,
   },
   ctaButton: {
     marginTop: 22,
-    backgroundColor: "#ff7a1a",
+    backgroundColor: colors.accent,
     borderRadius: 24,
     paddingVertical: 14,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#ff7a1a",
+    shadowColor: colors.accent,
     shadowOpacity: 0.4,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
     elevation: 8,
   },
   ctaButtonText: {
-    color: "#1a1a1a",
+    color: colors.card,
     fontSize: 16,
     fontWeight: "700",
   },
 });
+// ...existing code...

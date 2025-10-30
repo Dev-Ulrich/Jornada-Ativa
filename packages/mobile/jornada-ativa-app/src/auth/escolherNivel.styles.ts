@@ -1,47 +1,38 @@
 import { StyleSheet } from "react-native";
-
-const COLORS = {
-  bg: "#0f0f0f",
-  card: "#171717",
-  muted: "#9aa0a6",
-  text: "#eaeaea",
-  brand: "#ff8633",
-  brand700: "#ff7a1e",
-  stroke: "#2a2a2a",
-};
+import { colors, spacing, common } from "../theme";
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.bg,
+    backgroundColor: colors.background,
   },
   scroll: {
-    padding: 20,
+    padding: spacing.md,
     paddingBottom: 40,
   },
   title: {
-    color: COLORS.text,
+    color: colors.text,
     fontSize: 22,
     fontWeight: "700",
     marginBottom: 8,
   },
   subtitle: {
-    color: COLORS.muted,
+    color: colors.muted,
     fontSize: 14,
     marginBottom: 20,
   },
   card: {
-    backgroundColor: COLORS.card,
+    ...common.card,
     borderWidth: 1,
-    borderColor: COLORS.stroke,
+    borderColor: colors.border,
     borderRadius: 14,
     padding: 16,
     marginBottom: 14,
   },
   cardSelected: {
-    borderColor: COLORS.brand,
-    shadowColor: COLORS.brand,
-    shadowOpacity: 0.2,
+    borderColor: colors.accent,
+    shadowColor: colors.accent,
+    shadowOpacity: 0.18,
     shadowRadius: 8,
     elevation: 3,
   },
@@ -52,7 +43,7 @@ export const styles = StyleSheet.create({
     marginBottom: 6,
   },
   cardTitle: {
-    color: COLORS.text,
+    color: colors.text,
     fontSize: 18,
     fontWeight: "800",
   },
@@ -61,40 +52,40 @@ export const styles = StyleSheet.create({
     height: 18,
     borderRadius: 999,
     borderWidth: 2,
-    borderColor: COLORS.brand,
+    borderColor: colors.border,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#111",
+    backgroundColor: colors.card,
   },
   radioInner: {
     width: 10,
     height: 10,
     borderRadius: 999,
-    backgroundColor: COLORS.brand,
+    backgroundColor: colors.accent,
   },
   desc: {
-    color: COLORS.text,
-    opacity: 0.9,
+    color: colors.text,
+    opacity: 0.92,
     fontSize: 14,
     marginBottom: 6,
   },
   examples: {
-    color: "#c9c9c9",
+    color: colors.meta,
     fontSize: 13,
   },
   button: {
-    backgroundColor: COLORS.brand,
+    backgroundColor: colors.accent,
     borderRadius: 10,
     height: 48,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 20,
+    marginTop: spacing.md,
   },
   buttonDisabled: {
     opacity: 0.5,
   },
   buttonText: {
-    color: "#111",
+    color: colors.card,
     fontWeight: "800",
     letterSpacing: 0.5,
   },

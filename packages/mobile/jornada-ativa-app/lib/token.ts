@@ -25,10 +25,10 @@ export async function getToken() {
   return AsyncStorage.getItem(TOKEN_KEY);
 }
 
-export async function clearToken() {
+/*export async function clearToken() {
   if (await canUseSecureStore()) return SecureStore.deleteItemAsync(TOKEN_KEY);
   return AsyncStorage.removeItem(TOKEN_KEY);
-}
+}*/
 
 // ======== NOVOS helpers de auth completo ========
 export type AuthInfo = {

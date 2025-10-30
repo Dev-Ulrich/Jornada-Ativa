@@ -1,16 +1,18 @@
+// ...existing code...
 import { StyleSheet } from "react-native";
+import { colors, spacing, common } from "./theme";
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    backgroundColor: "#0d0f14",
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.sm,
+    backgroundColor: colors.background, // was "#0d0f14"
   },
   screenTitle: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#fff",
+    color: colors.text, // was "#fff"
     marginBottom: 8,
   },
 
@@ -23,28 +25,23 @@ export const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 14,
     borderRadius: 12,
-    backgroundColor: "#1a1f2b",
+    backgroundColor: colors.cardAlt, // was "#1a1f2b"
   },
   tabActive: {
-    backgroundColor: "#ff8633",
+    backgroundColor: colors.accent, // was "#ff8633"
   },
   tabText: {
-    color: "#c9cbd1",
+    color: colors.muted, // was "#c9cbd1"
     fontWeight: "600",
   },
   tabTextActive: {
-    color: "#0d0f14",
+    color: colors.card, // was "#0d0f14"
   },
 
   searchBox: { marginBottom: 8 },
   input: {
+    ...common.input,
     height: 44,
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    backgroundColor: "#131826",
-    color: "#fff",
-    borderWidth: 1,
-    borderColor: "#232a3b",
   },
 
   chipsRow: {
@@ -57,20 +54,20 @@ export const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 10,
     borderRadius: 999,
-    backgroundColor: "#1a1f2b",
+    backgroundColor: colors.cardAlt, // was "#1a1f2b"
     borderWidth: 1,
-    borderColor: "#263047",
+    borderColor: colors.border, // was "#263047"
   },
   chipActive: {
-    backgroundColor: "#ff8633",
-    borderColor: "#ff8633",
+    backgroundColor: colors.accent, // was "#ff8633"
+    borderColor: colors.accent,
   },
   chipText: {
-    color: "#c9cbd1",
+    color: colors.muted, // was "#c9cbd1"
     fontWeight: "600",
   },
   chipTextActive: {
-    color: "#0d0f14",
+    color: colors.card, // was "#0d0f14"
     fontWeight: "700",
   },
 
@@ -81,33 +78,32 @@ export const styles = StyleSheet.create({
   },
 
   card: {
-    backgroundColor: "#111624",
+    backgroundColor: colors.card, // was "#111624"
     borderRadius: 16,
     padding: 14,
     borderWidth: 1,
-    borderColor: "#1f2740",
+    borderColor: colors.border, // was "#1f2740"
   },
   cardTitle: {
-  color: "#FFFFFF",   // branco puro
-  fontSize: 22,       // maior (pode testar 24 se quiser ainda mais)
-  fontWeight: "900",  // bem forte
-  marginBottom: 6,
-  letterSpacing: 0.2, // leve destaque
-},
-
+    color: colors.text,
+    fontSize: 22,
+    fontWeight: "900",
+    marginBottom: 6,
+    letterSpacing: 0.2,
+  },
 
   cardMeta: {
-    color: "#aab0bf",
+    color: colors.meta, // was "#aab0bf"
     fontSize: 13,
     marginBottom: 10,
   },
 
   badgeRow: { flexDirection: "row", gap: 8, marginBottom: 10 },
   badge: {
-    backgroundColor: "#1a2033",
-    borderColor: "#2a3557",
+    backgroundColor: colors.cardAlt, // was "#1a2033"
+    borderColor: colors.border, // was "#2a3557"
     borderWidth: 1,
-    color: "#c7d0e6",
+    color: colors.muted,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 999,
@@ -141,29 +137,30 @@ export const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 10,
     alignItems: "center",
-    backgroundColor: "#ff8633",
+    backgroundColor: colors.accent,
   },
   startButtonText: {
-    color: "#0d0f14",
+    color: colors.card,
     fontWeight: "800",
   },
 
   row: { flexDirection: "row", alignItems: "center", marginBottom: 6 },
-  label: { color: "#9aa3b2", fontWeight: "600" },
-  value: { color: "#e4e8f0" },
+  label: { color: colors.muted, fontWeight: "600" },
+  value: { color: colors.text },
 
   linkButton: {
     marginTop: 8,
     borderRadius: 10,
     paddingVertical: 10,
     alignItems: "center",
-    backgroundColor: "#ff8633",
+    backgroundColor: colors.accent,
   },
   linkButtonText: {
-    color: "#0d0f14",
+    color: colors.card,
     fontWeight: "800",
   },
 
   error: { color: "#ffb4b4", textAlign: "center", marginTop: 16 },
   empty: { color: "#95a0b8", textAlign: "center", marginTop: 16 },
 });
+// ...existing code...

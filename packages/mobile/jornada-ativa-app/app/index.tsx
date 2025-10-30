@@ -3,9 +3,9 @@ import { router } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import { ActivityIndicator, Image, Text, View } from "react-native";
-import { clearToken, getToken } from "../lib/token"; // <- usa o helper
+import { /*clearToken ,*/  getToken } from "../lib/token"; // <- usa o helper
 
-const logo = require("../assets/images/ja-logo.png");
+const logo = require("../assets/images/ja-logo3 (2).png");
 
 
 
@@ -20,7 +20,7 @@ export default function LoadingGate() {
 
     async function boot() {
       try {
-        await clearToken();
+        /*await clearToken();*/
         const token = await getToken();             
         await new Promise(r => setTimeout(r, 600));  // estética
 
