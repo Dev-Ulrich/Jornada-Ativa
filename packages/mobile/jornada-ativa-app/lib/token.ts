@@ -82,3 +82,20 @@ export async function getUserInfo(): Promise<UserInfo | null> {
     return null;
   }
 }
+
+// ======== Remoção / logout helpers ========
+export async function removeToken() {
+  if (await canUseSecureStore()) {
+    return SecureStore.deleteItemAsync(TOKEN_KEY);
+  }
+  return AsyncStorage.removeItem(TOKEN_KEY);
+}
+
+export async function clearAuth() {
+  try {
+    await AsyncStorage.removeItem(AUTH_KEY);
+  } catch {}
+  try {
+    await removeToken();
+  } catch {}
+}

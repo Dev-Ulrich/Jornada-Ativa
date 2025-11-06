@@ -68,8 +68,6 @@ const mapGenero = (g: any): Genero | string => {
   return typeof g === "string" ? g : "Masculino";
 };
 
-
-
 // decodifica JWT sem libs externas
 function safeDecodeJwt(token?: string | null): any | null {
   try {
@@ -143,16 +141,16 @@ function paceFmt(p: number) {
 /* ------------------------------------------- */
 
 export default function Perfil() {
-   type TabKey = "history" | "settings";
-   const [tab, setTab] = useState<TabKey>("history");
- 
-   const [loading, setLoading] = useState(true);
-   const [saving, setSaving] = useState(false);
- 
-   const [user, setUser] = useState<Usuario | null>(null);
+  type TabKey = "history" | "settings";
+  const [tab, setTab] = useState<TabKey>("history");
+
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const [user, setUser] = useState<Usuario | null>(null);
   const router = useRouter();
 
- // mover handleDeleteUser para aqui — agora consegue usar `user` e `router`
+  // mover handleDeleteUser para aqui — agora consegue usar `user` e `router`
   const handleDeleteUser = () => {
     if (!user) return;
     Alert.alert(
@@ -167,16 +165,44 @@ export default function Perfil() {
             try {
               await api.delete(`/usuarios/${user.id}`);
               Alert.alert("Conta deletada", "Seu usuário foi removido com sucesso.");
-              // navegar para login (ou outra tela). Opcional: remover token se desejar
-             router.replace("/auth/login");
+              router.replace("/auth/login");
             } catch (e) {
               console.error("Erro ao deletar usuário:", e);
               Alert.alert("Erro", "Não foi possível deletar o usuário.");
-           }
-         },
+            }
+          },
         },
-     ]
-    );  };
+      ]
+    );
+  };
+
+  // botão de logout
+  const handleLogout = () => {
+    Alert.alert("Sair", "Deseja sair da sua conta?", [
+      { text: "Cancelar", style: "cancel" },
+      {
+        text: "Sair",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await api.post("/auth/logout");
+          } catch (e) {
+            console.warn("Logout no servidor falhou:", e);
+          }
+
+          try {
+            // @ts-ignore
+            const mod = await import("../../lib/token");
+            if (mod && typeof mod.removeToken === "function") {
+              await mod.removeToken();
+            }
+          } catch {}
+
+          router.replace("/auth/login");
+        },
+      },
+    ]);
+  };
 
   // === ESTADO NOVO: histórico + modal detalhes ===
   const [historico, setHistorico] = useState<Historico[]>([]);
@@ -375,7 +401,7 @@ export default function Perfil() {
         <ActivityIndicator style={{ marginTop: 24 }} />
       </SafeAreaView>
     );
-    }
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -588,18 +614,34 @@ export default function Perfil() {
                   <Text style={styles.saveBtnText}>{saving ? "Salvando..." : "Salvar"}</Text>
                 </Pressable>
                 <Text style={styles.helper}>Obs.: deixar a senha vazia mantém a senha atual.</Text>
+
+                {/* >>>> NOVOS BOTÕES AQUI <<<< */}
                 <Pressable
-  onPress={handleDeleteUser}
-  style={{
-    marginTop: 20,
-    backgroundColor: "#a62828",
-    paddingVertical: 12,
-    borderRadius: 10,
-    alignItems: "center",
-  }}
->
-  <Text style={{ color: "#fff", fontWeight: "700" }}>Deletar conta</Text>
-</Pressable>
+                  onPress={handleLogout}
+                  style={{
+                    marginTop: 12,
+                    backgroundColor: "#ff7a1a",
+                    paddingVertical: 12,
+                    borderRadius: 10,
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={{ color: "#121212", fontWeight: "700" }}>Sair</Text>
+                </Pressable>
+
+                <Pressable
+                  onPress={handleDeleteUser}
+                  style={{
+                    marginTop: 12,
+                    backgroundColor: "#a62828",
+                    paddingVertical: 12,
+                    borderRadius: 10,
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={{ color: "#fff", fontWeight: "700" }}>Deletar conta</Text>
+                </Pressable>
+                {/* <<<< FIM DA TROCA >>>> */}
               </View>
             </View>
           )}
