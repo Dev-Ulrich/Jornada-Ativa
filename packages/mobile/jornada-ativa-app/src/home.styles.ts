@@ -34,35 +34,16 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  brandImage: {
-    width: "100%",
-    height: "100%",
-  },
   brandPlaceholder: {
-    width: "100%",
-    height: "100%",
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     alignItems: "center",
     justifyContent: "center",
   },
   brandInitials: {
-    color: colors.text,
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  brandLevelBadge: {
-    position: "absolute",
-    bottom: -6,
-    alignSelf: "center",
-    backgroundColor: colors.accent,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.cardAlt,
-  },
-  brandLevelText: {
-    color: colors.card, // contraste com o laranja
-    fontSize: 10,
+    color: "#fff",
+    fontSize: 20,
     fontWeight: "700",
   },
   brandName: {

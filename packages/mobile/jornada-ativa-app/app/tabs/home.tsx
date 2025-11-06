@@ -323,18 +323,12 @@ export default function HomeScreen() {
         {/* HEADER */}
         <View style={styles.headerRow}>
           <View style={styles.brand}>
-            {user.foto ? (
-              <Image source={{ uri: user.foto }} style={styles.brandImage} resizeMode="cover" />
-            ) : (
-              <View style={styles.brandPlaceholder}>
-                <Text style={styles.brandInitials}>{user.nome?.split(" ")[0]?.[0] ?? "U"}</Text>
-                {user.nivel ? (
-                  <View style={styles.brandLevelBadge}>
-                    <Text style={styles.brandLevelText}>{user.nivel}</Text>
-                  </View>
-                ) : null}
-              </View>
-            )}
+            {/* Mostrar somente a inicial, centralizada */}
+            <View style={styles.brandPlaceholder}>
+              <Text style={styles.brandInitials}>
+                {String(user.nome ?? "U").trim().split(/\s+/)[0]?.[0]?.toUpperCase() ?? "U"}
+              </Text>
+          </View>
           </View>
 
           <View style={{ flex: 1 }}>

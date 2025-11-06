@@ -16,7 +16,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import api, { apiFetch } from "../../lib/api";
-import { getToken } from "../../lib/token";
+import { getToken, getUserInfo } from "../../lib/token";
 import { styles } from "../../src/perfil.styles";
 
 type Nivel = "Iniciante" | "Intermediário" | "Avançado";
@@ -222,111 +222,121 @@ export default function Perfil() {
 
   // --------- LOAD USER + HISTÓRICO ----------
   useEffect(() => {
-    (async () => {
-      try {
-        setLoading(true);
-        const token = await getToken();
-        if (!token) throw new Error("Token ausente.");
+  (async () => {
+    try {
+      setLoading(true);
 
-        // tenta extrair email/id do JWT
-        const claims = safeDecodeJwt(token);
-        let emailFromToken: string | undefined =
-          claims?.email ?? claims?.user?.email ?? undefined;
-        const idFromToken =
-          claims?.sub ?? claims?.id ?? claims?.user?.id ?? undefined;
-        if (!emailFromToken && typeof idFromToken === "string" && idFromToken.includes("@")) {
-          emailFromToken = idFromToken;
-        }
+      // tenta token normal
+      const raw = await getToken();
+      const token = raw ? String(raw) : undefined;
 
-        let u: any = null;
-
-        // 1) por email
-        if (emailFromToken) {
-          try {
-            u = await apiFetch<Usuario>(`/usuarios/email/${encodeURIComponent(emailFromToken)}`, {
-              method: "GET",
-            });
-          } catch {
-            u = null;
-          }
-        }
-
-        // 2) fallback por id (via /auth/me ou claim)
-        if (!u) {
-          let who: any = null;
-          try {
-            who = await apiFetch("/auth/me", { method: "GET" });
-          } catch {
-            who = null;
-          }
-          const uid: number | undefined = Number(who?.id ?? who?.id_usuario ?? idFromToken);
-          if (uid && !Number.isNaN(uid)) {
-            u = await apiFetch<Usuario>(`/usuarios/${uid}`, { method: "GET" });
-          }
-        }
-
-        if (!u) throw new Error("Não foi possível carregar seus dados.");
-
-        const usuario: Usuario = {
-          id: u.id,
-          nome: u.nome,
-          email: u.email,
-          genero: u.genero,
-          dataNascimento: u.dataNascimento,
-          ftPerfil: u.ftPerfil,
-          nivel: u.nivel,
-          altura: u.altura,
-          peso: u.peso,
-        };
-
-        setUser(usuario);
-        setForm({
-          nome: usuario.nome,
-          email: usuario.email,
-          senha: "",
-          genero: mapGenero(usuario.genero),
-          data_nascimento: displayDateISO(usuario.dataNascimento),
-          ft_perfil: usuario.ftPerfil || "",
-          nivel: toClientNivel(usuario.nivel) || "Iniciante",
-          altura: String(usuario.altura ?? "1.70"),
-          peso: String(usuario.peso ?? "70.00"),
-        });
-
-        // === carrega histórico pelo endpoint correto ===
-        let lista: any[] = [];
-        try {
-          lista = await apiFetch(`/historico-treinos/usuario/${usuario.id}/all`, { method: "GET" });
-        } catch {
-          // fallback paginado
-          const page = await apiFetch(`/historico-treinos/usuario/${usuario.id}?page=0&size=50&sort=data,desc`);
-          lista = page?.content ?? [];
-        }
-
-        const mapped: Historico[] = (Array.isArray(lista) ? lista : []).map((h: any) => ({
-          id: h.id ?? h.id_historico_treino,
-          id_historico_treino: h.id_historico_treino ?? h.id,
-          data: h.data ?? h.createdAt ?? h.created_at,
-          distancia: Number(h.distancia ?? 0),
-          tempo: Number(h.tempo ?? 0),
-          pace: Number(h.pace ?? 0),
-          v_media: h.v_media != null ? Number(h.v_media) : undefined,
-          kcal: h.kcal != null ? Number(h.kcal) : undefined,
-          id_treino: h.treinoId ?? h.id_treino ?? null,
-          treinoNome: h.treino?.nome ?? h.nome ?? null,
-          nivel: h.nivel ?? h.treino?.nivel ?? null,
-        }));
-
-        // ordena e limita aos 5 mais recentes
-        mapped.sort((a, b) => parseApiDate(b.data).getTime() - parseApiDate(a.data).getTime());
-        setHistorico(mapped.slice(0, 5));
-      } catch (e) {
-        console.error("Erro ao carregar perfil/histórico:", e);
-        Alert.alert("Aviso", "Não foi possível carregar seu histórico agora.");
-      } finally {
-        setLoading(false);
+      // tenta extrair email/id do JWT
+      const claims = safeDecodeJwt(token);
+      let emailFromToken: string | undefined = claims?.email ?? claims?.user?.email;
+      const idFromToken = claims?.sub ?? claims?.id ?? claims?.user?.id;
+      if (!emailFromToken && typeof idFromToken === "string" && idFromToken.includes("@")) {
+        emailFromToken = idFromToken;
       }
-    })();
-  }, []);
+
+      // 1) tenta por email/id via API
+      let u: any = null;
+      if (emailFromToken) {
+        try { u = await apiFetch<Usuario>(`/usuarios/email/${encodeURIComponent(emailFromToken)}`, { method: "GET" }); } catch {}
+      }
+      if (!u && idFromToken) {
+        try { u = await apiFetch<Usuario>(`/usuarios/${idFromToken}`, { method: "GET" }); } catch {}
+      }
+
+      // 2) tenta endpoints comuns /auth/me, /me etc.
+      if (!u) {
+        const endpoints = ["/usuarios/me", "/me", "/auth/me", "/users/me"];
+        for (const p of endpoints) {
+          try { const res = await apiFetch(p, { method: "GET" }); if (res) { u = res; break; } } catch {}
+        }
+      }
+
+      // 3) fallback: usa getUserInfo() (salvo em storage) e tenta novamente por email/id
+      if (!u) {
+        try {
+          const info = await getUserInfo();
+          if (info?.email) {
+            try { u = await apiFetch<Usuario>(`/usuarios/email/${encodeURIComponent(info.email)}`, { method: "GET" }); } catch {}
+          }
+          if (!u && info?.id_usuario) {
+            try { u = await apiFetch<Usuario>(`/usuarios/${info.id_usuario}`, { method: "GET" }); } catch {}
+          }
+        } catch {}
+      }
+
+      // Se ainda não encontramos, não lançamos — redirecionamos para login (sessão inválida)
+      if (!u) {
+        console.warn("Não foi possível obter perfil do usuário (API). Forçando login.");
+        Alert.alert("Sessão inválida", "Não foi possível carregar seus dados. Faça login novamente.");
+        router.replace("/auth/login");
+        return;
+      }
+
+      // Normaliza usuário e carrega histórico (mesma lógica existente)
+      const usuario: Usuario = {
+        id: u.id,
+        nome: u.nome,
+        email: u.email,
+        genero: u.genero,
+        dataNascimento: u.dataNascimento,
+        ftPerfil: u.ftPerfil,
+        nivel: u.nivel,
+        altura: u.altura,
+        peso: u.peso,
+      };
+
+      setUser(usuario);
+      setForm({
+        nome: usuario.nome,
+        email: usuario.email,
+        senha: "",
+        genero: mapGenero(usuario.genero),
+        data_nascimento: displayDateISO(usuario.dataNascimento),
+        ft_perfil: usuario.ftPerfil || "",
+        nivel: toClientNivel(usuario.nivel) || "Iniciante",
+        altura: String(usuario.altura ?? "1.70"),
+        peso: String(usuario.peso ?? "70.00"),
+      });
+
+      // === carrega histórico pelo endpoint correto ===
+      let lista: any[] = [];
+      try {
+        lista = await apiFetch(`/historico-treinos/usuario/${usuario.id}/all`, { method: "GET" });
+      } catch {
+        try {
+          const page = await apiFetch(`/historico-treinos/usuario/${usuario.id}?page=0&size=50&sort=data,desc`, { method: "GET" });
+          lista = page?.content ?? [];
+        } catch {}
+      }
+
+      const mapped: Historico[] = (Array.isArray(lista) ? lista : []).map((h: any) => ({
+        id: h.id ?? h.id_historico_treino,
+        id_historico_treino: h.id_historico_treino ?? h.id,
+        data: h.data ?? h.createdAt ?? h.created_at,
+        distancia: Number(h.distancia ?? 0),
+        tempo: Number(h.tempo ?? 0),
+        pace: Number(h.pace ?? 0),
+        v_media: h.v_media != null ? Number(h.v_media) : undefined,
+        kcal: h.kcal != null ? Number(h.kcal) : undefined,
+        id_treino: h.treinoId ?? h.id_treino ?? null,
+        treinoNome: h.treino?.nome ?? h.nome ?? null,
+        nivel: h.nivel ?? h.treino?.nivel ?? null,
+      }));
+
+      mapped.sort((a, b) => parseApiDate(b.data).getTime() - parseApiDate(a.data).getTime());
+      setHistorico(mapped.slice(0, 5));
+    } catch (e) {
+      console.error("Erro ao carregar perfil/histórico:", e);
+      Alert.alert("Aviso", "Não foi possível carregar seu histórico agora.");
+    } finally {
+      setLoading(false);
+    }
+  })();
+}, []);
 
   const onChangeNivel = (next: string) => {
     if (next === form.nivel) return;

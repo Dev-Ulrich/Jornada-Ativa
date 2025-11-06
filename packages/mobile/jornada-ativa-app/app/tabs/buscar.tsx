@@ -57,6 +57,11 @@ function asNivel(val?: string | null): Nivel | undefined {
   if (norm.startsWith("av")) return "Avançado";
   return undefined;
 }
+function canStartTreino(userNivel?: Nivel | undefined, treinoNivel?: Nivel | undefined) {
+  const u: Nivel = userNivel ?? "Iniciante"; // default para Iniciante quando desconhecido
+  if (!treinoNivel) return true;
+  return NIVEL_ORDER[u] >= NIVEL_ORDER[treinoNivel];
+}
 
 function first<T>(...vals: (T | undefined | null)[]) {
   for (const v of vals) {
@@ -225,35 +230,36 @@ export default function Buscar() {
   }
 
   function renderTreino(t: Treino) {
-    const nTreino = asNivel(t.nivel);
-    const acima = nTreino && nivelUsuario && NIVEL_ORDER[nTreino] > NIVEL_ORDER[nivelUsuario];
+  const nTreino = asNivel(t.nivel);
+  const podeIniciar = canStartTreino(nivelUsuario, nTreino);
+  const acima = !podeIniciar;
 
     return (
-      <View style={styles.card} key={`treino-${t.id}`}>
-        <Text style={styles.cardTitle}>{getTreinoTitulo(t)}</Text>
-        {getTreinoDescricao(t) && <Text style={styles.cardMeta}>{getTreinoDescricao(t)}</Text>}
-        <View style={styles.badgeRow}>
-          <Text style={styles.badge}>{nTreino ?? "Sem nível"}</Text>
-        </View>
-
-        {acima ? (
-          <View style={styles.warnBox}>
-            <Text style={styles.warnText}>
-              Nível acima do esperado para o seu perfil.{"\n"}
-              Volte quando atingir o nível necessário.
-            </Text>
-          </View>
-        ) : (
-          <>
-            <Text style={styles.okText}>Disponível para você ✅</Text>
-            <Pressable onPress={() => iniciarTreino(t)} style={styles.startButton}>
-              <Text style={styles.startButtonText}>Iniciar</Text>
-            </Pressable>
-          </>
-        )}
+    <View style={styles.card} key={`treino-${t.id}`}>
+      <Text style={styles.cardTitle}>{getTreinoTitulo(t)}</Text>
+      {getTreinoDescricao(t) && <Text style={styles.cardMeta}>{getTreinoDescricao(t)}</Text>}
+      <View style={styles.badgeRow}>
+        <Text style={styles.badge}>{nTreino ?? "Sem nível"}</Text>
       </View>
-    );
-  }
+
+      {acima ? (
+        <View style={styles.warnBox}>
+          <Text style={styles.warnText}>
+            Treino acima do seu nivel!{"\n"}
+            Continue treinando para aumentar seu nivel.
+          </Text>
+        </View>
+      ) : (
+        <>
+          <Text style={styles.okText}>Disponível para você ✅</Text>
+          <Pressable onPress={() => iniciarTreino(t)} style={styles.startButton}>
+            <Text style={styles.startButtonText}>Iniciar</Text>
+          </Pressable>
+        </>
+      )}
+    </View>
+  );
+}
 
   function renderEvento(e: Evento) {
     const link = getEventoLink(e);
