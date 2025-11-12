@@ -4,6 +4,7 @@ import api from "@services/api";
 import Sidebar from "@components/DashBoard/Sidebar";
 import "./EventoTabela.css";
 import { Trash2 } from "lucide-react";
+import ConfirmModal from "../Common/ConfirmModal"
 
 // Avatar do evento (sem hooks)
 function AvatarEvento({ nome, imagemUrl }) {
@@ -38,32 +39,42 @@ function AvatarEvento({ nome, imagemUrl }) {
 // Botões de ação (editar/excluir)
 function AcoesEvento({ id, onDeleted }) {
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
 
-  const editar = () => {
-    navigate(`/admin/eventos/editar/${id}`);
-  };
+  const editar = () => navigate(`/admin/eventos/editar/${id}`);
+  const askRemove = () => setOpen(true);
 
-  const remover = async () => {
-    if (!confirm("Deseja excluir este evento?")) return;
+  const confirmRemove = async () => {
     await api.delete(`/eventos/${id}`);
-    onDeleted && onDeleted(); // recarrega a tabela
+    onDeleted && onDeleted();
+    setOpen(false);
   };
 
   return (
-    <div className="ev-actions">
-      <button className="ev-icon-btn" title="Ver / Editar" onClick={editar}>
-        🔍
-      </button>
-      <button
-        className="ev-icon-btn ev-danger"
-        title="Excluir"
-        onClick={remover}
-      >
-        <Trash2 size={18} />
-      </button>
-    </div>
+    <>
+      <div className="ev-actions">
+        <button className="ev-icon-btn" title="Ver / Editar" onClick={editar}>
+          🔍
+        </button>
+        <button className="ev-icon-btn ev-danger" title="Excluir" onClick={askRemove}>
+          <Trash2 size={18} />
+        </button>
+      </div>
+
+      <ConfirmModal
+        open={open}
+        title="Excluir evento?"
+        message="Deseja realmente excluir este evento? Esta ação não pode ser desfeita."
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        danger
+        onConfirm={confirmRemove}
+        onClose={() => setOpen(false)}
+      />
+    </>
   );
 }
+
 
 export default function EventoTabela() {
   const navigate = useNavigate();

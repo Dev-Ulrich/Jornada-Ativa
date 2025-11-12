@@ -5,6 +5,7 @@ import Sidebar from "@components/DashBoard/Sidebar";
 import { Trash2 } from "lucide-react";
 import "../Evento/EventoForm.css";
 import "./TreinoTabela.css";
+import ConfirmModal from "../Common/ConfirmModal"
 
 const fmtYMDptBR = (v) => {
   if (!v) return "-";
@@ -29,28 +30,42 @@ const fmtNivel = (v) => {
 
 function AcoesTreino({ id, onDeleted }) {
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+
   const editar = () => navigate(`/admin/treinos/editar/${id}`);
-  const remover = async () => {
-    if (!confirm("Deseja excluir este treino?")) return;
+  const askRemove = () => setOpen(true);
+
+  const confirmRemove = async () => {
     await api.delete(`/treinos/${id}`);
     onDeleted && onDeleted();
+    setOpen(false);
   };
 
   return (
-    <div className="ev-actions">
-      <button className="ev-icon-btn" title="Ver / Editar" onClick={editar}>
-        🔍
-      </button>
-      <button
-        className="ev-icon-btn ev-danger"
-        title="Excluir"
-        onClick={remover}
-      >
-        <Trash2 size={18} />
-      </button>
-    </div>
+    <>
+      <div className="ev-actions">
+        <button className="ev-icon-btn" title="Ver / Editar" onClick={editar}>
+          🔍
+        </button>
+        <button className="ev-icon-btn ev-danger" title="Excluir" onClick={askRemove}>
+          <Trash2 size={18} />
+        </button>
+      </div>
+
+      <ConfirmModal
+        open={open}
+        title="Excluir treino?"
+        message="Deseja realmente excluir este treino? Esta ação não pode ser desfeita."
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        danger
+        onConfirm={confirmRemove}
+        onClose={() => setOpen(false)}
+      />
+    </>
   );
 }
+
 
 export default function TreinoTabela() {
   const navigate = useNavigate();

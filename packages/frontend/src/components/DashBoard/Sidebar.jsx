@@ -67,9 +67,6 @@ export default function Sidebar({ darkMode, toggleDarkMode }) {
   return (
     <nav id="sidebar">
       <div id="sidebar_content">
-        <div style={{ position: "relative", marginBottom: 10 }}>
-          <HealthIndicator />
-        </div>
 
         <div id="user">
           {usuarioLogado?.foto || usuarioLogado?.ftPerfil ? (

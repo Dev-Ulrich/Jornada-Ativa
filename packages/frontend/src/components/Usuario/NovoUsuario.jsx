@@ -137,6 +137,7 @@ export default function NovoUsuario() {
                 name="nome"
                 value={form.nome}
                 onChange={handleChange}
+                placeholder="José Roberto"
               />
             </div>
 
@@ -148,6 +149,7 @@ export default function NovoUsuario() {
                   name="email"
                   value={form.email}
                   onChange={handleChange}
+                  placeholder="joseroberto10@gmail.com"
                 />
                 {!isEmail(form.email) && (
                   <p className="ev-alert-error">E-mail inválido</p>
@@ -235,6 +237,7 @@ export default function NovoUsuario() {
                   name="altura"
                   value={form.altura}
                   onChange={handleChange}
+                  placeholder="1.70"
                 />
               </div>
               <div className="ev-field">
@@ -244,6 +247,7 @@ export default function NovoUsuario() {
                   name="peso"
                   value={form.peso}
                   onChange={handleChange}
+                  placeholder="90.5"
                 />
               </div>
             </div>

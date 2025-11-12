@@ -1,0 +1,85 @@
+/* ====== ConfirmModal.css ====== */
+.ev-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(1px);
+  display: grid;
+  place-items: center;
+  z-index: 9999;
+}
+
+.ev-modal-card {
+  width: min(480px, calc(100vw - 32px));
+  background: #1e1e1e;
+  border: 1px solid #2b2b2b;
+  border-radius: 16px;
+  box-shadow: 0 20px 64px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  animation: ev-modal-pop 0.15s ease-out;
+}
+
+@keyframes ev-modal-pop {
+  from {
+    transform: translateY(6px) scale(0.98);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.ev-modal-header {
+  padding: 16px 18px 0;
+}
+.ev-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #f3f3f3;
+}
+
+.ev-modal-body {
+  padding: 12px 18px 4px;
+  color: #d4d4d4;
+  line-height: 1.45;
+}
+
+.ev-modal-actions {
+  padding: 14px 18px 18px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* Botões principais */
+.ev-btn {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 0;
+  cursor: pointer;
+  font-weight: 700;
+  transition: 0.15s ease;
+}
+.ev-btn-primary {
+  background: #ff7a1a;
+  color: #121212;
+}
+.ev-btn-primary:hover {
+  filter: brightness(1.1);
+}
+.ev-btn-ghost {
+  background: #2a2a2a;
+  color: #eaeaea;
+}
+.ev-btn-ghost:hover {
+  background: #343434;
+}
+.ev-btn-danger {
+  background: #a62828;
+  color: #fff;
+}
+.ev-btn-danger:hover {
+  background: #b22d2d;
+}

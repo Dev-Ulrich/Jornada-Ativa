@@ -1,9 +1,15 @@
 import "./Hero.css";
-import { FaWhatsapp, FaInstagram, FaTiktok, FaPowerOff } from "react-icons/fa";
-import { MdAttachEmail } from "react-icons/md";
-import { BsUiChecks } from "react-icons/bs";
+import {
+  FaWhatsapp,
+  FaInstagram,
+  FaTiktok,
+  FaPowerOff,
+  FaGithub,
+  FaLinkedinIn,
+} from "react-icons/fa";
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import { MdEmail } from "react-icons/md";
 
 const Hero = () => {
   const headerRef = useRef(null);
@@ -45,7 +51,7 @@ const Hero = () => {
       <header id="header" className={isScrolled ? "rolar" : ""} ref={headerRef}>
         <div className="interface">
           <div className="img-logo">
-            <img src="/Jornada-Ativa.png" />
+            <img src="/Jornada Ativa.png" />
           </div>
 
           <section className="espaço"></section>
@@ -75,7 +81,7 @@ const Hero = () => {
               Superando Limites,
               <span>Consquistando Vitorias</span>
             </p>
-            <a href="#">
+            <a href="https://github.com/Dev-Ulrich/Jornada-Ativa/tree/main/packages/mobile/jornada-ativa-app">
               <button>Quero conhecer</button>
             </a>
           </div>
@@ -166,28 +172,28 @@ const Hero = () => {
           </article>
 
           <article className="icons-contato">
-            <a href="#">
+            <a href="https://www.instagram.com/vp.ulrich">
               <button className="text-base">
                 <i>
-                  <FaWhatsapp />
+                  <FaInstagram />
                 </i>{" "}
-                <p>Chamar no Whatsapp</p>
+                <p>@vp.ulrich</p>
               </button>
             </a>
-            <a href="#">
+            <a href="https://www.instagram.com/amandahotoshi">
               <button className="text-base">
                 <i>
-                  <MdAttachEmail />
+                  <FaInstagram />
                 </i>{" "}
-                <p>Enviar email</p>
+                <p>@amandahotoshi</p>
               </button>
             </a>
-            <a href="#">
+            <a href="https://www.instagram.com/mtzz_rc">
               <button className="text-base">
                 <i>
-                  <BsUiChecks />
+                  <FaInstagram />
                 </i>{" "}
-                <p>Curriculo</p>
+                <p>@mtzz_rc</p>
               </button>
             </a>
           </article>
@@ -197,37 +203,39 @@ const Hero = () => {
       <footer>
         <div className="interface">
           <section className="top-footer">
-            <a href="#">
+            <a href="https://github.com/Dev-Ulrich/Jornada-Ativa">
               <button>
                 <i>
-                  <FaInstagram />
+                  <FaGithub />
                 </i>
               </button>
             </a>
-            <a href="#">
+            <a href="https://www.linkedin.com/in/victorulrichcosta">
               <button>
                 <i>
-                  <FaWhatsapp />
+                  <FaLinkedinIn />
                 </i>
               </button>
             </a>
-            <a href="#">
+            <a
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                window.location.href = "mailto:jornadaativa2025@gmail.com";
+              }}
+            >
               <button>
                 <i>
-                  <FaTiktok />
+                  <MdEmail />
                 </i>
               </button>
             </a>
           </section>
 
-          <section className="middle-footer">
-            <a href="#">Suporte</a>
-            <a href="#">informacoes</a>
-            <a href="#">Aplicativo</a>
-          </section>
+          <section className="middle-footer"></section>
 
           <section className="bottom-footer">
-            <p>Jornada Ativa 2024 &copy; Todos os direitos reservados</p>
+            <p>Jornada Ativa 2025 &copy; Todos os direitos reservados</p>
           </section>
         </div>
       </footer>

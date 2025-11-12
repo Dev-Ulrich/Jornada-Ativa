@@ -2,8 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "@services/api";
-import Sidebar from "@components/DashBoard/Sidebar";
-import "../Evento/EventoForm.css"; // mantém seu estilo base de formulários
+import "../Evento/EventoForm.css"; // mantém seus estilos base
 
 const NIVEIS = [
   { value: "iniciante", label: "Iniciante" },
@@ -23,14 +22,6 @@ const normalizeNivel = (v) => {
 export default function EditarTreino() {
   const { id } = useParams();
   const navigate = useNavigate();
-
-  const [darkMode, setDarkMode] = useState(
-    () => localStorage.getItem("dark-mode") === "active"
-  );
-  useEffect(() => {
-    document.body.classList.toggle("dark-mode", darkMode);
-    localStorage.setItem("dark-mode", darkMode ? "active" : "inactive");
-  }, [darkMode]);
 
   const [form, setForm] = useState({
     nome: "",
@@ -86,7 +77,7 @@ export default function EditarTreino() {
     setForm((f) => ({ ...f, [name]: value }));
   };
 
-  // Validações de metas
+  // Validações de metas (mesma lógica do seu arquivo)
   const parsed = useMemo(() => {
     const dm = form.distanciaMinKm === "" ? null : Number(form.distanciaMinKm);
     const dM = form.distanciaMaxKm === "" ? null : Number(form.distanciaMaxKm);
@@ -96,7 +87,7 @@ export default function EditarTreino() {
     return { dm, dM, dur, pace };
   }, [form]);
 
-  const metaIncompleta = (parsed.dm === null) !== (parsed.dM === null); // apenas um dos dois preenchido
+  const metaIncompleta = (parsed.dm === null) !== (parsed.dM === null);
   const faixaInvalida =
     parsed.dm !== null &&
     parsed.dM !== null &&
@@ -146,172 +137,181 @@ export default function EditarTreino() {
 
   if (loading) {
     return (
-      <div className="dashboard-container">
-        <Sidebar
-          activeSection="treinos"
-          setActiveSection={() => {}}
-          darkMode={darkMode}
-          toggleDarkMode={() => setDarkMode((v) => !v)}
-        />
-        <main className="main">
+      <div className="ev-form-page">
+        <div className="ev-container" style={{ maxWidth: 720, margin: "0 auto" }}>
           <h1 className="ev-title">Editar Treino</h1>
           <p className="ev-muted">Carregando…</p>
-        </main>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="dashboard-container">
-      <Sidebar
-        activeSection="treinos"
-        setActiveSection={() => {}}
-        darkMode={darkMode}
-        toggleDarkMode={() => setDarkMode((v) => !v)}
-      />
-
-      <main className="main">
-        <div className="ev-header">
-          <h1 className="ev-title">Editar Treino</h1>
+    <div className="ev-form-page">
+      {/* container centralizado e com largura igual ao do NovoTreino */}
+      <div className="ev-container" style={{ maxWidth: 720, margin: "0 auto" }}>
+        {/* Topo com título central e botão Voltar alinhado à direita */}
+        <div
+          className="ev-topbar"
+          style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}
+        >
+          <h1 className="ev-title" style={{ margin: "0 auto", textAlign: "center" }}>
+            Editar Treino
+          </h1>
+          <button
+            type="button"
+            onClick={() => navigate("/admin/treinos")}
+            className="ev-back"
+            style={{ marginLeft: "auto" }}
+          >
+            ← Voltar para Tabela
+          </button>
         </div>
 
-        <form className="ev-form" onSubmit={handleSubmit}>
-          {error && <div className="ev-alert ev-alert-error">{error}</div>}
-          {success && (
-            <div className="ev-alert ev-alert-success">{success}</div>
-          )}
+        {/* Card com o formulário — mesmo estilo do NovoTreino */}
+        <div
+          style={{
+            background: "#1f1f1f",
+            border: "1px solid #2c2c2c",
+            borderRadius: 18,
+            padding: 20,
+            boxShadow: "0 10px 30px rgba(0,0,0,.25)",
+          }}
+        >
+          <form onSubmit={handleSubmit} className="ev-grid" style={{ gridTemplateColumns: "1fr", gap: 18 }}>
+            {error && <div className="ev-alert ev-alert-error">{error}</div>}
+            {success && <div className="ev-alert ev-alert-success">{success}</div>}
 
-          <div className="ev-field">
-            <label className="ev-label">Nome</label>
-            <input
-              type="text"
-              name="nome"
-              className="ev-input"
-              value={form.nome}
-              onChange={handleChange}
-              placeholder="Ex.: Corrida leve"
-              required
-            />
-          </div>
-
-          <div className="ev-field">
-            <label className="ev-label">Descrição</label>
-            <textarea
-              name="descricao"
-              className="ev-input"
-              rows={3}
-              value={form.descricao}
-              onChange={handleChange}
-              placeholder="Ex.: Rodagem leve para base aeróbica"
-            />
-          </div>
-
-          <div className="ev-field">
-            <label className="ev-label">Nível</label>
-            <select
-              name="nivel"
-              className="ev-input"
-              value={normalizeNivel(form.nivel)}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Selecione…</option>
-              {NIVEIS.map((n) => (
-                <option key={n.value} value={n.value}>
-                  {n.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* ------- Novos Campos de Meta ------- */}
-          <div className="ev-grid-2">
             <div className="ev-field">
-              <label className="ev-label">Distância mínima (km)</label>
+              <label className="ev-label">Nome</label>
               <input
-                type="number"
-                step="0.01"
-                name="distanciaMinKm"
+                type="text"
+                name="nome"
                 className="ev-input"
-                value={form.distanciaMinKm}
+                value={form.nome}
                 onChange={handleChange}
-                placeholder="Ex.: 2.50"
+                placeholder="Ex.: Corrida leve"
+                required
               />
             </div>
 
             <div className="ev-field">
-              <label className="ev-label">Distância máxima (km)</label>
-              <input
-                type="number"
-                step="0.01"
-                name="distanciaMaxKm"
-                className="ev-input"
-                value={form.distanciaMaxKm}
+              <label className="ev-label">Descrição</label>
+              <textarea
+                name="descricao"
+                className="ev-textarea"
+                rows={3}
+                value={form.descricao}
                 onChange={handleChange}
-                placeholder="Ex.: 5.00"
-              />
-            </div>
-          </div>
-
-          <div className="ev-grid-2">
-            <div className="ev-field">
-              <label className="ev-label">Duração alvo (minutos)</label>
-              <input
-                type="number"
-                step="0.01"
-                name="duracaoAlvoMin"
-                className="ev-input"
-                value={form.duracaoAlvoMin}
-                onChange={handleChange}
-                placeholder="Ex.: 30"
+                placeholder="Ex.: Rodagem leve para base aeróbica"
               />
             </div>
 
             <div className="ev-field">
-              <label className="ev-label">Pace alvo (min/km)</label>
-              <input
-                type="number"
-                step="0.01"
-                name="paceAlvoMinpkm"
-                className="ev-input"
-                value={form.paceAlvoMinpkm}
+              <label className="ev-label">Nível</label>
+              <select
+                name="nivel"
+                className="ev-select"
+                value={normalizeNivel(form.nivel)}
                 onChange={handleChange}
-                placeholder="Ex.: 6.00"
-              />
+                required
+              >
+                <option value="">Selecione o nível</option>
+                {NIVEIS.map((n) => (
+                  <option key={n.value} value={n.value}>
+                    {n.label}
+                  </option>
+                ))}
+              </select>
             </div>
-          </div>
 
-          {/* Avisos de validação */}
-          {metaIncompleta && (
-            <div className="ev-hint ev-alert-warning">
-              Para definir meta de distância, preencha **mínimo e máximo**.
+            {/* metas em grid 2 colunas */}
+            <div className="ev-grid" style={{ gridTemplateColumns: "1fr 1fr", gap: 18 }}>
+              <div className="ev-field">
+                <label className="ev-label">Distância mínima (km)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  name="distanciaMinKm"
+                  className="ev-input"
+                  value={form.distanciaMinKm}
+                  onChange={handleChange}
+                  placeholder="Ex.: 2.50"
+                />
+              </div>
+              <div className="ev-field">
+                <label className="ev-label">Distância máxima (km)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  name="distanciaMaxKm"
+                  className="ev-input"
+                  value={form.distanciaMaxKm}
+                  onChange={handleChange}
+                  placeholder="Ex.: 5.00"
+                />
+              </div>
             </div>
-          )}
-          {faixaInvalida && (
-            <div className="ev-alert ev-alert-warning">
-              Faixa inválida: a distância mínima não pode ser maior que a
-              máxima.
-            </div>
-          )}
 
-          <div className="ev-actions">
-            <button
-              type="button"
-              className="ev-btn"
-              onClick={() => navigate("/admin/treinos")}
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="ev-btn ev-btn-primary"
-              disabled={!canSubmit}
-            >
-              {submitting ? "Salvando…" : "Salvar alterações"}
-            </button>
-          </div>
-        </form>
-      </main>
+            <div className="ev-grid" style={{ gridTemplateColumns: "1fr 1fr", gap: 18 }}>
+              <div className="ev-field">
+                <label className="ev-label">Duração alvo (minutos)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  name="duracaoAlvoMin"
+                  className="ev-input"
+                  value={form.duracaoAlvoMin}
+                  onChange={handleChange}
+                  placeholder="Ex.: 30"
+                />
+              </div>
+              <div className="ev-field">
+                <label className="ev-label">Pace alvo (min/km)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  name="paceAlvoMinpkm"
+                  className="ev-input"
+                  value={form.paceAlvoMinpkm}
+                  onChange={handleChange}
+                  placeholder="Ex.: 6.00"
+                />
+              </div>
+            </div>
+
+            {/* Avisos de validação */}
+            {metaIncompleta && (
+              <div className="ev-hint ev-alert-warning">
+                Para definir meta de distância, preencha <b>mínimo e máximo</b>.
+              </div>
+            )}
+            {faixaInvalida && (
+              <div className="ev-alert ev-alert-warning">
+                Faixa inválida: a distância mínima não pode ser maior que a máxima.
+              </div>
+            )}
+
+            {/* Botões centralizados */}
+            <div className="ev-actions" style={{ justifyContent: "center", paddingTop: 4 }}>
+              <button
+                type="submit"
+                className="ev-btn ev-btn-primary"
+                disabled={!canSubmit}
+              >
+                {submitting ? "Salvando…" : "Salvar alterações"}
+              </button>
+              <button
+                type="button"
+                className="ev-btn ev-btn-ghost"
+                onClick={() => navigate("/admin/treinos")}
+              >
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }

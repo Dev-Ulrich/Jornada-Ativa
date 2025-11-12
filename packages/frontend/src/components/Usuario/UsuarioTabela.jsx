@@ -5,6 +5,8 @@ import Sidebar from "@components/DashBoard/Sidebar";
 import { Search, Trash2 } from "lucide-react";
 import "../Evento/EventoForm.css"; // reaproveitando estilos
 import "./UsuarioTabela.css";     // (opcional) estilos específicos da tabela
+import ConfirmModal from "../Common/ConfirmModal"
+
 
 // Avatar simples (sem hooks)
 function AvatarUser({ nome, foto }) {
@@ -34,24 +36,40 @@ function AvatarUser({ nome, foto }) {
 
 function AcoesUsuario({ id, onDeleted }) {
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
 
   const editar = () => navigate(`/admin/usuarios/editar/${id}`);
+  const askRemove = () => setOpen(true);
 
-  const remover = async () => {
-    if (!confirm("Deseja excluir este usuário?")) return;
+  const confirmRemove = async () => {
     await api.delete(`/usuarios/${id}`);
     onDeleted && onDeleted();
+    setOpen(false);
   };
 
   return (
-    <div className="ev-actions">
-      <button className="ev-icon-btn" title="Ver / Editar" onClick={editar}>
-        🔍
-      </button>
-      <button className="ev-icon-btn ev-danger" title="Excluir" onClick={remover}>
-        <Trash2 size={18} />
-      </button>
-    </div>
+    <>
+      <div className="ev-actions">
+        <button className="ev-icon-btn" title="Ver / Editar" onClick={editar}>
+          🔍
+        </button>
+        <button className="ev-icon-btn ev-danger" title="Excluir" onClick={askRemove}>
+          <Trash2 size={18} />
+        </button>
+      </div>
+
+      {/* Modal de confirmação */}
+      <ConfirmModal
+        open={open}
+        title="Excluir usuário?"
+        message="Deseja realmente excluir este usuário? Esta ação não pode ser desfeita."
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        danger
+        onConfirm={confirmRemove}
+        onClose={() => setOpen(false)}
+      />
+    </>
   );
 }
 
