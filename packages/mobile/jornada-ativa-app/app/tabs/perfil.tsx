@@ -1,4 +1,4 @@
-// app/tabs/perfil.tsx
+import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import {
@@ -150,6 +150,27 @@ export default function Perfil() {
   const [user, setUser] = useState<Usuario | null>(null);
   const router = useRouter();
 
+  // novo estado: uploading photo
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+
+  // === ESTADO NOVO: histórico + modal detalhes ===
+  const [historico, setHistorico] = useState<Historico[]>([]);
+  const [details, setDetails] = useState<Historico | null>(null);
+
+  const [form, setForm] = useState({
+    nome: "",
+    email: "",
+    senha: "",
+    genero: "Masculino" as Genero | string,
+    data_nascimento: "",
+    ft_perfil: "",
+    nivel: "Iniciante" as Nivel | string,
+    altura: "1.70",
+    peso: "70.00",
+    // NOVO: foto escolhida localmente (URI)
+    localFotoUri: "" as string | null,
+  });
+
   // mover handleDeleteUser para aqui — agora consegue usar `user` e `router`
   const handleDeleteUser = () => {
     if (!user) return;
@@ -204,139 +225,207 @@ export default function Perfil() {
     ]);
   };
 
-  // === ESTADO NOVO: histórico + modal detalhes ===
-  const [historico, setHistorico] = useState<Historico[]>([]);
-  const [details, setDetails] = useState<Historico | null>(null);
+  // função para escolher imagem da galeria
+  const handlePickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("Permissão necessária", "Precisamos de acesso às suas fotos para selecionar a imagem de perfil.");
+      return;
+    }
 
-  const [form, setForm] = useState({
-    nome: "",
-    email: "",
-    senha: "",
-    genero: "Masculino" as Genero | string,
-    data_nascimento: "",
-    ft_perfil: "",
-    nivel: "Iniciante" as Nivel | string,
-    altura: "1.70",
-    peso: "70.00",
-  });
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.8,
+    });
+
+    // compatibilidade com API do expo-image-picker v14+ (result.assets)
+    if (!result.canceled && (result as any).assets && (result as any).assets.length > 0) {
+      const uri = (result as any).assets[0].uri;
+      setForm((f) => ({ ...f, localFotoUri: uri }));
+    } else if (!result.canceled && (result as any).uri) {
+      // fallback para versões antigas
+      // @ts-ignore
+      setForm((f) => ({ ...f, localFotoUri: (result as any).uri }));
+    }
+  };
+
+  // função para enviar avatar para o backend; retorna URL ou null
+  async function uploadAvatar(uri: string, userId: number): Promise<string | null> {
+  try {
+    setUploadingPhoto(true);
+
+    const filename = uri.split("/").pop() ?? `avatar-${userId}.jpg`;
+    const match = /\.(\w+)$/.exec(filename ?? "");
+    const ext = match ? match[1] : "jpg";
+    const type = `image/${ext === "jpg" ? "jpeg" : ext}`;
+
+    const formData = new FormData();
+    // @ts-ignore - RN file object
+    formData.append("file", {
+      uri,
+      name: filename,
+      type,
+    });
+
+    // build URL
+    const base =
+      (process.env.EXPO_PUBLIC_API_BASE_URL?.replace(/\$/, "") ||
+        "https://jornada-ativa-api.onrender.com").replace(/\/$/, "");
+    const endpoint = `/usuarios/${userId}/foto`.replace(/^\//, "");
+    const url = `${base}/${endpoint}`;
+
+    // auth token (se houver)
+    const token = await getToken();
+    const headers: Record<string, string> = {};
+    if (token) headers.Authorization = `Bearer ${token}`;
+
+    // IMPORTANT: não definir "Content-Type" aqui — fetch adiciona o boundary
+    const resFetch = await fetch(url, {
+      method: "POST",
+      headers,
+      body: formData,
+    });
+
+    if (!resFetch.ok) {
+      const txt = await resFetch.text().catch(() => "");
+      throw new Error(`Erro upload avatar: ${resFetch.status} ${txt}`);
+    }
+
+    const resJson = await resFetch.json();
+    return (
+      resJson?.url ||
+      resJson?.location ||
+      resJson?.ftPerfil ||
+      resJson?.path ||
+      resJson?.fileUrl ||
+      null
+    );
+  } catch (e) {
+    console.error("Erro upload avatar:", e);
+    return null;
+  } finally {
+    setUploadingPhoto(false);
+  }
+}
 
   // --------- LOAD USER + HISTÓRICO ----------
   useEffect(() => {
-  (async () => {
-    try {
-      setLoading(true);
-
-      // tenta token normal
-      const raw = await getToken();
-      const token = raw ? String(raw) : undefined;
-
-      // tenta extrair email/id do JWT
-      const claims = safeDecodeJwt(token);
-      let emailFromToken: string | undefined = claims?.email ?? claims?.user?.email;
-      const idFromToken = claims?.sub ?? claims?.id ?? claims?.user?.id;
-      if (!emailFromToken && typeof idFromToken === "string" && idFromToken.includes("@")) {
-        emailFromToken = idFromToken;
-      }
-
-      // 1) tenta por email/id via API
-      let u: any = null;
-      if (emailFromToken) {
-        try { u = await apiFetch<Usuario>(`/usuarios/email/${encodeURIComponent(emailFromToken)}`, { method: "GET" }); } catch {}
-      }
-      if (!u && idFromToken) {
-        try { u = await apiFetch<Usuario>(`/usuarios/${idFromToken}`, { method: "GET" }); } catch {}
-      }
-
-      // 2) tenta endpoints comuns /auth/me, /me etc.
-      if (!u) {
-        const endpoints = ["/usuarios/me", "/me", "/auth/me", "/users/me"];
-        for (const p of endpoints) {
-          try { const res = await apiFetch(p, { method: "GET" }); if (res) { u = res; break; } } catch {}
-        }
-      }
-
-      // 3) fallback: usa getUserInfo() (salvo em storage) e tenta novamente por email/id
-      if (!u) {
-        try {
-          const info = await getUserInfo();
-          if (info?.email) {
-            try { u = await apiFetch<Usuario>(`/usuarios/email/${encodeURIComponent(info.email)}`, { method: "GET" }); } catch {}
-          }
-          if (!u && info?.id_usuario) {
-            try { u = await apiFetch<Usuario>(`/usuarios/${info.id_usuario}`, { method: "GET" }); } catch {}
-          }
-        } catch {}
-      }
-
-      // Se ainda não encontramos, não lançamos — redirecionamos para login (sessão inválida)
-      if (!u) {
-        console.warn("Não foi possível obter perfil do usuário (API). Forçando login.");
-        Alert.alert("Sessão inválida", "Não foi possível carregar seus dados. Faça login novamente.");
-        router.replace("/auth/login");
-        return;
-      }
-
-      // Normaliza usuário e carrega histórico (mesma lógica existente)
-      const usuario: Usuario = {
-        id: u.id,
-        nome: u.nome,
-        email: u.email,
-        genero: u.genero,
-        dataNascimento: u.dataNascimento,
-        ftPerfil: u.ftPerfil,
-        nivel: u.nivel,
-        altura: u.altura,
-        peso: u.peso,
-      };
-
-      setUser(usuario);
-      setForm({
-        nome: usuario.nome,
-        email: usuario.email,
-        senha: "",
-        genero: mapGenero(usuario.genero),
-        data_nascimento: displayDateISO(usuario.dataNascimento),
-        ft_perfil: usuario.ftPerfil || "",
-        nivel: toClientNivel(usuario.nivel) || "Iniciante",
-        altura: String(usuario.altura ?? "1.70"),
-        peso: String(usuario.peso ?? "70.00"),
-      });
-
-      // === carrega histórico pelo endpoint correto ===
-      let lista: any[] = [];
+    (async () => {
       try {
-        lista = await apiFetch(`/historico-treinos/usuario/${usuario.id}/all`, { method: "GET" });
-      } catch {
+        setLoading(true);
+
+        // tenta token normal
+        const raw = await getToken();
+        const token = raw ? String(raw) : undefined;
+
+        // tenta extrair email/id do JWT
+        const claims = safeDecodeJwt(token);
+        let emailFromToken: string | undefined = claims?.email ?? claims?.user?.email;
+        const idFromToken = claims?.sub ?? claims?.id ?? claims?.user?.id;
+        if (!emailFromToken && typeof idFromToken === "string" && idFromToken.includes("@")) {
+          emailFromToken = idFromToken;
+        }
+
+        // 1) tenta por email/id via API
+        let u: any = null;
+        if (emailFromToken) {
+          try { u = await apiFetch<Usuario>(`/usuarios/email/${encodeURIComponent(emailFromToken)}`, { method: "GET" }); } catch {}
+        }
+        if (!u && idFromToken) {
+          try { u = await apiFetch<Usuario>(`/usuarios/${idFromToken}`, { method: "GET" }); } catch {}
+        }
+
+        // 2) tenta endpoints comuns /auth/me, /me etc.
+        if (!u) {
+          const endpoints = ["/usuarios/me", "/me", "/auth/me", "/users/me"];
+          for (const p of endpoints) {
+            try { const res = await apiFetch(p, { method: "GET" }); if (res) { u = res; break; } } catch {}
+          }
+        }
+
+        // 3) fallback: usa getUserInfo() (salvo em storage) e tenta novamente por email/id
+        if (!u) {
+          try {
+            const info = await getUserInfo();
+            if (info?.email) {
+              try { u = await apiFetch<Usuario>(`/usuarios/email/${encodeURIComponent(info.email)}`, { method: "GET" }); } catch {}
+            }
+            if (!u && info?.id_usuario) {
+              try { u = await apiFetch<Usuario>(`/usuarios/${info.id_usuario}`, { method: "GET" }); } catch {}
+            }
+          } catch {}
+        }
+
+        // Se ainda não encontramos, não lançamos — redirecionamos para login (sessão inválida)
+        if (!u) {
+          console.warn("Não foi possível obter perfil do usuário (API). Forçando login.");
+          Alert.alert("Sessão inválida", "Não foi possível carregar seus dados. Faça login novamente.");
+          router.replace("/auth/login");
+          return;
+        }
+
+        // Normaliza usuário e carrega histórico (mesma lógica existente)
+        const usuario: Usuario = {
+          id: u.id,
+          nome: u.nome,
+          email: u.email,
+          genero: u.genero,
+          dataNascimento: u.dataNascimento,
+          ftPerfil: u.ftPerfil,
+          nivel: u.nivel,
+          altura: u.altura,
+          peso: u.peso,
+        };
+
+        setUser(usuario);
+        setForm({
+          nome: usuario.nome,
+          email: usuario.email,
+          senha: "",
+          genero: mapGenero(usuario.genero),
+          data_nascimento: displayDateISO(usuario.dataNascimento),
+          ft_perfil: usuario.ftPerfil || "",
+          nivel: toClientNivel(usuario.nivel) || "Iniciante",
+          altura: String(usuario.altura ?? "1.70"),
+          peso: String(usuario.peso ?? "70.00"),
+          localFotoUri: "",
+        });
+
+        // === carrega histórico pelo endpoint correto ===
+        let lista: any[] = [];
         try {
-          const page = await apiFetch(`/historico-treinos/usuario/${usuario.id}?page=0&size=50&sort=data,desc`, { method: "GET" });
-          lista = page?.content ?? [];
-        } catch {}
+          lista = await apiFetch(`/historico-treinos/usuario/${usuario.id}/all`, { method: "GET" });
+        } catch {
+          try {
+            const page = await apiFetch(`/historico-treinos/usuario/${usuario.id}?page=0&size=50&sort=data,desc`, { method: "GET" });
+            lista = page?.content ?? [];
+          } catch {}
+        }
+
+        const mapped: Historico[] = (Array.isArray(lista) ? lista : []).map((h: any) => ({
+          id: h.id ?? h.id_historico_treino,
+          id_historico_treino: h.id_historico_treino ?? h.id,
+          data: h.data ?? h.createdAt ?? h.created_at,
+          distancia: Number(h.distancia ?? 0),
+          tempo: Number(h.tempo ?? 0),
+          pace: Number(h.pace ?? 0),
+          v_media: h.v_media != null ? Number(h.v_media) : undefined,
+          kcal: h.kcal != null ? Number(h.kcal) : undefined,
+          id_treino: h.treinoId ?? h.id_treino ?? null,
+          treinoNome: h.treino?.nome ?? h.nome ?? null,
+          nivel: h.nivel ?? h.treino?.nivel ?? null,
+        }));
+
+        mapped.sort((a, b) => parseApiDate(b.data).getTime() - parseApiDate(a.data).getTime());
+        setHistorico(mapped.slice(0, 5));
+      } catch (e) {
+        console.error("Erro ao carregar perfil/histórico:", e);
+        Alert.alert("Aviso", "Não foi possível carregar seu histórico agora.");
+      } finally {
+        setLoading(false);
       }
-
-      const mapped: Historico[] = (Array.isArray(lista) ? lista : []).map((h: any) => ({
-        id: h.id ?? h.id_historico_treino,
-        id_historico_treino: h.id_historico_treino ?? h.id,
-        data: h.data ?? h.createdAt ?? h.created_at,
-        distancia: Number(h.distancia ?? 0),
-        tempo: Number(h.tempo ?? 0),
-        pace: Number(h.pace ?? 0),
-        v_media: h.v_media != null ? Number(h.v_media) : undefined,
-        kcal: h.kcal != null ? Number(h.kcal) : undefined,
-        id_treino: h.treinoId ?? h.id_treino ?? null,
-        treinoNome: h.treino?.nome ?? h.nome ?? null,
-        nivel: h.nivel ?? h.treino?.nivel ?? null,
-      }));
-
-      mapped.sort((a, b) => parseApiDate(b.data).getTime() - parseApiDate(a.data).getTime());
-      setHistorico(mapped.slice(0, 5));
-    } catch (e) {
-      console.error("Erro ao carregar perfil/histórico:", e);
-      Alert.alert("Aviso", "Não foi possível carregar seu histórico agora.");
-    } finally {
-      setLoading(false);
-    }
-  })();
-}, []);
+    })();
+  }, []);
 
   const onChangeNivel = (next: string) => {
     if (next === form.nivel) return;
@@ -370,12 +459,29 @@ export default function Perfil() {
         form.nivel === "Intermediário" ? "INTERMEDIARIO" :
         "AVANCADO";
 
+      // trata foto: se localFotoUri existe, faz upload e usa a URL retornada
+      let fotoToSend: string | null = form.ft_perfil || null;
+      if (form.localFotoUri && user) {
+        try {
+          const uploadedUrl = await uploadAvatar(form.localFotoUri, user.id);
+          if (uploadedUrl) {
+            fotoToSend = uploadedUrl;
+          } else {
+            Alert.alert("Aviso", "Não foi possível enviar a nova foto. A URL será usada se fornecida.");
+          }
+        } catch (e) {
+          console.error("Erro ao enviar foto:", e);
+          Alert.alert("Aviso", "Não foi possível enviar a nova foto. Verifique sua conexão e tente novamente.");
+        }
+      }
+
       const payload: any = {
         nome: form.nome.trim(),
         email: form.email.trim(),
         genero: form.genero,
         dataNascimento: iso,
-        ftPerfil: form.ft_perfil || null,
+        ftPerfil: fotoToSend,
+        ft_perfil: fotoToSend,
         nivel: nivelApi,
         altura: Number(alturaNum.toFixed(2)),
         peso: Number(pesoNum.toFixed(2)),
@@ -383,19 +489,33 @@ export default function Perfil() {
       if (form.senha) payload.senha = form.senha;
 
       const updated = await api.put(`/usuarios/${user.id}`, payload);
+      console.log("PUT /usuarios response:", updated);
+
       const novo: Usuario = {
         id: updated.id ?? user.id,
         nome: updated.nome ?? user.nome,
         email: updated.email ?? user.email,
         genero: updated.genero ?? user.genero,
         dataNascimento: updated.dataNascimento ?? user.dataNascimento,
-        ftPerfil: updated.ftPerfil ?? user.ftPerfil,
+        // tenta várias chaves e usa fotoToSend como fallback
+        ftPerfil:
+          updated.ftPerfil ??
+          updated.ft_perfil ??
+          updated.ftperfil ??
+          updated.fileUrl ??
+          updated.url ??
+          fotoToSend ??
+          user.ftPerfil,
         nivel: updated.nivel ?? user.nivel,
         altura: updated.altura ?? user.altura,
         peso: updated.peso ?? user.peso,
       };
+
+      // evita cache forçando timestamp ao usar URL retornada
+      const finalFoto = novo.ftPerfil ? `${novo.ftPerfil}?t=${Date.now()}` : "";
+
       setUser(novo);
-      setForm((f) => ({ ...f, senha: "" }));
+      setForm((f) => ({ ...f, senha: "", localFotoUri: "", ft_perfil: finalFoto }));
       Alert.alert("Pronto!", "Seu perfil foi atualizado.");
     } catch (e) {
       console.error("Erro ao salvar perfil:", e);
@@ -413,6 +533,23 @@ export default function Perfil() {
     );
   }
 
+  const API_BASE =
+  (process.env.EXPO_PUBLIC_API_BASE_URL?.replace(/\$/, "") ||
+    "https://jornada-ativa-api.onrender.com").replace(/\/$/, "");
+
+// helper: transforma URL relativa em absoluta
+function absUrl(u?: string | null) {
+  if (!u) return "";
+  if (/^https?:\/\//i.test(u)) return u;
+  return `${API_BASE}${u.startsWith("/") ? "" : "/"}${u}`;
+}
+
+  const avatarUri =
+    (form.localFotoUri && form.localFotoUri.length
+      ? form.localFotoUri
+      : (form.ft_perfil && form.ft_perfil.length ? absUrl(form.ft_perfil) : (user?.ftPerfil ? absUrl(user.ftPerfil) : "https://i.pravatar.cc/150"))
+    ).toString();
+
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
@@ -420,13 +557,13 @@ export default function Perfil() {
           {/* Header */}
           <View style={styles.header}>
             <Image
-              source={{ uri: (form.ft_perfil || user.ftPerfil || "https://i.pravatar.cc/150").toString() }}
+              source={{ uri: avatarUri }}
               style={styles.avatar}
             />
             <View style={{ flex: 1 }}>
               <Text style={styles.nome}>{form.nome || user.nome}</Text>
               <Text style={styles.sub}>
-                Nível: {form.nivel || toClientNivel(user.nivel) || "Iniciante"} • {user.email}
+                Nível: {form.nivel || toClientNivel(user.nivel) || "Iniciante"}{"\n"}{user.email}
               </Text>
               <View style={styles.tagsRow}>
                 <View style={styles.tag}><Text style={styles.tagText}>Gênero: {form.genero}</Text></View>
@@ -517,6 +654,42 @@ export default function Perfil() {
                     placeholderTextColor="#8E939B"
                     style={styles.input}
                   />
+
+                  {/* Preview + botão de selecionar imagem local */}
+                  <View
+                    style={{
+                      marginTop: 8,
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 12,
+                    }}
+                  >
+                    <Image
+                      source={{
+                        uri: avatarUri,
+                      }}
+                      style={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: 24,
+                        backgroundColor: "#2a2a2a",
+                      }}
+                    />
+
+                    <Pressable
+                      onPress={handlePickImage}
+                      style={{
+                        paddingHorizontal: 12,
+                        paddingVertical: 8,
+                        borderRadius: 10,
+                        backgroundColor: "#333",
+                      }}
+                    >
+                      <Text style={{ color: "#fff", fontWeight: "600" }}>
+                        {uploadingPhoto ? "Enviando..." : "Selecionar foto do dispositivo"}
+                      </Text>
+                    </Pressable>
+                  </View>
                 </View>
 
                 <View>
@@ -636,7 +809,7 @@ export default function Perfil() {
                     alignItems: "center",
                   }}
                 >
-                  <Text style={{ color: "#121212", fontWeight: "700" }}>Sair</Text>
+                  <Text style={{ color: "#ffffffff", fontWeight: "700" }}>Sair</Text>
                 </Pressable>
 
                 <Pressable

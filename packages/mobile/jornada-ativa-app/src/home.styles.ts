@@ -164,5 +164,11 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
   },
+  avatar: {
+  width: 48,
+  height: 48,
+  borderRadius: 24,
+  backgroundColor: "#333",
+},
 });
 // ...existing code...

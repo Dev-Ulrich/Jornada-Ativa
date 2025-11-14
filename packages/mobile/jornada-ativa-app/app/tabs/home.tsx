@@ -5,16 +5,18 @@ import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  Image,
   Pressable,
   ScrollView,
   Text,
-  View
+  View,
+  Image
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as api from "../../lib/api";
 import { getToken } from "../../lib/token";
 import { styles } from "../../src/home.styles";
+
+
 
 const API_BASE =
   process.env.EXPO_PUBLIC_API_BASE_URL?.replace(/\$/, "") ||
@@ -323,12 +325,23 @@ export default function HomeScreen() {
         {/* HEADER */}
         <View style={styles.headerRow}>
           <View style={styles.brand}>
-            {/* Mostrar somente a inicial, centralizada */}
-            <View style={styles.brandPlaceholder}>
-              <Text style={styles.brandInitials}>
-                {String(user.nome ?? "U").trim().split(/\s+/)[0]?.[0]?.toUpperCase() ?? "U"}
-              </Text>
-          </View>
+            {user.foto ? (
+              // se tiver foto vinda do backend, mostra a imagem
+              <Image
+                source={{ uri: user.foto }}
+                style={styles.avatar} // cria esse estilo se ainda não existir
+              />
+            ) : (
+              // fallback: bolinha com inicial
+              <View style={styles.brandPlaceholder}>
+                <Text style={styles.brandInitials}>
+                  {String(user.nome ?? "U")
+                    .trim()
+                    .split(/\s+/)[0]?.[0]
+                    ?.toUpperCase() ?? "U"}
+                </Text>
+              </View>
+            )}
           </View>
 
           <View style={{ flex: 1 }}>
@@ -371,7 +384,7 @@ export default function HomeScreen() {
               ))}
 
               {treinosRecomendados.length > MAX_RECOM && (
-                <Pressable onPress={() => router.push("/tabs/correr")}>
+                <Pressable onPress={() => router.push("/tabs/buscar")}>
                   <Text
                     style={[
                       styles.cardMeta,

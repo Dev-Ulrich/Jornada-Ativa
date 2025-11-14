@@ -1,6 +1,6 @@
 import { StyleSheet } from "react-native";
 // ...existing code...
-import { colors, spacing, common } from "./theme";
+import { colors, common, spacing } from "./theme";
 
 export const styles = StyleSheet.create({
   // base
