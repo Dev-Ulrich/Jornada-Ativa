@@ -4,7 +4,7 @@ import api from "@services/api";
 import Sidebar from "@components/DashBoard/Sidebar";
 import "./EventoTabela.css";
 import { Trash2 } from "lucide-react";
-import ConfirmModal from "../Common/ConfirmModal"
+import ConfirmModal from "../Common/ConfirmModal";
 
 // Avatar do evento (sem hooks)
 function AvatarEvento({ nome, imagemUrl }) {
@@ -56,7 +56,11 @@ function AcoesEvento({ id, onDeleted }) {
         <button className="ev-icon-btn" title="Ver / Editar" onClick={editar}>
           🔍
         </button>
-        <button className="ev-icon-btn ev-danger" title="Excluir" onClick={askRemove}>
+        <button
+          className="ev-icon-btn ev-danger"
+          title="Excluir"
+          onClick={askRemove}
+        >
           <Trash2 size={18} />
         </button>
       </div>
@@ -75,7 +79,6 @@ function AcoesEvento({ id, onDeleted }) {
   );
 }
 
-
 export default function EventoTabela() {
   const navigate = useNavigate();
   const [lista, setLista] = useState([]);
@@ -83,9 +86,6 @@ export default function EventoTabela() {
   const [erro, setErro] = useState("");
 
   const [busca, setBusca] = useState("");
-
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
 
   const [darkMode, setDarkMode] = useState(
     () => localStorage.getItem("dark-mode") === "active"
@@ -142,17 +142,9 @@ export default function EventoTabela() {
     return lista.filter((e) => e.nome?.toLowerCase().includes(q));
   }, [lista, busca]);
 
-  // paginação derivada
-  const total = filtrados.length;
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  const safePage = Math.min(page, totalPages);
-  const start = (safePage - 1) * pageSize;
-  const pageRows = filtrados.slice(start, start + pageSize);
-
   // helper para mostrar data "YYYY-MM-DD" sem quebrar fuso
   const fmtYMDptBR = (v) => {
     if (!v) return "-";
-    // se vier "YYYY-MM-DD", evite new Date() (pode deslocar fuso). Renderize como DD/MM/YYYY
     const m = String(v).match(/^(\d{4})-(\d{2})-(\d{2})$/);
     if (m) return `${m[3]}/${m[2]}/${m[1]}`;
     try {
@@ -183,7 +175,6 @@ export default function EventoTabela() {
               value={busca}
               onChange={(e) => {
                 setBusca(e.target.value);
-                setPage(1);
               }}
             />
             <button
@@ -195,7 +186,11 @@ export default function EventoTabela() {
           </div>
         </div>
 
-        <div className="ev-table-wrap">
+        {/* scroll interno */}
+        <div
+          className="ev-table-wrap"
+          style={{ maxHeight: "60vh", overflowY: "auto" }}
+        >
           <table className="ev-table">
             <thead>
               <tr>
@@ -226,7 +221,7 @@ export default function EventoTabela() {
                   </td>
                 </tr>
               )}
-              {!loading && !erro && pageRows.length === 0 && (
+              {!loading && !erro && filtrados.length === 0 && (
                 <tr>
                   <td colSpan={9} className="ev-empty">
                     Nenhum evento encontrado.
@@ -236,7 +231,7 @@ export default function EventoTabela() {
 
               {!loading &&
                 !erro &&
-                pageRows.map((ev) => (
+                filtrados.map((ev) => (
                   <tr key={ev.id}>
                     <td>
                       <AvatarEvento nome={ev.nome} imagemUrl={ev.imagem} />
@@ -284,41 +279,10 @@ export default function EventoTabela() {
           </table>
         </div>
 
-        <div className="ev-footer">
-          <div className="ev-pagination">
-            <button
-              className="ev-page-btn"
-              disabled={safePage <= 1}
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-            >
-              ‹
-            </button>
-            <span className="ev-page-indicator">
-              {safePage} / {totalPages}
-            </span>
-            <button
-              className="ev-page-btn"
-              disabled={safePage >= totalPages}
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            >
-              ›
-            </button>
-          </div>
-
-          <div>
-            <select
-              className="ev-select"
-              value={pageSize}
-              onChange={(e) => {
-                setPageSize(Number(e.target.value));
-                setPage(1);
-              }}
-            >
-              <option value={5}>5/página</option>
-              <option value={10}>10/página</option>
-              <option value={20}>20/página</option>
-            </select>
-          </div>
+        <div className="ev-footer" style={{ justifyContent: "flex-end" }}>
+          <span className="ev-muted">
+            Total de eventos: {filtrados.length}
+          </span>
         </div>
       </main>
     </div>

@@ -2,11 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "@services/api";
 import Sidebar from "@components/DashBoard/Sidebar";
-import { Search, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import "../Evento/EventoForm.css"; // reaproveitando estilos
 import "./UsuarioTabela.css";     // (opcional) estilos específicos da tabela
-import ConfirmModal from "../Common/ConfirmModal"
-
+import ConfirmModal from "../Common/ConfirmModal";
 
 // Avatar simples (sem hooks)
 function AvatarUser({ nome, foto }) {
@@ -21,11 +20,16 @@ function AvatarUser({ nome, foto }) {
             className="ev-avatar-img"
             onError={(e) => {
               e.currentTarget.style.display = "none";
-              const fb = e.currentTarget.parentElement.querySelector(".ev-avatar-fallback");
+              const fb =
+                e.currentTarget.parentElement.querySelector(
+                  ".ev-avatar-fallback"
+                );
               if (fb) fb.style.display = "flex";
             }}
           />
-          <div className="ev-avatar-fallback" style={{ display: "none" }}>{letra}</div>
+          <div className="ev-avatar-fallback" style={{ display: "none" }}>
+            {letra}
+          </div>
         </>
       ) : (
         <div className="ev-avatar-fallback">{letra}</div>
@@ -50,10 +54,18 @@ function AcoesUsuario({ id, onDeleted }) {
   return (
     <>
       <div className="ev-actions">
-        <button className="ev-icon-btn" title="Ver / Editar" onClick={editar}>
+        <button
+          className="ev-icon-btn"
+          title="Ver / Editar"
+          onClick={editar}
+        >
           🔍
         </button>
-        <button className="ev-icon-btn ev-danger" title="Excluir" onClick={askRemove}>
+        <button
+          className="ev-icon-btn ev-danger"
+          title="Excluir"
+          onClick={askRemove}
+        >
           <Trash2 size={18} />
         </button>
       </div>
@@ -78,7 +90,11 @@ const fmtYMDptBR = (v) => {
   if (!v) return "-";
   const m = String(v).match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (m) return `${m[3]}/${m[2]}/${m[1]}`;
-  try { return new Date(v).toLocaleDateString("pt-BR"); } catch { return String(v); }
+  try {
+    return new Date(v).toLocaleDateString("pt-BR");
+  } catch {
+    return String(v);
+  }
 };
 
 export default function UsuarioTabela() {
@@ -88,10 +104,10 @@ export default function UsuarioTabela() {
   const [erro, setErro] = useState("");
 
   const [busca, setBusca] = useState("");
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
 
-  const [darkMode, setDarkMode] = useState(() => localStorage.getItem("dark-mode") === "active");
+  const [darkMode, setDarkMode] = useState(
+    () => localStorage.getItem("dark-mode") === "active"
+  );
   useEffect(() => {
     document.body.classList.toggle("dark-mode", darkMode);
     localStorage.setItem("dark-mode", darkMode ? "active" : "inactive");
@@ -99,7 +115,8 @@ export default function UsuarioTabela() {
 
   const loadUsuarios = async () => {
     try {
-      setLoading(true); setErro("");
+      setLoading(true);
+      setErro("");
       const { data } = await api.get("/usuarios");
       const arr = Array.isArray(data) ? data : data?.content || [];
       const rows = arr.map((u) => ({
@@ -125,20 +142,19 @@ export default function UsuarioTabela() {
     }
   };
 
-  useEffect(() => { loadUsuarios(); }, []);
+  useEffect(() => {
+    loadUsuarios();
+  }, []);
 
   const filtrados = useMemo(() => {
     const q = busca.trim().toLowerCase();
     if (!q) return lista;
-    return lista.filter((u) =>
-      u.nome?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q)
+    return lista.filter(
+      (u) =>
+        u.nome?.toLowerCase().includes(q) ||
+        u.email?.toLowerCase().includes(q)
     );
   }, [lista, busca]);
-
-  const total = filtrados.length;
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  const safePage = Math.min(page, totalPages);
-  const pageRows = filtrados.slice((safePage - 1) * pageSize, (safePage - 1) * pageSize + pageSize);
 
   const normalizeRoleLabel = (r) => {
     const s = Array.isArray(r) ? r[0] : r;
@@ -165,15 +181,24 @@ export default function UsuarioTabela() {
               className="ev-input"
               placeholder="Buscar por nome ou e-mail…"
               value={busca}
-              onChange={(e) => { setBusca(e.target.value); setPage(1); }}
+              onChange={(e) => {
+                setBusca(e.target.value);
+              }}
             />
-            <button onClick={() => navigate("/admin/usuarios/novo")} className="ev-btn ev-btn-primary">
+            <button
+              onClick={() => navigate("/admin/usuarios/novo")}
+              className="ev-btn ev-btn-primary"
+            >
               + Novo Usuário
             </button>
           </div>
         </div>
 
-        <div className="ev-table-wrap">
+        {/* Tabela com scroll interno */}
+        <div
+          className="ev-table-wrap"
+          style={{ maxHeight: "60vh", overflowY: "auto" }}
+        >
           <table className="ev-table">
             <thead>
               <tr>
@@ -193,47 +218,57 @@ export default function UsuarioTabela() {
             </thead>
             <tbody>
               {loading && (
-                <tr><td colSpan={12} className="ev-empty">Carregando…</td></tr>
+                <tr>
+                  <td colSpan={12} className="ev-empty">
+                    Carregando…
+                  </td>
+                </tr>
               )}
               {erro && !loading && (
-                <tr><td colSpan={12} className="ev-error">{erro}</td></tr>
-              )}
-              {!loading && !erro && pageRows.length === 0 && (
-                <tr><td colSpan={12} className="ev-empty">Nenhum usuário encontrado.</td></tr>
-              )}
-              {!loading && !erro && pageRows.map((u) => (
-                <tr key={u.id}>
-                  <td><AvatarUser nome={u.nome} foto={u.ftPerfil} /></td>
-                  <td>{u.id}</td>
-                  <td className="ev-strong">{u.nome}</td>
-                  <td className="ev-muted">{u.email}</td>
-                  <td>{u.genero}</td>
-                  <td>{fmtYMDptBR(u.dataNascimento)}</td>
-                  <td>{u.nivel}</td>
-                  <td>{u.altura ?? "-"}</td>
-                  <td>{u.peso ?? "-"}</td>
-                  <td>{normalizeRoleLabel(u.role)}</td>
-                  <td>{fmtYMDptBR(u.createdAt)}</td>
-                  <td><AcoesUsuario id={u.id} onDeleted={loadUsuarios} /></td>
+                <tr>
+                  <td colSpan={12} className="ev-error">
+                    {erro}
+                  </td>
                 </tr>
-              ))}
+              )}
+              {!loading && !erro && filtrados.length === 0 && (
+                <tr>
+                  <td colSpan={12} className="ev-empty">
+                    Nenhum usuário encontrado.
+                  </td>
+                </tr>
+              )}
+              {!loading &&
+                !erro &&
+                filtrados.map((u) => (
+                  <tr key={u.id}>
+                    <td>
+                      <AvatarUser nome={u.nome} foto={u.ftPerfil} />
+                    </td>
+                    <td>{u.id}</td>
+                    <td className="ev-strong">{u.nome}</td>
+                    <td className="ev-muted">{u.email}</td>
+                    <td>{u.genero}</td>
+                    <td>{fmtYMDptBR(u.dataNascimento)}</td>
+                    <td>{u.nivel}</td>
+                    <td>{u.altura ?? "-"}</td>
+                    <td>{u.peso ?? "-"}</td>
+                    <td>{normalizeRoleLabel(u.role)}</td>
+                    <td>{fmtYMDptBR(u.createdAt)}</td>
+                    <td>
+                      <AcoesUsuario id={u.id} onDeleted={loadUsuarios} />
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
 
-        <div className="ev-footer">
-          <div className="ev-pagination">
-            <button className="ev-page-btn" disabled={safePage <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>‹</button>
-            <span className="ev-page-indicator">{safePage} / {totalPages}</span>
-            <button className="ev-page-btn" disabled={safePage >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>›</button>
-          </div>
-          <div>
-            <select className="ev-select" value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}>
-              <option value={5}>5/página</option>
-              <option value={10}>10/página</option>
-              <option value={20}>20/página</option>
-            </select>
-          </div>
+        {/* Se quiser, dá pra mostrar um resumo simples aqui */}
+        <div className="ev-footer" style={{ justifyContent: "flex-end" }}>
+          <span className="ev-muted">
+            Total de usuários: {filtrados.length}
+          </span>
         </div>
       </main>
     </div>

@@ -269,15 +269,24 @@ export default function EditarUsuario() {
                   onChange={handleChange}
                 />
               </div>
+
               <div className="ev-field">
-                <label className="ev-label">Data de Nascimento</label>
-                <input
-                  type="date"
-                  className="ev-input"
-                  name="dataNascimento"
-                  value={form.dataNascimento}
+                <label className="ev-label">Gênero</label>
+                <select
+                  className="ev-select"
+                  name="genero"
+                  value={form.genero ?? ""}
                   onChange={handleChange}
-                />
+                >
+                  {!form.genero && (
+                    <option value="" disabled>
+                      Selecione o gênero
+                    </option>
+                  )}
+                  <option value="Masculino">Masculino</option>
+                  <option value="Feminino">Feminino</option>
+                  <option value="Outro">Outro</option>
+                </select>
               </div>
             </div>
 

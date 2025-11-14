@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "@services/api";
 import Sidebar from "@components/DashBoard/Sidebar";
 import { Trash2 } from "lucide-react";
 import "../Evento/EventoForm.css";
 import "./TreinoTabela.css";
-import ConfirmModal from "../Common/ConfirmModal"
+import ConfirmModal from "../Common/ConfirmModal";
 
 const fmtYMDptBR = (v) => {
   if (!v) return "-";
@@ -47,7 +47,11 @@ function AcoesTreino({ id, onDeleted }) {
         <button className="ev-icon-btn" title="Ver / Editar" onClick={editar}>
           🔍
         </button>
-        <button className="ev-icon-btn ev-danger" title="Excluir" onClick={askRemove}>
+        <button
+          className="ev-icon-btn ev-danger"
+          title="Excluir"
+          onClick={askRemove}
+        >
           <Trash2 size={18} />
         </button>
       </div>
@@ -66,7 +70,6 @@ function AcoesTreino({ id, onDeleted }) {
   );
 }
 
-
 export default function TreinoTabela() {
   const navigate = useNavigate();
 
@@ -75,8 +78,6 @@ export default function TreinoTabela() {
   const [erro, setErro] = useState("");
 
   const [busca, setBusca] = useState("");
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
 
   const [darkMode, setDarkMode] = useState(
     () => localStorage.getItem("dark-mode") === "active"
@@ -126,14 +127,6 @@ export default function TreinoTabela() {
     return () => clearTimeout(delay);
   }, [busca]);
 
-  const total = lista.length;
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  const safePage = Math.min(page, totalPages);
-  const pageRows = lista.slice(
-    (safePage - 1) * pageSize,
-    (safePage - 1) * pageSize + pageSize
-  );
-
   return (
     <div className="dashboard-container">
       <Sidebar
@@ -155,7 +148,6 @@ export default function TreinoTabela() {
               value={busca}
               onChange={(e) => {
                 setBusca(e.target.value);
-                setPage(1);
               }}
             />
             <button
@@ -167,7 +159,11 @@ export default function TreinoTabela() {
           </div>
         </div>
 
-        <div className="ev-table-wrap">
+        {/* scroll interno */}
+        <div
+          className="ev-table-wrap"
+          style={{ maxHeight: "60vh", overflowY: "auto" }}
+        >
           <table className="ev-table">
             <thead>
               <tr>
@@ -199,7 +195,7 @@ export default function TreinoTabela() {
                 </tr>
               )}
 
-              {!loading && !erro && pageRows.length === 0 && (
+              {!loading && !erro && lista.length === 0 && (
                 <tr>
                   <td colSpan={9} className="ev-empty">
                     Nenhum treino encontrado.
@@ -209,7 +205,7 @@ export default function TreinoTabela() {
 
               {!loading &&
                 !erro &&
-                pageRows.map((t) => (
+                lista.map((t) => (
                   <tr key={t.id}>
                     <td>{t.id}</td>
                     <td className="ev-strong">{t.nome}</td>
@@ -235,40 +231,10 @@ export default function TreinoTabela() {
           </table>
         </div>
 
-        <div className="ev-footer">
-          <div className="ev-pagination">
-            <button
-              className="ev-page-btn"
-              disabled={safePage <= 1}
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-            >
-              ‹
-            </button>
-            <span className="ev-page-indicator">
-              {safePage} / {totalPages}
-            </span>
-            <button
-              className="ev-page-btn"
-              disabled={safePage >= totalPages}
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            >
-              ›
-            </button>
-          </div>
-          <div>
-            <select
-              className="ev-select"
-              value={pageSize}
-              onChange={(e) => {
-                setPageSize(Number(e.target.value));
-                setPage(1);
-              }}
-            >
-              <option value={5}>5/página</option>
-              <option value={10}>10/página</option>
-              <option value={20}>20/página</option>
-            </select>
-          </div>
+        <div className="ev-footer" style={{ justifyContent: "flex-end" }}>
+          <span className="ev-muted">
+            Total de treinos: {lista.length}
+          </span>
         </div>
       </main>
     </div>
