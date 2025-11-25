@@ -106,8 +106,6 @@ Monorepo para o projeto Jornada Ativa
 
 <p>Frontend: Vá para packages/frontend e rode npm install e npm run dev</p>
 
-<p>Flutter: Vá para packages/jornada_ativa_app e rode flutter run</p>
-
 
 <br/>
 <br/>
